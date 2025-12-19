@@ -1,4 +1,5 @@
 import { useState, useRef, useEffect } from 'react';
+import { Link } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 
 const MemberDashboard = () => {
@@ -6,13 +7,23 @@ const MemberDashboard = () => {
   const [dropdownOpen, setDropdownOpen] = useState(false);
   const dropdownRef = useRef(null);
 
-  // Debug: Log user object to verify photoURL
+  // Close dropdown when clicking outside
   useEffect(() => {
-    if (user) {
-      console.log('User object:', user);
-      console.log('User photoURL:', user.photoURL);
+    const handleClickOutside = (event) => {
+      if (dropdownRef.current && !dropdownRef.current.contains(event.target)) {
+        setDropdownOpen(false);
+      }
+    };
+
+    if (dropdownOpen) {
+      document.addEventListener('mousedown', handleClickOutside);
     }
-  }, [user]);
+
+    return () => {
+      document.removeEventListener('mousedown', handleClickOutside);
+    };
+  }, [dropdownOpen]);
+
 
   const events = [
     {
@@ -82,23 +93,6 @@ const MemberDashboard = () => {
     }
   ];
 
-  // Close dropdown when clicking outside
-  useEffect(() => {
-    const handleClickOutside = (event) => {
-      if (dropdownRef.current && !dropdownRef.current.contains(event.target)) {
-        setDropdownOpen(false);
-      }
-    };
-
-    if (dropdownOpen) {
-      document.addEventListener('mousedown', handleClickOutside);
-    }
-
-    return () => {
-      document.removeEventListener('mousedown', handleClickOutside);
-    };
-  }, [dropdownOpen]);
-
   return (
     <div className="bg-background-light dark:bg-background-dark text-slate-900 dark:text-white font-display overflow-hidden h-screen flex">
       {/* Side Navigation */}
@@ -115,6 +109,10 @@ const MemberDashboard = () => {
             </div>
           </div>
           <nav className="flex flex-col gap-2">
+            <Link to="/" className="flex items-center gap-4 px-4 py-3 rounded-full hover:bg-surface-dark group transition-all text-gray-400 hover:text-white">
+              <span className="material-symbols-outlined">home</span>
+              <span className="font-medium">Home</span>
+            </Link>
             <a className="flex items-center gap-4 px-4 py-3 rounded-full bg-primary/10 border border-primary/20 group transition-all" href="#">
               <span className="material-symbols-outlined text-primary fill">dashboard</span>
               <span className="text-primary font-bold">Overview</span>
@@ -194,20 +192,28 @@ const MemberDashboard = () => {
                   className="flex items-center gap-3 group"
                 >
                   {user?.photoURL ? (
-                    <img 
+                    <img
+                      key={user.photoURL} // Force re-render when photoURL changes
                       src={user.photoURL}
-                      alt={user?.name || 'User'}
-                      className="size-10 rounded-full object-cover border-2 border-transparent group-hover:border-primary transition-all"
+                      alt={user?.name || 'User avatar'}
+                      className="size-10 rounded-full object-cover border-2 border-transparent group-hover:border-primary transition-all shrink-0"
+                      referrerPolicy="no-referrer"
+                      loading="lazy"
                       onError={(e) => {
-                        // Fallback to default image if photo fails to load
-                        e.target.src = 'https://lh3.googleusercontent.com/aida-public/AB6AXuA905HuwzoL3J6Hn0Sl4XIIJzbR6IPNZbPOMGRUaFXfkY2aBHeN-VxHwYW4dhAJhgtUHW4DdNBaeFGOCxDkNYmguRofHkXkgTONLxG8Twyt9srdWrXmqamsThx_w9SGvHV4fxnZ6VA6zW6EQJBFnVcEQ9PDbnGGTuoAIZ0-T0gnO6dLwbu1ql6BxoEbyHZP1a71z_eEVtaksinsi6LWEmv4KqhZi6gLJ-7q9XaofobfY-pHbyUlLd_VNzJwzhmyxvA7Iz_DLv8tkUro';
+                        console.error('Failed to load Google photo:', user.photoURL);
+                        console.error('Error event:', e);
+                        // Only fallback if it's actually the Google photo that failed
+                        if (e.target.src === user.photoURL) {
+                          e.target.src = 'https://lh3.googleusercontent.com/aida-public/AB6AXuA905HuwzoL3J6Hn0Sl4XIIJzbR6IPNZbPOMGRUaFXfkY2aBHeN-VxHwYW4dhAJhgtUHW4DdNBaeFGOCxDkNYmguRofHkXkgTONLxG8Twyt9srdWrXmqamsThx_w9SGvHV4fxnZ6VA6zW6EQJBFnVcEQ9PDbnGGTuoAIZ0-T0gnO6dLwbu1ql6BxoEbyHZP1a71z_eEVtaksinsi6LWEmv4KqhZi6gLJ-7q9XaofobfY-pHbyUlLd_VNzJwzhmyxvA7Iz_DLv8tkUro';
+                        }
                       }}
                     />
                   ) : (
                     <div 
-                      className="size-10 rounded-full bg-cover bg-center border-2 border-transparent group-hover:border-primary transition-all"
+                      className="size-10 rounded-full bg-cover bg-center border-2 border-transparent group-hover:border-primary transition-all shrink-0"
                       style={{ 
-                        backgroundImage: 'url("https://lh3.googleusercontent.com/aida-public/AB6AXuA905HuwzoL3J6Hn0Sl4XIIJzbR6IPNZbPOMGRUaFXfkY2aBHeN-VxHwYW4dhAJhgtUHW4DdNBaeFGOCxDkNYmguRofHkXkgTONLxG8Twyt9srdWrXmqamsThx_w9SGvHV4fxnZ6VA6zW6EQJBFnVcEQ9PDbnGGTuoAIZ0-T0gnO6dLwbu1ql6BxoEbyHZP1a71z_eEVtaksinsi6LWEmv4KqhZi6gLJ-7q9XaofobfY-pHbyUlLd_VNzJwzhmyxvA7Iz_DLv8tkUro")'
+                        backgroundImage: 'url("https://lh3.googleusercontent.com/aida-public/AB6AXuA905HuwzoL3J6Hn0Sl4XIIJzbR6IPNZbPOMGRUaFXfkY2aBHeN-VxHwYW4dhAJhgtUHW4DdNBaeFGOCxDkNYmguRofHkXkgTONLxG8Twyt9srdWrXmqamsThx_w9SGvHV4fxnZ6VA6zW6EQJBFnVcEQ9PDbnGGTuoAIZ0-T0gnO6dLwbu1ql6BxoEbyHZP1a71z_eEVtaksinsi6LWEmv4KqhZi6gLJ-7q9XaofobfY-pHbyUlLd_VNzJwzhmyxvA7Iz_DLv8tkUro")',
+                        backgroundColor: '#1c2620'
                       }}
                     ></div>
                   )}

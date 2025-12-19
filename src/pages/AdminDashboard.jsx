@@ -1,7 +1,29 @@
+import { useState, useRef, useEffect } from 'react';
+import { Link, useLocation } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 
 const AdminDashboard = () => {
   const { user, logout } = useAuth();
+  const location = useLocation();
+  const [dropdownOpen, setDropdownOpen] = useState(false);
+  const dropdownRef = useRef(null);
+
+  // Close dropdown when clicking outside
+  useEffect(() => {
+    const handleClickOutside = (event) => {
+      if (dropdownRef.current && !dropdownRef.current.contains(event.target)) {
+        setDropdownOpen(false);
+      }
+    };
+
+    if (dropdownOpen) {
+      document.addEventListener('mousedown', handleClickOutside);
+    }
+
+    return () => {
+      document.removeEventListener('mousedown', handleClickOutside);
+    };
+  }, [dropdownOpen]);
 
   const pendingClubs = [
     {
@@ -72,26 +94,30 @@ const AdminDashboard = () => {
           </div>
           {/* Nav Links */}
           <nav className="flex flex-col gap-2 mt-4">
-            <a className="flex items-center gap-3 px-3 py-3 rounded-full bg-primary text-background-dark group transition-colors" href="#">
+            <Link to="/" className="flex items-center gap-3 px-3 py-3 rounded-full text-gray-400 hover:bg-surface-highlight hover:text-white transition-colors">
+              <span className="material-symbols-outlined">home</span>
+              <p className="text-sm font-medium leading-normal hidden lg:block">Home</p>
+            </Link>
+            <Link to="/dashboard/admin" className={`flex items-center gap-3 px-3 py-3 rounded-full transition-colors ${location.pathname === '/dashboard/admin' ? 'bg-primary text-background-dark' : 'text-gray-400 hover:bg-surface-highlight hover:text-white'}`}>
               <span className="material-symbols-outlined">dashboard</span>
-              <p className="text-sm font-bold leading-normal hidden lg:block">Dashboard</p>
-            </a>
-            <a className="flex items-center gap-3 px-3 py-3 rounded-full text-gray-400 hover:bg-surface-highlight hover:text-white transition-colors" href="#">
+              <p className={`text-sm leading-normal hidden lg:block ${location.pathname === '/dashboard/admin' ? 'font-bold' : 'font-medium'}`}>Dashboard</p>
+            </Link>
+            <Link to="/dashboard/admin/users" className={`flex items-center gap-3 px-3 py-3 rounded-full transition-colors ${location.pathname === '/dashboard/admin/users' ? 'bg-primary text-background-dark' : 'text-gray-400 hover:bg-surface-highlight hover:text-white'}`}>
               <span className="material-symbols-outlined">group</span>
-              <p className="text-sm font-medium leading-normal hidden lg:block">Users</p>
-            </a>
-            <a className="flex items-center gap-3 px-3 py-3 rounded-full text-gray-400 hover:bg-surface-highlight hover:text-white transition-colors" href="#">
+              <p className={`text-sm leading-normal hidden lg:block ${location.pathname === '/dashboard/admin/users' ? 'font-bold' : 'font-medium'}`}>Users</p>
+            </Link>
+            <Link to="/dashboard/admin/clubs" className={`flex items-center gap-3 px-3 py-3 rounded-full transition-colors ${location.pathname === '/dashboard/admin/clubs' ? 'bg-primary text-background-dark' : 'text-gray-400 hover:bg-surface-highlight hover:text-white'}`}>
               <span className="material-symbols-outlined">diversity_3</span>
-              <p className="text-sm font-medium leading-normal hidden lg:block">Clubs</p>
-            </a>
-            <a className="flex items-center gap-3 px-3 py-3 rounded-full text-gray-400 hover:bg-surface-highlight hover:text-white transition-colors" href="#">
+              <p className={`text-sm leading-normal hidden lg:block ${location.pathname === '/dashboard/admin/clubs' ? 'font-bold' : 'font-medium'}`}>Clubs</p>
+            </Link>
+            <Link to="/dashboard/admin/events" className={`flex items-center gap-3 px-3 py-3 rounded-full transition-colors ${location.pathname === '/dashboard/admin/events' ? 'bg-primary text-background-dark' : 'text-gray-400 hover:bg-surface-highlight hover:text-white'}`}>
               <span className="material-symbols-outlined">calendar_today</span>
-              <p className="text-sm font-medium leading-normal hidden lg:block">Events</p>
-            </a>
-            <a className="flex items-center gap-3 px-3 py-3 rounded-full text-gray-400 hover:bg-surface-highlight hover:text-white transition-colors" href="#">
+              <p className={`text-sm leading-normal hidden lg:block ${location.pathname === '/dashboard/admin/events' ? 'font-bold' : 'font-medium'}`}>Events</p>
+            </Link>
+            <Link to="/dashboard/admin/finances" className={`flex items-center gap-3 px-3 py-3 rounded-full transition-colors ${location.pathname === '/dashboard/admin/finances' ? 'bg-primary text-background-dark' : 'text-gray-400 hover:bg-surface-highlight hover:text-white'}`}>
               <span className="material-symbols-outlined">payments</span>
-              <p className="text-sm font-medium leading-normal hidden lg:block">Finances</p>
-            </a>
+              <p className={`text-sm leading-normal hidden lg:block ${location.pathname === '/dashboard/admin/finances' ? 'font-bold' : 'font-medium'}`}>Finances</p>
+            </Link>
           </nav>
         </div>
         {/* Bottom Settings */}
@@ -130,14 +156,57 @@ const AdminDashboard = () => {
               <span className="absolute top-2 right-2 size-2 bg-primary rounded-full border border-surface-dark"></span>
             </button>
             <div className="h-8 w-px bg-surface-highlight mx-1"></div>
-            <button className="flex items-center gap-2 rounded-full pl-1 pr-3 py-1 bg-surface-dark hover:bg-surface-highlight transition-colors border border-surface-highlight">
-              <div 
-                className="size-8 rounded-full bg-cover bg-center"
-                style={{ backgroundImage: 'url("https://lh3.googleusercontent.com/aida-public/AB6AXuA9zqG3-2JnoqjGIKWNWeHge3KqIh7kIXdIcZ5_5CcSX2AV_z7LGRAtUOw6arXnuz2bHq60vM6pWztNijvI2P-6d8HRRlcim8z1_7xXb_YzIvvUXhsz-JFsJ0UOXPZs9UNth8T2TXtPDizQwtDM5gNBckPHiGMFEZkIoF4fOJXqZ_C10bSEZn_EtM-u7KKQQLAX_JfZOJPmQzr5m4I-fpoaLHMuGk8wChObqo7ZbaQpypqV7msw1WScyHoHCYi0-7EU5DAOSiVariW2")' }}
-              ></div>
-              <span className="text-sm font-medium text-white hidden sm:block">{user?.name || 'Admin'}</span>
-              <span className="material-symbols-outlined text-gray-400 text-[18px] hidden sm:block">expand_more</span>
-            </button>
+            <div className="relative" ref={dropdownRef}>
+              <button 
+                onClick={() => setDropdownOpen(!dropdownOpen)}
+                className="flex items-center gap-2 rounded-full pl-1 pr-3 py-1 bg-surface-dark hover:bg-surface-highlight transition-colors border border-surface-highlight"
+              >
+                {user?.photoURL ? (
+                  <img
+                    src={user.photoURL}
+                    alt={user?.name || 'Admin avatar'}
+                    className="size-8 rounded-full object-cover"
+                    referrerPolicy="no-referrer"
+                    onError={(e) => {
+                      e.target.style.display = 'none';
+                      const fallback = e.target.nextElementSibling;
+                      if (fallback) fallback.style.display = 'block';
+                    }}
+                  />
+                ) : null}
+                <div 
+                  className={`size-8 rounded-full bg-cover bg-center ${user?.photoURL ? 'hidden' : ''}`}
+                  style={{ 
+                    backgroundImage: 'url("https://lh3.googleusercontent.com/aida-public/AB6AXuA9zqG3-2JnoqjGIKWNWeHge3KqIh7kIXdIcZ5_5CcSX2AV_z7LGRAtUOw6arXnuz2bHq60vM6pWztNijvI2P-6d8HRRlcim8z1_7xXb_YzIvvUXhsz-JFsJ0UOXPZs9UNth8T2TXtPDizQwtDM5gNBckPHiGMFEZkIoF4fOJXqZ_C10bSEZn_EtM-u7KKQQLAX_JfZOJPmQzr5m4I-fpoaLHMuGk8wChObqo7ZbaQpypqV7msw1WScyHoHCYi0-7EU5DAOSiVariW2")',
+                    backgroundColor: '#1c2620'
+                  }}
+                ></div>
+                <span className="text-sm font-medium text-white hidden sm:block">{user?.name || 'Admin'}</span>
+                <span className={`material-symbols-outlined text-gray-400 text-[18px] hidden sm:block transition-transform ${dropdownOpen ? 'rotate-180' : ''}`}>expand_more</span>
+              </button>
+              
+              {/* Dropdown Menu */}
+              {dropdownOpen && (
+                <div className="absolute right-0 mt-2 w-48 bg-surface-dark rounded-xl border border-white/10 shadow-lg z-50 overflow-hidden">
+                  <div className="py-1">
+                    <div className="px-4 py-3 border-b border-white/5">
+                      <p className="text-sm font-bold text-white">{user?.name || 'Admin'}</p>
+                      <p className="text-xs text-gray-400 mt-0.5">{user?.email || ''}</p>
+                    </div>
+                    <button
+                      onClick={() => {
+                        logout();
+                        setDropdownOpen(false);
+                      }}
+                      className="w-full px-4 py-3 text-left text-sm text-white hover:bg-white/5 transition-colors flex items-center gap-3"
+                    >
+                      <span className="material-symbols-outlined text-lg">logout</span>
+                      <span>Log out</span>
+                    </button>
+                  </div>
+                </div>
+              )}
+            </div>
           </div>
         </header>
 

@@ -7,8 +7,10 @@ import { useAuth } from '../context/AuthContext';
 const Register = () => {
   const [showPassword, setShowPassword] = useState(false);
   const [photoPreview, setPhotoPreview] = useState(null);
+  const [selectedPhoto, setSelectedPhoto] = useState(null);
   const [isLoading, setIsLoading] = useState(false);
   const [isGoogleLoading, setIsGoogleLoading] = useState(false);
+  const [isUploadingPhoto, setIsUploadingPhoto] = useState(false);
   const { register: registerForm, handleSubmit, watch, formState: { errors } } = useForm();
   const { register: registerUser, loginWithGoogle } = useAuth();
   const password = watch('password', '');
@@ -21,21 +23,97 @@ const Register = () => {
     hasNumber: /[0-9]/.test(password),
   };
 
-  // Watch photo URL for preview
-  const photoUrl = watch('photoURL');
+  // Handle photo file selection
+  const handlePhotoChange = (e) => {
+    const file = e.target.files[0];
+    if (file) {
+      // Validate file type
+      if (!file.type.startsWith('image/')) {
+        Swal.fire({
+          icon: 'error',
+          title: 'Invalid File',
+          text: 'Please select an image file.',
+        });
+        return;
+      }
+      
+      // Validate file size (max 5MB)
+      if (file.size > 5 * 1024 * 1024) {
+        Swal.fire({
+          icon: 'error',
+          title: 'File Too Large',
+          text: 'Please select an image smaller than 5MB.',
+        });
+        return;
+      }
 
-  useEffect(() => {
-    if (photoUrl && photoUrl.startsWith('http')) {
-      setPhotoPreview(photoUrl);
-    } else {
-      setPhotoPreview(null);
+      setSelectedPhoto(file);
+      
+      // Create preview
+      const reader = new FileReader();
+      reader.onloadend = () => {
+        setPhotoPreview(reader.result);
+      };
+      reader.readAsDataURL(file);
     }
-  }, [photoUrl]);
+  };
+
+  // Upload photo to ImgBB
+  const uploadPhotoToImgBB = async (file) => {
+    const apiKey = import.meta.env.VITE_IMGBB_API_KEY;
+    if (!apiKey) {
+      // Return null if API key is not configured - photo is optional
+      console.warn('ImgBB API key is not configured. Skipping photo upload.');
+      return null;
+    }
+
+    const formData = new FormData();
+    formData.append('image', file);
+
+    try {
+      const response = await fetch(`https://api.imgbb.com/1/upload?key=${apiKey}`, {
+        method: 'POST',
+        body: formData,
+      });
+
+      if (!response.ok) {
+        const errorData = await response.json().catch(() => ({}));
+        throw new Error(errorData.error?.message || 'Failed to upload image');
+      }
+
+      const data = await response.json();
+      if (data.success && data.data && data.data.url) {
+        return data.data.url;
+      } else {
+        throw new Error('Failed to get image URL from ImgBB');
+      }
+    } catch (error) {
+      // If upload fails, log error but don't block registration (photo is optional)
+      console.error('Photo upload failed:', error);
+      return null;
+    }
+  };
 
   const onSubmit = async (data) => {
     setIsLoading(true);
+    let photoURL = null;
+
     try {
-      const result = await registerUser(data.email, data.password, data.name, 'member');
+      // Upload photo to ImgBB if a photo is selected AND API key is configured
+      if (selectedPhoto && import.meta.env.VITE_IMGBB_API_KEY) {
+        setIsUploadingPhoto(true);
+        try {
+          photoURL = await uploadPhotoToImgBB(selectedPhoto);
+        } catch (error) {
+          // Silently skip photo upload if it fails - photo is optional
+          console.warn('Photo upload failed, continuing without photo:', error);
+        } finally {
+          setIsUploadingPhoto(false);
+        }
+      }
+
+      // Register user with photo URL (can be null if no photo or upload failed)
+      const result = await registerUser(data.email, data.password, data.name, 'member', photoURL);
       if (result.success) {
         Swal.fire({
           icon: 'success',
@@ -190,7 +268,7 @@ const Register = () => {
                     className={`w-full bg-surface-dark-alt3 text-white border-2 ${
                       errors.name ? 'border-red-500' : 'border-transparent focus:border-primary'
                     } focus:ring-0 rounded-full h-14 px-6 placeholder:text-[#5a7063] transition-all outline-none`}
-                    placeholder="John Doe"
+                    placeholder="Enter your full name"
                     type="text"
                     {...registerForm('name', {
                       required: 'Name is required',
@@ -232,21 +310,34 @@ const Register = () => {
                 )}
               </label>
 
-              {/* Photo URL & Preview */}
+              {/* Photo Upload & Preview */}
               <div className="flex gap-4 items-end">
                 <label className="flex flex-col gap-2 flex-1">
                   <span className="text-white text-sm font-medium ml-1">
-                    Photo URL <span className="text-gray-500 font-normal">(Optional)</span>
+                    Profile Photo
                   </span>
                   <div className="relative">
                     <input
-                      className="w-full bg-surface-dark-alt3 text-white border-2 border-transparent focus:border-primary focus:ring-0 rounded-full h-14 px-6 placeholder:text-[#5a7063] transition-all outline-none"
-                      placeholder="https://..."
-                      type="url"
-                      {...registerForm('photoURL')}
+                      type="file"
+                      accept="image/*"
+                      onChange={handlePhotoChange}
+                      disabled={isUploadingPhoto}
+                      className="hidden"
+                      id="photo-upload"
                     />
-                    <span className="material-symbols-outlined absolute right-5 top-1/2 -translate-y-1/2 text-[#5a7063]">link</span>
+                    <label
+                      htmlFor="photo-upload"
+                      className={`flex items-center justify-center gap-2 w-full bg-surface-dark-alt3 text-white border-2 border-transparent focus:border-primary focus:ring-0 rounded-full h-14 px-6 cursor-pointer hover:bg-[#29382f] transition-all ${isUploadingPhoto ? 'opacity-50 cursor-not-allowed' : ''}`}
+                    >
+                      <span className="material-symbols-outlined text-[#5a7063]">photo_camera</span>
+                      <span className="text-sm font-medium">
+                        {selectedPhoto ? selectedPhoto.name : 'Choose a photo'}
+                      </span>
+                    </label>
                   </div>
+                  {isUploadingPhoto && (
+                    <p className="text-primary text-xs ml-1">Uploading photo...</p>
+                  )}
                 </label>
                 <div className="flex-shrink-0 size-14 rounded-full bg-surface-dark-alt3 border border-[#29382f] flex items-center justify-center overflow-hidden">
                   {photoPreview ? (
@@ -341,10 +432,10 @@ const Register = () => {
               {/* Submit */}
               <button
                 type="submit"
-                disabled={isLoading}
+                disabled={isLoading || isUploadingPhoto}
                 className="w-full rounded-full bg-primary h-14 text-[#111714] font-bold text-lg hover:bg-[#32c96e] active:scale-[0.98] transition-all shadow-[0_0_20px_rgba(56,224,123,0.2)] mt-2 disabled:opacity-50 disabled:cursor-not-allowed"
               >
-                {isLoading ? 'Creating Account...' : 'Create Account'}
+                {isUploadingPhoto ? 'Uploading Photo...' : isLoading ? 'Creating Account...' : 'Create Account'}
               </button>
 
               <p className="text-center text-gray-400 text-sm mt-2">

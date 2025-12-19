@@ -1,7 +1,28 @@
+import { useState, useRef, useEffect } from 'react';
+import { Link } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 
 const ClubManagerDashboard = () => {
   const { user, logout } = useAuth();
+  const [dropdownOpen, setDropdownOpen] = useState(false);
+  const dropdownRef = useRef(null);
+
+  // Close dropdown when clicking outside
+  useEffect(() => {
+    const handleClickOutside = (event) => {
+      if (dropdownRef.current && !dropdownRef.current.contains(event.target)) {
+        setDropdownOpen(false);
+      }
+    };
+
+    if (dropdownOpen) {
+      document.addEventListener('mousedown', handleClickOutside);
+    }
+
+    return () => {
+      document.removeEventListener('mousedown', handleClickOutside);
+    };
+  }, [dropdownOpen]);
 
   const clubs = [
     {
@@ -105,6 +126,10 @@ const ClubManagerDashboard = () => {
         </div>
         {/* Navigation */}
         <nav className="flex flex-col gap-2 flex-1">
+          <Link to="/" className="flex items-center gap-4 px-4 py-3 rounded-full text-slate-600 dark:text-slate-300 hover:bg-black/5 dark:hover:bg-white/5 font-medium transition-colors">
+            <span className="material-symbols-outlined">home</span>
+            <span>Home</span>
+          </Link>
           <a className="flex items-center gap-4 px-4 py-3 rounded-full bg-primary text-background-dark font-semibold transition-colors" href="#">
             <span className="material-symbols-outlined">dashboard</span>
             <span>Dashboard</span>
@@ -134,9 +159,25 @@ const ClubManagerDashboard = () => {
             <span>Settings</span>
           </button>
           <div className="pt-4 mt-4 border-t border-white/10 flex items-center gap-3 px-2">
+            {user?.photoURL ? (
+              <img
+                src={user.photoURL}
+                alt={user?.name || 'Club Manager avatar'}
+                className="size-10 rounded-full object-cover"
+                referrerPolicy="no-referrer"
+                onError={(e) => {
+                  e.target.style.display = 'none';
+                  const fallback = e.target.nextElementSibling;
+                  if (fallback) fallback.style.display = 'block';
+                }}
+              />
+            ) : null}
             <div 
-              className="size-10 rounded-full bg-cover bg-center"
-              style={{ backgroundImage: 'url("https://lh3.googleusercontent.com/aida-public/AB6AXuCNwpKexkQoH8Xkuy2O1snTYiTknRQAjz97o6b88t752G8E3mZsKh54V3DZ_VsjMZUyA-EJXBgxHeD0HT22VXYXzwHVG7L8Uj3zEbNVsHB09oa8P06qRUaHRmnwZ8KZAGdSlqki5uplSH3MlQaU3PJoUnp_8wh7eYGGsS-dQAGzTkocaoa5OwAOClkkS7P7D4JVRJZbjtNFileMLE7t9U5h5LGtmBiz2SooNzps4u3rJd83jA8JHm1820HEeZ-E_eXOPUAS0CKvh7k3")' }}
+              className={`size-10 rounded-full bg-cover bg-center ${user?.photoURL ? 'hidden' : ''}`}
+              style={{ 
+                backgroundImage: 'url("https://lh3.googleusercontent.com/aida-public/AB6AXuCNwpKexkQoH8Xkuy2O1snTYiTknRQAjz97o6b88t752G8E3mZsKh54V3DZ_VsjMZUyA-EJXBgxHeD0HT22VXYXzwHVG7L8Uj3zEbNVsHB09oa8P06qRUaHRmnwZ8KZAGdSlqki5uplSH3MlQaU3PJoUnp_8wh7eYGGsS-dQAGzTkocaoa5OwAOClkkS7P7D4JVRJZbjtNFileMLE7t9U5h5LGtmBiz2SooNzps4u3rJd83jA8JHm1820HEeZ-E_eXOPUAS0CKvh7k3")',
+                backgroundColor: '#1c2620'
+              }}
             ></div>
             <div className="flex flex-col">
               <span className="text-sm font-semibold">{user?.name || 'Club Manager'}</span>
@@ -175,6 +216,58 @@ const ClubManagerDashboard = () => {
               <span className="material-symbols-outlined text-lg">add</span>
               <span>Create Event</span>
             </button>
+            <div className="h-8 w-px bg-white/10 dark:bg-slate-700"></div>
+            <div className="relative" ref={dropdownRef}>
+              <button 
+                onClick={() => setDropdownOpen(!dropdownOpen)}
+                className="flex items-center gap-2 rounded-full pl-1 pr-3 py-1 bg-white dark:bg-surface-dark hover:bg-gray-100 dark:hover:bg-surface-highlight transition-colors border border-gray-200 dark:border-surface-highlight"
+              >
+                {user?.photoURL ? (
+                  <img
+                    src={user.photoURL}
+                    alt={user?.name || 'Club Manager avatar'}
+                    className="size-8 rounded-full object-cover"
+                    referrerPolicy="no-referrer"
+                    onError={(e) => {
+                      e.target.style.display = 'none';
+                      const fallback = e.target.nextElementSibling;
+                      if (fallback) fallback.style.display = 'block';
+                    }}
+                  />
+                ) : null}
+                <div 
+                  className={`size-8 rounded-full bg-cover bg-center ${user?.photoURL ? 'hidden' : ''}`}
+                  style={{ 
+                    backgroundImage: 'url("https://lh3.googleusercontent.com/aida-public/AB6AXuCNwpKexkQoH8Xkuy2O1snTYiTknRQAjz97o6b88t752G8E3mZsKh54V3DZ_VsjMZUyA-EJXBgxHeD0HT22VXYXzwHVG7L8Uj3zEbNVsHB09oa8P06qRUaHRmnwZ8KZAGdSlqki5uplSH3MlQaU3PJoUnp_8wh7eYGGsS-dQAGzTkocaoa5OwAOClkkS7P7D4JVRJZbjtNFileMLE7t9U5h5LGtmBiz2SooNzps4u3rJd83jA8JHm1820HEeZ-E_eXOPUAS0CKvh7k3")',
+                    backgroundColor: '#1c2620'
+                  }}
+                ></div>
+                <span className="text-sm font-medium text-slate-900 dark:text-white hidden sm:block">{user?.name || 'Club Manager'}</span>
+                <span className={`material-symbols-outlined text-slate-600 dark:text-gray-400 text-[18px] hidden sm:block transition-transform ${dropdownOpen ? 'rotate-180' : ''}`}>expand_more</span>
+              </button>
+              
+              {/* Dropdown Menu */}
+              {dropdownOpen && (
+                <div className="absolute right-0 mt-2 w-48 bg-white dark:bg-surface-dark rounded-xl border border-gray-200 dark:border-white/10 shadow-lg z-50 overflow-hidden">
+                  <div className="py-1">
+                    <div className="px-4 py-3 border-b border-gray-200 dark:border-white/5">
+                      <p className="text-sm font-bold text-slate-900 dark:text-white">{user?.name || 'Club Manager'}</p>
+                      <p className="text-xs text-slate-500 dark:text-gray-400 mt-0.5">{user?.email || ''}</p>
+                    </div>
+                    <button
+                      onClick={() => {
+                        logout();
+                        setDropdownOpen(false);
+                      }}
+                      className="w-full px-4 py-3 text-left text-sm text-slate-900 dark:text-white hover:bg-gray-100 dark:hover:bg-white/5 transition-colors flex items-center gap-3"
+                    >
+                      <span className="material-symbols-outlined text-lg">logout</span>
+                      <span>Log out</span>
+                    </button>
+                  </div>
+                </div>
+              )}
+            </div>
           </div>
         </header>
 
