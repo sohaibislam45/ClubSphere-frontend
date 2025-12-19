@@ -25,16 +25,27 @@ api.interceptors.request.use(
 api.interceptors.response.use(
   (response) => response,
   (error) => {
-    if (error.response?.status === 401) {
+    // Enhanced error handling for network errors
+    if (!error.response) {
+      // Network error - backend is not reachable
+      if (error.code === 'ERR_NETWORK' || error.message?.includes('Network Error')) {
+        error.message = 'Cannot connect to server. Please ensure the backend is running on http://localhost:3000';
+      }
+    } else if (error.response?.status === 401) {
       // Handle unauthenticated - clear token and redirect to login
       localStorage.removeItem('token');
       localStorage.removeItem('user');
-      window.location.href = '/login';
+      // Don't redirect if we're already on login/register page
+      if (!window.location.pathname.includes('/login') && !window.location.pathname.includes('/register')) {
+        window.location.href = '/login';
+      }
     } else if (error.response?.status === 403) {
       // Handle unauthorized (wrong role) - logout user
       localStorage.removeItem('token');
       localStorage.removeItem('user');
-      window.location.href = '/login';
+      if (!window.location.pathname.includes('/login') && !window.location.pathname.includes('/register')) {
+        window.location.href = '/login';
+      }
     }
     return Promise.reject(error);
   }

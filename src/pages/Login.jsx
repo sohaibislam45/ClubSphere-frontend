@@ -7,8 +7,9 @@ import { useAuth } from '../context/AuthContext';
 const Login = () => {
   const [showPassword, setShowPassword] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
+  const [isGoogleLoading, setIsGoogleLoading] = useState(false);
   const { register, handleSubmit, formState: { errors } } = useForm();
-  const { login } = useAuth();
+  const { login, loginWithGoogle } = useAuth();
 
   const onSubmit = async (data) => {
     setIsLoading(true);
@@ -37,6 +38,36 @@ const Login = () => {
       });
     } finally {
       setIsLoading(false);
+    }
+  };
+
+  const handleGoogleLogin = async () => {
+    setIsGoogleLoading(true);
+    try {
+      const result = await loginWithGoogle();
+      if (result.success) {
+        Swal.fire({
+          icon: 'success',
+          title: 'Login Successful!',
+          text: 'Welcome back!',
+          timer: 2000,
+          showConfirmButton: false
+        });
+      } else {
+        Swal.fire({
+          icon: 'error',
+          title: 'Google Sign-In Failed',
+          text: result.error || 'Something went wrong. Please try again.',
+        });
+      }
+    } catch (error) {
+      Swal.fire({
+        icon: 'error',
+        title: 'Google Sign-In Failed',
+        text: error.message || 'Something went wrong. Please try again.',
+      });
+    } finally {
+      setIsGoogleLoading(false);
     }
   };
 
@@ -210,7 +241,9 @@ const Login = () => {
             {/* Google Button */}
             <button
               type="button"
-              className="flex w-full cursor-pointer items-center justify-center gap-3 rounded-full h-12 px-5 bg-white hover:bg-gray-100 transition-colors text-surface-dark text-base font-bold leading-normal tracking-[0.015em] border border-transparent"
+              onClick={handleGoogleLogin}
+              disabled={isGoogleLoading || isLoading}
+              className="flex w-full cursor-pointer items-center justify-center gap-3 rounded-full h-12 px-5 bg-white hover:bg-gray-100 transition-colors text-surface-dark text-base font-bold leading-normal tracking-[0.015em] border border-transparent disabled:opacity-50 disabled:cursor-not-allowed"
             >
               <svg aria-hidden="true" className="w-5 h-5" height="24" viewBox="0 0 24 24" width="24" xmlns="http://www.w3.org/2000/svg">
                 <g fill="none" fillRule="evenodd">
@@ -220,7 +253,7 @@ const Login = () => {
                   <path d="M12 4.8c1.32 0 2.5.45 3.44 1.34l2.58-2.58A9 9 0 0 0 3.96 7.96l3 2.33A5.36 5.36 0 0 1 12 4.8z" fill="#EA4335"></path>
                 </g>
               </svg>
-              Continue with Google
+              {isGoogleLoading ? 'Signing in...' : 'Continue with Google'}
             </button>
           </form>
 

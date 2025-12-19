@@ -1,7 +1,18 @@
+import { useState, useRef, useEffect } from 'react';
 import { useAuth } from '../context/AuthContext';
 
 const MemberDashboard = () => {
   const { user, logout } = useAuth();
+  const [dropdownOpen, setDropdownOpen] = useState(false);
+  const dropdownRef = useRef(null);
+
+  // Debug: Log user object to verify photoURL
+  useEffect(() => {
+    if (user) {
+      console.log('User object:', user);
+      console.log('User photoURL:', user.photoURL);
+    }
+  }, [user]);
 
   const events = [
     {
@@ -70,6 +81,23 @@ const MemberDashboard = () => {
       status: 'Paid'
     }
   ];
+
+  // Close dropdown when clicking outside
+  useEffect(() => {
+    const handleClickOutside = (event) => {
+      if (dropdownRef.current && !dropdownRef.current.contains(event.target)) {
+        setDropdownOpen(false);
+      }
+    };
+
+    if (dropdownOpen) {
+      document.addEventListener('mousedown', handleClickOutside);
+    }
+
+    return () => {
+      document.removeEventListener('mousedown', handleClickOutside);
+    };
+  }, [dropdownOpen]);
 
   return (
     <div className="bg-background-light dark:bg-background-dark text-slate-900 dark:text-white font-display overflow-hidden h-screen flex">
@@ -160,17 +188,58 @@ const MemberDashboard = () => {
                 <span className="absolute top-2.5 right-2.5 size-2 bg-primary rounded-full border border-surface-dark"></span>
               </button>
               <div className="h-8 w-px bg-white/10"></div>
-              <button className="flex items-center gap-3 group">
-                <div 
-                  className="size-10 rounded-full bg-cover bg-center border-2 border-transparent group-hover:border-primary transition-all"
-                  style={{ backgroundImage: 'url("https://lh3.googleusercontent.com/aida-public/AB6AXuA905HuwzoL3J6Hn0Sl4XIIJzbR6IPNZbPOMGRUaFXfkY2aBHeN-VxHwYW4dhAJhgtUHW4DdNBaeFGOCxDkNYmguRofHkXkgTONLxG8Twyt9srdWrXmqamsThx_w9SGvHV4fxnZ6VA6zW6EQJBFnVcEQ9PDbnGGTuoAIZ0-T0gnO6dLwbu1ql6BxoEbyHZP1a71z_eEVtaksinsi6LWEmv4KqhZi6gLJ-7q9XaofobfY-pHbyUlLd_VNzJwzhmyxvA7Iz_DLv8tkUro")' }}
-                ></div>
-                <div className="hidden md:flex flex-col items-start">
-                  <span className="text-sm font-bold text-white leading-none group-hover:text-primary transition-colors">{user?.name || 'Member'}</span>
-                  <span className="text-xs text-gray-400 mt-1">Premium Member</span>
-                </div>
-                <span className="material-symbols-outlined text-gray-400 group-hover:text-white transition-colors hidden md:block">expand_more</span>
-              </button>
+              <div className="relative" ref={dropdownRef}>
+                <button 
+                  onClick={() => setDropdownOpen(!dropdownOpen)}
+                  className="flex items-center gap-3 group"
+                >
+                  {user?.photoURL ? (
+                    <img 
+                      src={user.photoURL}
+                      alt={user?.name || 'User'}
+                      className="size-10 rounded-full object-cover border-2 border-transparent group-hover:border-primary transition-all"
+                      onError={(e) => {
+                        // Fallback to default image if photo fails to load
+                        e.target.src = 'https://lh3.googleusercontent.com/aida-public/AB6AXuA905HuwzoL3J6Hn0Sl4XIIJzbR6IPNZbPOMGRUaFXfkY2aBHeN-VxHwYW4dhAJhgtUHW4DdNBaeFGOCxDkNYmguRofHkXkgTONLxG8Twyt9srdWrXmqamsThx_w9SGvHV4fxnZ6VA6zW6EQJBFnVcEQ9PDbnGGTuoAIZ0-T0gnO6dLwbu1ql6BxoEbyHZP1a71z_eEVtaksinsi6LWEmv4KqhZi6gLJ-7q9XaofobfY-pHbyUlLd_VNzJwzhmyxvA7Iz_DLv8tkUro';
+                      }}
+                    />
+                  ) : (
+                    <div 
+                      className="size-10 rounded-full bg-cover bg-center border-2 border-transparent group-hover:border-primary transition-all"
+                      style={{ 
+                        backgroundImage: 'url("https://lh3.googleusercontent.com/aida-public/AB6AXuA905HuwzoL3J6Hn0Sl4XIIJzbR6IPNZbPOMGRUaFXfkY2aBHeN-VxHwYW4dhAJhgtUHW4DdNBaeFGOCxDkNYmguRofHkXkgTONLxG8Twyt9srdWrXmqamsThx_w9SGvHV4fxnZ6VA6zW6EQJBFnVcEQ9PDbnGGTuoAIZ0-T0gnO6dLwbu1ql6BxoEbyHZP1a71z_eEVtaksinsi6LWEmv4KqhZi6gLJ-7q9XaofobfY-pHbyUlLd_VNzJwzhmyxvA7Iz_DLv8tkUro")'
+                      }}
+                    ></div>
+                  )}
+                  <div className="hidden md:flex flex-col items-start">
+                    <span className="text-sm font-bold text-white leading-none group-hover:text-primary transition-colors">{user?.name || 'Member'}</span>
+                    <span className="text-xs text-gray-400 mt-1">Premium Member</span>
+                  </div>
+                  <span className={`material-symbols-outlined text-gray-400 group-hover:text-white transition-all hidden md:block ${dropdownOpen ? 'rotate-180' : ''}`}>expand_more</span>
+                </button>
+                
+                {/* Dropdown Menu */}
+                {dropdownOpen && (
+                  <div className="absolute right-0 mt-2 w-48 bg-surface-dark rounded-xl border border-white/10 shadow-lg z-50 overflow-hidden">
+                    <div className="py-1">
+                      <div className="px-4 py-3 border-b border-white/5">
+                        <p className="text-sm font-bold text-white">{user?.name || 'Member'}</p>
+                        <p className="text-xs text-gray-400 mt-0.5">{user?.email || ''}</p>
+                      </div>
+                      <button
+                        onClick={() => {
+                          logout();
+                          setDropdownOpen(false);
+                        }}
+                        className="w-full px-4 py-3 text-left text-sm text-white hover:bg-white/5 transition-colors flex items-center gap-3"
+                      >
+                        <span className="material-symbols-outlined text-lg">logout</span>
+                        <span>Log out</span>
+                      </button>
+                    </div>
+                  </div>
+                )}
+              </div>
             </div>
           </div>
         </header>
