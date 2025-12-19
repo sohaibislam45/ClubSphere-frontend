@@ -227,12 +227,11 @@ const AdminManageEvents = () => {
               </button>
             </div>
           </div>
-        </header>
 
-            {/* Table Section */}
-            <div className="flex-1 overflow-hidden flex flex-col">
-          <div className="flex-1 overflow-auto rounded-xl border border-slate-200 dark:border-[#3d5245] bg-surface-light dark:bg-[#111714]">
-            <table className="w-full text-left border-collapse">
+          {/* Table Section */}
+          <div className="flex-1 overflow-hidden flex flex-col">
+            <div className="flex-1 overflow-auto rounded-xl border border-slate-200 dark:border-[#3d5245] bg-surface-light dark:bg-[#111714]">
+              <table className="w-full text-left border-collapse">
               <thead className="sticky top-0 z-10 bg-slate-50 dark:bg-[#1c2e24] text-xs uppercase text-slate-500 dark:text-[#9eb7a8] font-bold tracking-wider">
                 <tr>
                   <th className="px-6 py-4 font-bold border-b border-slate-200 dark:border-[#3d5245]">Event Name</th>
@@ -348,47 +347,48 @@ const AdminManageEvents = () => {
                   })
                 )}
               </tbody>
-            </table>
-          </div>
+              </table>
+            </div>
 
-          {/* Pagination */}
-          <div className="flex justify-between items-center py-4">
-            <span className="text-sm text-slate-500 dark:text-[#9eb7a8]">Showing {((page - 1) * limit) + 1}-{Math.min(page * limit, pagination.total)} of {pagination.total} results</span>
-            <div className="flex gap-2">
-              <button
-                onClick={() => setPage(p => Math.max(1, p - 1))}
-                disabled={page === 1}
-                className="flex items-center justify-center w-8 h-8 rounded-full border border-slate-200 dark:border-[#3d5245] text-slate-500 dark:text-[#9eb7a8] hover:bg-slate-100 dark:hover:bg-[#29382f] disabled:opacity-50"
-              >
-                <span className="material-symbols-outlined text-sm">chevron_left</span>
-              </button>
-              {[...Array(Math.min(3, pagination.totalPages))].map((_, i) => {
-                const pageNum = i + 1;
-                return (
-                  <button
-                    key={pageNum}
-                    onClick={() => setPage(pageNum)}
-                    className={`flex items-center justify-center w-8 h-8 rounded-full text-sm font-medium ${
-                      page === pageNum
-                        ? 'bg-primary text-slate-900 font-bold shadow-md shadow-primary/20'
-                        : 'border border-slate-200 dark:border-[#3d5245] text-slate-500 dark:text-[#9eb7a8] hover:bg-slate-100 dark:hover:bg-[#29382f]'
-                    }`}
-                  >
-                    {pageNum}
-                  </button>
-                );
-              })}
-              {pagination.totalPages > 3 && <span className="flex items-center justify-center w-8 h-8 text-slate-500 dark:text-[#9eb7a8]">...</span>}
-              <button
-                onClick={() => setPage(p => Math.min(pagination.totalPages, p + 1))}
-                disabled={page >= pagination.totalPages}
-                className="flex items-center justify-center w-8 h-8 rounded-full border border-slate-200 dark:border-[#3d5245] text-slate-500 dark:text-[#9eb7a8] hover:bg-slate-100 dark:hover:bg-[#29382f]"
-              >
-                <span className="material-symbols-outlined text-sm">chevron_right</span>
-              </button>
+            {/* Pagination */}
+            <div className="flex justify-between items-center py-4">
+              <span className="text-sm text-slate-500 dark:text-[#9eb7a8]">Showing {((page - 1) * limit) + 1}-{Math.min(page * limit, pagination.total)} of {pagination.total} results</span>
+              <div className="flex gap-2">
+                <button
+                  onClick={() => setPage(p => Math.max(1, p - 1))}
+                  disabled={page === 1}
+                  className="flex items-center justify-center w-8 h-8 rounded-full border border-slate-200 dark:border-[#3d5245] text-slate-500 dark:text-[#9eb7a8] hover:bg-slate-100 dark:hover:bg-[#29382f] disabled:opacity-50"
+                >
+                  <span className="material-symbols-outlined text-sm">chevron_left</span>
+                </button>
+                {[...Array(Math.min(3, pagination.totalPages))].map((_, i) => {
+                  const pageNum = i + 1;
+                  return (
+                    <button
+                      key={pageNum}
+                      onClick={() => setPage(pageNum)}
+                      className={`flex items-center justify-center w-8 h-8 rounded-full text-sm font-medium ${
+                        page === pageNum
+                          ? 'bg-primary text-slate-900 font-bold shadow-md shadow-primary/20'
+                          : 'border border-slate-200 dark:border-[#3d5245] text-slate-500 dark:text-[#9eb7a8] hover:bg-slate-100 dark:hover:bg-[#29382f]'
+                      }`}
+                    >
+                      {pageNum}
+                    </button>
+                  );
+                })}
+                {pagination.totalPages > 3 && <span className="flex items-center justify-center w-8 h-8 text-slate-500 dark:text-[#9eb7a8]">...</span>}
+                <button
+                  onClick={() => setPage(p => Math.min(pagination.totalPages, p + 1))}
+                  disabled={page >= pagination.totalPages}
+                  className="flex items-center justify-center w-8 h-8 rounded-full border border-slate-200 dark:border-[#3d5245] text-slate-500 dark:text-[#9eb7a8] hover:bg-slate-100 dark:hover:bg-[#29382f]"
+                >
+                  <span className="material-symbols-outlined text-sm">chevron_right</span>
+                </button>
+              </div>
             </div>
           </div>
-        </div>
+          </div>
         </div>
       </main>
     </div>
