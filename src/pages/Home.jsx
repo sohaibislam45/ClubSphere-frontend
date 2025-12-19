@@ -172,7 +172,7 @@ const Home = () => {
                     initial={{ opacity: 0, y: 20 }}
                     animate={{ opacity: 1, y: 0 }}
                     transition={{ duration: 0.5, delay: 0.8 + index * 0.1 }}
-                    className="flex flex-1 gap-6 rounded-lg border border-border-dark bg-card-dark p-8 flex-col items-start hover:border-primary/50 transition-colors duration-300"
+                    className="flex flex-1 gap-6 rounded-2xl border border-border-dark bg-card-dark p-8 flex-col items-start hover:border-primary/50 transition-colors duration-300"
                   >
                     <div className="size-14 rounded-full bg-[#29382f] flex items-center justify-center text-primary mb-2">
                       <span className="material-symbols-outlined text-3xl">{step.icon}</span>
@@ -241,7 +241,9 @@ const Home = () => {
                     transition={{ duration: 0.5, delay: 1.3 + index * 0.1 }}
                     className="rounded-[2rem] bg-card-dark border border-border-dark p-8 flex flex-col gap-4 hover:bg-[#222e26] transition-colors duration-300"
                   >
-                    <div className={`size-12 rounded-full bg-${card.color}-500/20 text-${card.color}-400 flex items-center justify-center mb-2`}>
+                    <div className={`size-12 rounded-full flex items-center justify-center mb-2 ${
+                      card.color === 'blue' ? 'bg-blue-500/20 text-blue-400' : 'bg-pink-500/20 text-pink-400'
+                    }`}>
                       <span className="material-symbols-outlined text-2xl">{card.icon}</span>
                     </div>
                     <h3 className="text-xl font-bold">{card.title}</h3>

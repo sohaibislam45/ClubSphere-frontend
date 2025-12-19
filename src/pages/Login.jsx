@@ -2,29 +2,41 @@ import { useState } from 'react';
 import { Link } from 'react-router-dom';
 import { useForm } from 'react-hook-form';
 import Swal from 'sweetalert2';
+import { useAuth } from '../context/AuthContext';
 
 const Login = () => {
   const [showPassword, setShowPassword] = useState(false);
+  const [isLoading, setIsLoading] = useState(false);
   const { register, handleSubmit, formState: { errors } } = useForm();
+  const { login } = useAuth();
 
   const onSubmit = async (data) => {
+    setIsLoading(true);
     try {
-      // TODO: Implement actual login API call
-      console.log('Login data:', data);
-      Swal.fire({
-        icon: 'success',
-        title: 'Login Successful!',
-        text: 'Welcome back!',
-        timer: 2000,
-        showConfirmButton: false
-      });
-      // Redirect to home or dashboard
+      const result = await login(data.email, data.password);
+      if (result.success) {
+        Swal.fire({
+          icon: 'success',
+          title: 'Login Successful!',
+          text: 'Welcome back!',
+          timer: 2000,
+          showConfirmButton: false
+        });
+      } else {
+        Swal.fire({
+          icon: 'error',
+          title: 'Login Failed',
+          text: result.error || 'Invalid email or password',
+        });
+      }
     } catch (error) {
       Swal.fire({
         icon: 'error',
         title: 'Login Failed',
-        text: error.message || 'Invalid email or password',
+        text: error.message || 'Something went wrong. Please try again.',
       });
+    } finally {
+      setIsLoading(false);
     }
   };
 
@@ -182,9 +194,10 @@ const Login = () => {
             {/* Login Button */}
             <button
               type="submit"
-              className="flex w-full cursor-pointer items-center justify-center rounded-full h-12 px-5 bg-primary hover:bg-primary/90 hover:scale-[1.01] active:scale-[0.99] transition-all text-background-dark text-base font-bold leading-normal tracking-[0.015em] mt-2"
+              disabled={isLoading}
+              className="flex w-full cursor-pointer items-center justify-center rounded-full h-12 px-5 bg-primary hover:bg-primary/90 hover:scale-[1.01] active:scale-[0.99] transition-all text-background-dark text-base font-bold leading-normal tracking-[0.015em] mt-2 disabled:opacity-50 disabled:cursor-not-allowed"
             >
-              Log In
+              {isLoading ? 'Logging in...' : 'Log In'}
             </button>
 
             {/* Divider */}

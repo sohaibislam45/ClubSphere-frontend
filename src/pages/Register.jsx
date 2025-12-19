@@ -1,13 +1,15 @@
 import { useState, useEffect } from 'react';
-import { Link, useNavigate } from 'react-router-dom';
+import { Link } from 'react-router-dom';
 import { useForm } from 'react-hook-form';
 import Swal from 'sweetalert2';
+import { useAuth } from '../context/AuthContext';
 
 const Register = () => {
   const [showPassword, setShowPassword] = useState(false);
   const [photoPreview, setPhotoPreview] = useState(null);
-  const navigate = useNavigate();
-  const { register, handleSubmit, watch, formState: { errors } } = useForm();
+  const [isLoading, setIsLoading] = useState(false);
+  const { register: registerForm, handleSubmit, watch, formState: { errors } } = useForm();
+  const { register: registerUser } = useAuth();
   const password = watch('password', '');
 
   // Password validation rules
@@ -30,26 +32,32 @@ const Register = () => {
   }, [photoUrl]);
 
   const onSubmit = async (data) => {
+    setIsLoading(true);
     try {
-      // TODO: Implement actual registration API call
-      console.log('Registration data:', data);
-      Swal.fire({
-        icon: 'success',
-        title: 'Registration Successful!',
-        text: 'Welcome to ClubSphere!',
-        timer: 2000,
-        showConfirmButton: false
-      });
-      // Redirect to home or login
-      setTimeout(() => {
-        navigate('/login');
-      }, 2000);
+      const result = await registerUser(data.email, data.password, data.name, 'member');
+      if (result.success) {
+        Swal.fire({
+          icon: 'success',
+          title: 'Registration Successful!',
+          text: 'Welcome to ClubSphere!',
+          timer: 2000,
+          showConfirmButton: false
+        });
+      } else {
+        Swal.fire({
+          icon: 'error',
+          title: 'Registration Failed',
+          text: result.error || 'Something went wrong. Please try again.',
+        });
+      }
     } catch (error) {
       Swal.fire({
         icon: 'error',
         title: 'Registration Failed',
         text: error.message || 'Something went wrong. Please try again.',
       });
+    } finally {
+      setIsLoading(false);
     }
   };
 
@@ -151,7 +159,7 @@ const Register = () => {
                     } focus:ring-0 rounded-full h-14 px-6 placeholder:text-[#5a7063] transition-all outline-none`}
                     placeholder="John Doe"
                     type="text"
-                    {...register('name', {
+                    {...registerForm('name', {
                       required: 'Name is required',
                       minLength: {
                         value: 2,
@@ -176,7 +184,7 @@ const Register = () => {
                     } focus:ring-0 rounded-full h-14 px-6 placeholder:text-[#5a7063] transition-all outline-none`}
                     placeholder="name@example.com"
                     type="email"
-                    {...register('email', {
+                    {...registerForm('email', {
                       required: 'Email is required',
                       pattern: {
                         value: /^[A-Z0-9._%+-]+@[A-Z0-9.-]+\.[A-Z]{2,}$/i,
@@ -202,7 +210,7 @@ const Register = () => {
                       className="w-full bg-surface-dark-alt3 text-white border-2 border-transparent focus:border-primary focus:ring-0 rounded-full h-14 px-6 placeholder:text-[#5a7063] transition-all outline-none"
                       placeholder="https://..."
                       type="url"
-                      {...register('photoURL')}
+                      {...registerForm('photoURL')}
                     />
                     <span className="material-symbols-outlined absolute right-5 top-1/2 -translate-y-1/2 text-[#5a7063]">link</span>
                   </div>
@@ -226,7 +234,7 @@ const Register = () => {
                     } focus:ring-0 rounded-full h-14 px-6 placeholder:text-[#5a7063] transition-all outline-none pr-12`}
                     placeholder="Create a secure password"
                     type={showPassword ? 'text' : 'password'}
-                    {...register('password', {
+                    {...registerForm('password', {
                       required: 'Password is required',
                       minLength: {
                         value: 6,
@@ -300,9 +308,10 @@ const Register = () => {
               {/* Submit */}
               <button
                 type="submit"
-                className="w-full rounded-full bg-primary h-14 text-[#111714] font-bold text-lg hover:bg-[#32c96e] active:scale-[0.98] transition-all shadow-[0_0_20px_rgba(56,224,123,0.2)] mt-2"
+                disabled={isLoading}
+                className="w-full rounded-full bg-primary h-14 text-[#111714] font-bold text-lg hover:bg-[#32c96e] active:scale-[0.98] transition-all shadow-[0_0_20px_rgba(56,224,123,0.2)] mt-2 disabled:opacity-50 disabled:cursor-not-allowed"
               >
-                Create Account
+                {isLoading ? 'Creating Account...' : 'Create Account'}
               </button>
 
               <p className="text-center text-gray-400 text-sm mt-2">
