@@ -1,6 +1,7 @@
 import { useState, useRef, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
+import MemberSidebar from '../components/layout/MemberSidebar';
 
 const MemberDashboard = () => {
   const { user, logout } = useAuth();
@@ -95,67 +96,7 @@ const MemberDashboard = () => {
 
   return (
     <div className="bg-background-light dark:bg-background-dark text-slate-900 dark:text-white font-display overflow-hidden h-screen flex">
-      {/* Side Navigation */}
-      <aside className="w-72 h-full hidden lg:flex flex-col bg-background-dark border-r border-white/5 shrink-0 z-20">
-        <div className="p-6 pb-2">
-          <div className="flex items-center gap-4 mb-8">
-            <div 
-              className="bg-center bg-no-repeat aspect-square bg-cover rounded-full size-12 shadow-lg shadow-primary/10"
-              style={{ backgroundImage: 'url("https://lh3.googleusercontent.com/aida-public/AB6AXuB5LCxjhrUt6Jpz3hHKQPLaPxgOP3bRdvA9gttj2HqJZJ9C5wpALxSC9KqgstOWlPZk6-5q_oc6APsj9SswCmt4ncO9vbBoWQmUYcizUNdMOUhcToufVOnHtPqxjdhzUZqxNi_XO9xx9HVrK3HY4uQcGwjteZFf8FA2BPA_D2QRKmKjtsIirhdvuCg0t8ss46Hz4ClD8U-q1JLsuRZHr2Uvjlbl-1xM4dTFIbKWL-4baVXgL-_2ZpGZHowWVY7t3a9SwOr8yS-D1SP-")' }}
-            ></div>
-            <div className="flex flex-col">
-              <h1 className="text-white text-xl font-bold leading-tight tracking-tight">ClubSphere</h1>
-              <p className="text-primary text-xs font-medium tracking-wide uppercase opacity-80">Member Portal</p>
-            </div>
-          </div>
-          <nav className="flex flex-col gap-2">
-            <Link to="/" className="flex items-center gap-4 px-4 py-3 rounded-full hover:bg-surface-dark group transition-all text-gray-400 hover:text-white">
-              <span className="material-symbols-outlined">home</span>
-              <span className="font-medium">Home</span>
-            </Link>
-            <a className="flex items-center gap-4 px-4 py-3 rounded-full bg-primary/10 border border-primary/20 group transition-all" href="#">
-              <span className="material-symbols-outlined text-primary fill">dashboard</span>
-              <span className="text-primary font-bold">Overview</span>
-            </a>
-            <a className="flex items-center gap-4 px-4 py-3 rounded-full hover:bg-surface-dark group transition-all text-gray-400 hover:text-white" href="#">
-              <span className="material-symbols-outlined">explore</span>
-              <span className="font-medium">Discover</span>
-            </a>
-            <a className="flex items-center gap-4 px-4 py-3 rounded-full hover:bg-surface-dark group transition-all text-gray-400 hover:text-white" href="#">
-              <span className="material-symbols-outlined">groups</span>
-              <span className="font-medium">My Clubs</span>
-            </a>
-            <a className="flex items-center gap-4 px-4 py-3 rounded-full hover:bg-surface-dark group transition-all text-gray-400 hover:text-white" href="#">
-              <span className="material-symbols-outlined">calendar_month</span>
-              <span className="font-medium">My Events</span>
-            </a>
-            <a className="flex items-center gap-4 px-4 py-3 rounded-full hover:bg-surface-dark group transition-all text-gray-400 hover:text-white" href="#">
-              <span className="material-symbols-outlined">credit_card</span>
-              <span className="font-medium">Payments</span>
-            </a>
-            <button 
-              onClick={logout}
-              className="flex items-center gap-4 px-4 py-3 rounded-full hover:bg-surface-dark group transition-all text-gray-400 hover:text-white"
-            >
-              <span className="material-symbols-outlined">settings</span>
-              <span className="font-medium">Settings</span>
-            </button>
-          </nav>
-        </div>
-        <div className="mt-auto p-6">
-          <div className="bg-surface-dark rounded-2xl p-4 border border-white/5 relative overflow-hidden group">
-            <div className="absolute inset-0 bg-gradient-to-br from-primary/10 to-transparent opacity-0 group-hover:opacity-100 transition-opacity"></div>
-            <div className="relative z-10">
-              <div className="flex items-center gap-3 mb-3">
-                <span className="material-symbols-outlined text-primary">support_agent</span>
-                <p className="font-bold text-sm">Need Help?</p>
-              </div>
-              <p className="text-xs text-gray-400 mb-3">Contact support for membership questions.</p>
-              <button className="text-xs font-bold text-white bg-white/10 hover:bg-white/20 px-3 py-2 rounded-lg w-full transition-colors">Contact Support</button>
-            </div>
-          </div>
-        </div>
-      </aside>
+      <MemberSidebar />
 
       {/* Main Content */}
       <main className="flex-1 flex flex-col h-full relative overflow-hidden bg-background-light dark:bg-background-dark">
@@ -263,10 +204,13 @@ const MemberDashboard = () => {
                   You have 3 upcoming events this week. Ready to explore what's new in your area?
                 </p>
               </div>
-              <button className="bg-primary hover:bg-primary/90 text-background-dark font-bold py-3 px-6 rounded-full flex items-center gap-2 transition-all shadow-lg shadow-primary/20 shrink-0">
+              <Link
+                to="/dashboard/member/discover"
+                className="bg-primary hover:bg-primary/90 text-background-dark font-bold py-3 px-6 rounded-full flex items-center gap-2 transition-all shadow-lg shadow-primary/20 shrink-0"
+              >
                 <span className="material-symbols-outlined">add_circle</span>
                 Find New Clubs
-              </button>
+              </Link>
             </section>
 
             {/* Stats Grid */}
@@ -320,7 +264,9 @@ const MemberDashboard = () => {
                     <span className="material-symbols-outlined text-primary">calendar_clock</span>
                     Upcoming Events
                   </h2>
-                  <a className="text-sm font-bold text-primary hover:underline" href="#">View Calendar</a>
+                  <Link to="/dashboard/member/events" className="text-sm font-bold text-primary hover:underline">
+                    View Calendar
+                  </Link>
                 </div>
                 {events.map((event) => (
                   <div key={event.id} className="bg-surface-dark hover:bg-surface-dark-hover border border-white/5 hover:border-primary/30 rounded-2xl p-4 flex flex-col sm:flex-row gap-6 transition-all group cursor-pointer">
@@ -375,9 +321,12 @@ const MemberDashboard = () => {
                     <span className="material-symbols-outlined text-primary">diversity_3</span>
                     My Clubs
                   </h2>
-                  <button className="size-8 rounded-full bg-surface-dark border border-white/10 flex items-center justify-center text-primary hover:bg-primary hover:text-background-dark transition-all">
+                  <Link
+                    to="/dashboard/member/clubs"
+                    className="size-8 rounded-full bg-surface-dark border border-white/10 flex items-center justify-center text-primary hover:bg-primary hover:text-background-dark transition-all"
+                  >
                     <span className="material-symbols-outlined" style={{ fontSize: '20px' }}>add</span>
-                  </button>
+                  </Link>
                 </div>
                 <div className="bg-surface-dark rounded-2xl border border-white/5 overflow-hidden">
                   {clubs.map((club, index) => (
@@ -410,7 +359,9 @@ const MemberDashboard = () => {
                   <span className="material-symbols-outlined text-primary">receipt_long</span>
                   Payment History
                 </h2>
-                <button className="text-sm text-gray-400 hover:text-white transition-colors">See all</button>
+                <Link to="/dashboard/member/payments" className="text-sm text-gray-400 hover:text-white transition-colors">
+                  See all
+                </Link>
               </div>
               <div className="bg-surface-dark rounded-2xl border border-white/5 overflow-x-auto">
                 <table className="w-full text-left text-sm whitespace-nowrap">

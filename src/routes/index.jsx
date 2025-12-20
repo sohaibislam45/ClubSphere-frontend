@@ -17,6 +17,11 @@ import ManagerClubMembers from '../pages/ManagerClubMembers';
 import ManagerEventsManagement from '../pages/ManagerEventsManagement';
 import ManagerEventRegistrations from '../pages/ManagerEventRegistrations';
 import MemberDashboard from '../pages/MemberDashboard';
+import MemberDiscover from '../pages/MemberDiscover';
+import MemberMyClubs from '../pages/MemberMyClubs';
+import MemberMyEvents from '../pages/MemberMyEvents';
+import MemberPaymentHistory from '../pages/MemberPaymentHistory';
+import MemberSettings from '../pages/MemberSettings';
 import PrivateRoute from '../components/routes/PrivateRoute';
 
 const AppRoutes = () => {
@@ -130,6 +135,46 @@ const AppRoutes = () => {
         element={
           <PrivateRoute requiredRole="member">
             <MemberDashboard />
+          </PrivateRoute>
+        } 
+      />
+      <Route 
+        path="/dashboard/member/discover" 
+        element={
+          <PrivateRoute requiredRole="member">
+            <MemberDiscover />
+          </PrivateRoute>
+        } 
+      />
+      <Route 
+        path="/dashboard/member/clubs" 
+        element={
+          <PrivateRoute requiredRole="member">
+            <MemberMyClubs />
+          </PrivateRoute>
+        } 
+      />
+      <Route 
+        path="/dashboard/member/events" 
+        element={
+          <PrivateRoute requiredRole="member">
+            <MemberMyEvents />
+          </PrivateRoute>
+        } 
+      />
+      <Route 
+        path="/dashboard/member/payments" 
+        element={
+          <PrivateRoute requiredRole="member">
+            <MemberPaymentHistory />
+          </PrivateRoute>
+        } 
+      />
+      <Route 
+        path="/dashboard/member/settings" 
+        element={
+          <PrivateRoute requiredRole="member">
+            <MemberSettings />
           </PrivateRoute>
         } 
       />
