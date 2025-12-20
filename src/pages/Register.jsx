@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import { useForm } from 'react-hook-form';
-import Swal from 'sweetalert2';
+import Swal from '../lib/sweetalertConfig';
 import { useAuth } from '../context/AuthContext';
 
 const Register = () => {

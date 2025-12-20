@@ -3,7 +3,7 @@ import { Link, useLocation } from 'react-router-dom';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { useAuth } from '../context/AuthContext';
 import api from '../lib/api';
-import Swal from 'sweetalert2';
+import Swal from '../lib/sweetalertConfig';
 import Loader from '../components/ui/Loader';
 
 const AdminManageCategories = () => {

@@ -3,7 +3,7 @@ import { Link, useLocation } from 'react-router-dom';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { useAuth } from '../context/AuthContext';
 import api from '../lib/api';
-import Swal from 'sweetalert2';
+import Swal from '../lib/sweetalertConfig';
 import Loader from '../components/ui/Loader';
 
 const AdminManageClubs = () => {
@@ -1094,22 +1094,45 @@ const EditClubModal = ({ isOpen, onClose, clubId, onSubmit, isLoading }) => {
       return response.data;
     },
     enabled: !!clubId && isOpen,
-    onSuccess: (data) => {
-      if (data) {
-        setFormData({
-          name: data.name || '',
-          description: data.description || '',
-          category: data.category || '',
-          location: data.location || '',
-          fee: data.fee === 0 || data.fee === 'Free' ? '' : data.fee.toString(),
-          managerEmail: data.managerEmail || ''
-        });
-        if (data.image) {
-          setBannerPreview(data.image);
-        }
-      }
-    }
+    refetchOnMount: true,
+    staleTime: 0
   });
+
+  // Update form data when club data is loaded
+  useEffect(() => {
+    if (club && isOpen && !isLoadingClub) {
+      setFormData({
+        name: club.name || '',
+        description: club.description || '',
+        category: club.category || '',
+        location: club.location || '',
+        fee: club.fee === 0 || club.fee === 'Free' || !club.fee ? '' : (typeof club.fee === 'number' ? club.fee.toString() : String(club.fee || '')),
+        managerEmail: club.managerEmail || ''
+      });
+      if (club.image) {
+        setBannerPreview(club.image);
+      } else {
+        setBannerPreview(null);
+      }
+      setBannerImage(null);
+    }
+  }, [club, isOpen, isLoadingClub]);
+
+  // Reset form when modal closes
+  useEffect(() => {
+    if (!isOpen) {
+      setFormData({
+        name: '',
+        description: '',
+        category: '',
+        location: '',
+        fee: '',
+        managerEmail: ''
+      });
+      setBannerImage(null);
+      setBannerPreview(null);
+    }
+  }, [isOpen]);
 
   // Upload image to ImgBB
   const uploadImageToImgBB = async (file) => {
