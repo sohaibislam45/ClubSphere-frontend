@@ -130,26 +130,18 @@ const ClubManagerDashboard = () => {
             <span className="material-symbols-outlined">home</span>
             <span>Home</span>
           </Link>
-          <a className="flex items-center gap-4 px-4 py-3 rounded-full bg-primary text-background-dark font-semibold transition-colors" href="#">
+          <Link to="/dashboard/club-manager" className="flex items-center gap-4 px-4 py-3 rounded-full bg-primary text-background-dark font-semibold transition-colors">
             <span className="material-symbols-outlined">dashboard</span>
             <span>Dashboard</span>
-          </a>
-          <a className="flex items-center gap-4 px-4 py-3 rounded-full text-slate-600 dark:text-slate-300 hover:bg-black/5 dark:hover:bg-white/5 font-medium transition-colors" href="#">
+          </Link>
+          <Link to="/dashboard/club-manager/clubs" className="flex items-center gap-4 px-4 py-3 rounded-full text-slate-600 dark:text-slate-300 hover:bg-black/5 dark:hover:bg-white/5 font-medium transition-colors">
             <span className="material-symbols-outlined">groups</span>
             <span>My Clubs</span>
-          </a>
-          <a className="flex items-center gap-4 px-4 py-3 rounded-full text-slate-600 dark:text-slate-300 hover:bg-black/5 dark:hover:bg-white/5 font-medium transition-colors" href="#">
-            <span className="material-symbols-outlined">diversity_3</span>
-            <span>Club Members</span>
-          </a>
-          <a className="flex items-center gap-4 px-4 py-3 rounded-full text-slate-600 dark:text-slate-300 hover:bg-black/5 dark:hover:bg-white/5 font-medium transition-colors" href="#">
+          </Link>
+          <Link to="/dashboard/club-manager/events" className="flex items-center gap-4 px-4 py-3 rounded-full text-slate-600 dark:text-slate-300 hover:bg-black/5 dark:hover:bg-white/5 font-medium transition-colors">
             <span className="material-symbols-outlined">event</span>
             <span>Events Management</span>
-          </a>
-          <a className="flex items-center gap-4 px-4 py-3 rounded-full text-slate-600 dark:text-slate-300 hover:bg-black/5 dark:hover:bg-white/5 font-medium transition-colors" href="#">
-            <span className="material-symbols-outlined">assignment_ind</span>
-            <span>Event Registrations</span>
-          </a>
+          </Link>
           <div className="mt-auto"></div>
           <button 
             onClick={logout}

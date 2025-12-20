@@ -12,6 +12,10 @@ import AdminManageClubs from '../pages/AdminManageClubs';
 import AdminManageEvents from '../pages/AdminManageEvents';
 import AdminViewFinances from '../pages/AdminViewFinances';
 import ClubManagerDashboard from '../pages/ClubManagerDashboard';
+import ManagerMyClubs from '../pages/ManagerMyClubs';
+import ManagerClubMembers from '../pages/ManagerClubMembers';
+import ManagerEventsManagement from '../pages/ManagerEventsManagement';
+import ManagerEventRegistrations from '../pages/ManagerEventRegistrations';
 import MemberDashboard from '../pages/MemberDashboard';
 import PrivateRoute from '../components/routes/PrivateRoute';
 
@@ -70,6 +74,38 @@ const AppRoutes = () => {
         element={
           <PrivateRoute requiredRole="clubManager">
             <ClubManagerDashboard />
+          </PrivateRoute>
+        } 
+      />
+      <Route 
+        path="/dashboard/club-manager/clubs" 
+        element={
+          <PrivateRoute requiredRole="clubManager">
+            <ManagerMyClubs />
+          </PrivateRoute>
+        } 
+      />
+      <Route 
+        path="/dashboard/club-manager/clubs/:clubId/members" 
+        element={
+          <PrivateRoute requiredRole="clubManager">
+            <ManagerClubMembers />
+          </PrivateRoute>
+        } 
+      />
+      <Route 
+        path="/dashboard/club-manager/events" 
+        element={
+          <PrivateRoute requiredRole="clubManager">
+            <ManagerEventsManagement />
+          </PrivateRoute>
+        } 
+      />
+      <Route 
+        path="/dashboard/club-manager/events/:eventId/registrations" 
+        element={
+          <PrivateRoute requiredRole="clubManager">
+            <ManagerEventRegistrations />
           </PrivateRoute>
         } 
       />
