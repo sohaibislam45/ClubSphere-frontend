@@ -139,6 +139,10 @@ const AdminManageUsers = () => {
               <span className="material-symbols-outlined">payments</span>
               <p className={`text-sm leading-normal hidden lg:block ${isActive('/dashboard/admin/finances') ? 'font-bold' : 'font-medium'}`}>Finances</p>
             </Link>
+            <Link to="/dashboard/admin/categories" className={`flex items-center gap-3 px-3 py-3 rounded-full transition-colors ${isActive('/dashboard/admin/categories') ? 'bg-primary text-background-dark' : 'text-gray-400 hover:bg-surface-highlight hover:text-white'}`}>
+              <span className="material-symbols-outlined">category</span>
+              <p className={`text-sm leading-normal hidden lg:block ${isActive('/dashboard/admin/categories') ? 'font-bold' : 'font-medium'}`}>Categories</p>
+            </Link>
           </nav>
         </div>
         {/* Bottom Settings */}

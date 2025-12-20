@@ -18,6 +18,9 @@ const AdminManageClubs = () => {
   const [search, setSearch] = useState('');
   const [statusFilter, setStatusFilter] = useState('all');
   const [isAddClubModalOpen, setIsAddClubModalOpen] = useState(false);
+  const [isViewClubModalOpen, setIsViewClubModalOpen] = useState(false);
+  const [isEditClubModalOpen, setIsEditClubModalOpen] = useState(false);
+  const [selectedClubId, setSelectedClubId] = useState(null);
   const limit = 5;
 
   // Fetch clubs stats
@@ -118,6 +121,36 @@ const AdminManageClubs = () => {
     }
   });
 
+  // Update club mutation
+  const updateClubMutation = useMutation({
+    mutationFn: async ({ clubId, clubData }) => {
+      const response = await api.put(`/api/admin/clubs/${clubId}`, clubData);
+      return response.data;
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries(['admin-clubs']);
+      queryClient.invalidateQueries(['admin-clubs-stats']);
+      queryClient.invalidateQueries(['featured-clubs']);
+      queryClient.invalidateQueries(['admin-club', selectedClubId]);
+      setIsEditClubModalOpen(false);
+      setSelectedClubId(null);
+      Swal.fire({
+        icon: 'success',
+        title: 'Club Updated',
+        text: 'Club has been updated successfully',
+        timer: 2000,
+        showConfirmButton: false
+      });
+    },
+    onError: (error) => {
+      Swal.fire({
+        icon: 'error',
+        title: 'Error',
+        text: error.response?.data?.error || 'Failed to update club'
+      });
+    }
+  });
+
   const getUserInitials = (name) => {
     if (!name) return 'U';
     const parts = name.trim().split(' ');
@@ -202,6 +235,10 @@ const AdminManageClubs = () => {
             <Link to="/dashboard/admin/finances" className={`flex items-center gap-3 px-3 py-3 rounded-full transition-colors ${isActive('/dashboard/admin/finances') ? 'bg-primary text-background-dark' : 'text-gray-400 hover:bg-surface-highlight hover:text-white'}`}>
               <span className="material-symbols-outlined">payments</span>
               <p className={`text-sm leading-normal hidden lg:block ${isActive('/dashboard/admin/finances') ? 'font-bold' : 'font-medium'}`}>Finances</p>
+            </Link>
+            <Link to="/dashboard/admin/categories" className={`flex items-center gap-3 px-3 py-3 rounded-full transition-colors ${isActive('/dashboard/admin/categories') ? 'bg-primary text-background-dark' : 'text-gray-400 hover:bg-surface-highlight hover:text-white'}`}>
+              <span className="material-symbols-outlined">category</span>
+              <p className={`text-sm leading-normal hidden lg:block ${isActive('/dashboard/admin/categories') ? 'font-bold' : 'font-medium'}`}>Categories</p>
             </Link>
           </nav>
         </div>
@@ -428,10 +465,24 @@ const AdminManageClubs = () => {
                                   </>
                                 ) : (
                                   <>
-                                    <button className="flex size-8 items-center justify-center rounded hover:bg-[#29382f] text-[#9eb7a8] hover:text-white transition-colors" title="View Details">
+                                    <button 
+                                      onClick={() => {
+                                        setSelectedClubId(club.id);
+                                        setIsViewClubModalOpen(true);
+                                      }}
+                                      className="flex size-8 items-center justify-center rounded hover:bg-[#29382f] text-[#9eb7a8] hover:text-white transition-colors" 
+                                      title="View Details"
+                                    >
                                       <span className="material-symbols-outlined text-[20px]">visibility</span>
                                     </button>
-                                    <button className="flex size-8 items-center justify-center rounded hover:bg-[#29382f] text-[#9eb7a8] hover:text-white transition-colors" title="Edit">
+                                    <button 
+                                      onClick={() => {
+                                        setSelectedClubId(club.id);
+                                        setIsEditClubModalOpen(true);
+                                      }}
+                                      className="flex size-8 items-center justify-center rounded hover:bg-[#29382f] text-[#9eb7a8] hover:text-white transition-colors" 
+                                      title="Edit"
+                                    >
                                       <span className="material-symbols-outlined text-[20px]">edit</span>
                                     </button>
                                   </>
@@ -496,6 +547,30 @@ const AdminManageClubs = () => {
           isLoading={createClubMutation.isLoading}
         />
       )}
+
+      {isViewClubModalOpen && selectedClubId && (
+        <ViewClubDetailsModal
+          isOpen={isViewClubModalOpen}
+          onClose={() => {
+            setIsViewClubModalOpen(false);
+            setSelectedClubId(null);
+          }}
+          clubId={selectedClubId}
+        />
+      )}
+
+      {isEditClubModalOpen && selectedClubId && (
+        <EditClubModal
+          isOpen={isEditClubModalOpen}
+          onClose={() => {
+            setIsEditClubModalOpen(false);
+            setSelectedClubId(null);
+          }}
+          clubId={selectedClubId}
+          onSubmit={(clubData) => updateClubMutation.mutate({ clubId: selectedClubId, clubData })}
+          isLoading={updateClubMutation.isLoading}
+        />
+      )}
     </div>
   );
 };
@@ -513,6 +588,17 @@ const AddClubModal = ({ isOpen, onClose, onSubmit, isLoading }) => {
   const [bannerImage, setBannerImage] = useState(null);
   const [bannerPreview, setBannerPreview] = useState(null);
   const [isUploadingImage, setIsUploadingImage] = useState(false);
+
+  // Fetch categories
+  const { data: categoriesData } = useQuery({
+    queryKey: ['admin-categories'],
+    queryFn: async () => {
+      const response = await api.get('/api/admin/categories');
+      return response.data;
+    }
+  });
+
+  const categories = categoriesData?.categories || [];
 
   // Upload image to ImgBB
   const uploadImageToImgBB = async (file) => {
@@ -742,13 +828,11 @@ const AddClubModal = ({ isOpen, onClose, onSubmit, isLoading }) => {
                     required
                   >
                     <option disabled value="">Select a category</option>
-                    <option value="sports">Sports & Fitness</option>
-                    <option value="tech">Technology & Coding</option>
-                    <option value="arts">Arts & Culture</option>
-                    <option value="photography">Photography</option>
-                    <option value="gaming">Gaming</option>
-                    <option value="music">Music</option>
-                    <option value="social">Social & Networking</option>
+                    {categories.map((cat) => (
+                      <option key={cat._id || cat.id} value={cat.name}>
+                        {cat.displayName}
+                      </option>
+                    ))}
                   </select>
                   <span className="material-symbols-outlined absolute right-4 top-1/2 -translate-y-1/2 text-[#9eb7a8] pointer-events-none">expand_more</span>
                 </div>
@@ -828,12 +912,14 @@ const AddClubModal = ({ isOpen, onClose, onSubmit, isLoading }) => {
               </button>
               <button
                 type="submit"
-                className="bg-primary text-black px-8 py-2.5 rounded-lg font-bold hover:bg-opacity-90 transition-opacity shadow-[0_0_15px_rgba(54,226,123,0.3)] flex items-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed"
+                className="bg-primary text-black px-8 py-2.5 rounded-lg font-bold hover:bg-opacity-90 transition-opacity shadow-[0_0_15px_rgba(54,226,123,0.3)] flex items-center justify-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed"
                 disabled={isLoading || isUploadingImage}
               >
                 {isLoading || isUploadingImage ? (
                   <>
-                    <Loader />
+                    <div className="flex items-center justify-center">
+                      <div className="w-5 h-5 border-2 border-black border-t-transparent rounded-full animate-spin"></div>
+                    </div>
                     <span>{isUploadingImage ? 'Uploading...' : 'Creating...'}</span>
                   </>
                 ) : (
@@ -845,6 +931,505 @@ const AddClubModal = ({ isOpen, onClose, onSubmit, isLoading }) => {
               </button>
             </div>
           </form>
+        </div>
+      </div>
+    </div>
+  );
+};
+
+// View Club Details Modal Component
+const ViewClubDetailsModal = ({ isOpen, onClose, clubId }) => {
+  const { data: club, isLoading } = useQuery({
+    queryKey: ['admin-club', clubId],
+    queryFn: async () => {
+      const response = await api.get(`/api/admin/clubs/${clubId}`);
+      return response.data;
+    },
+    enabled: !!clubId && isOpen
+  });
+
+  if (!isOpen) return null;
+
+  return (
+    <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/50 backdrop-blur-sm overflow-y-auto">
+      <div className="bg-[#1a231f] border border-[#3d5245] rounded-xl w-full max-w-2xl my-8 max-h-[90vh] overflow-y-auto">
+        <div className="p-6 md:p-8">
+          {/* Header */}
+          <div className="flex items-center justify-between mb-6">
+            <h2 className="text-white text-2xl font-bold">Club Details</h2>
+            <button
+              onClick={onClose}
+              className="text-[#9eb7a8] hover:text-white transition-colors p-2 rounded-lg hover:bg-[#29382f]"
+            >
+              <span className="material-symbols-outlined text-[24px]">close</span>
+            </button>
+          </div>
+
+          {isLoading ? (
+            <div className="flex items-center justify-center py-12">
+              <Loader />
+            </div>
+          ) : club ? (
+            <div className="flex flex-col gap-6">
+              {/* Club Image */}
+              {club.image && (
+                <div className="w-full h-48 rounded-xl overflow-hidden">
+                  <img src={club.image} alt={club.name} className="w-full h-full object-cover" />
+                </div>
+              )}
+
+              {/* Club Info */}
+              <div className="flex flex-col gap-4">
+                <div>
+                  <label className="text-[#9eb7a8] text-sm font-medium">Club Name</label>
+                  <p className="text-white text-lg font-bold mt-1">{club.name}</p>
+                </div>
+
+                {club.description && (
+                  <div>
+                    <label className="text-[#9eb7a8] text-sm font-medium">Description</label>
+                    <p className="text-white text-sm mt-1 whitespace-pre-wrap">{club.description}</p>
+                  </div>
+                )}
+
+                <div className="grid grid-cols-2 gap-4">
+                  {club.category && (
+                    <div>
+                      <label className="text-[#9eb7a8] text-sm font-medium">Category</label>
+                      <p className="text-white text-sm mt-1 capitalize">{club.category}</p>
+                    </div>
+                  )}
+                  {club.location && (
+                    <div>
+                      <label className="text-[#9eb7a8] text-sm font-medium">Location</label>
+                      <p className="text-white text-sm mt-1">{club.location}</p>
+                    </div>
+                  )}
+                </div>
+
+                <div className="grid grid-cols-2 gap-4">
+                  <div>
+                    <label className="text-[#9eb7a8] text-sm font-medium">Membership Fee</label>
+                    <p className="text-white text-sm mt-1">{club.fee === 0 || club.fee === 'Free' ? 'Free' : `৳${club.fee}`}</p>
+                  </div>
+                  <div>
+                    <label className="text-[#9eb7a8] text-sm font-medium">Status</label>
+                    <p className="text-white text-sm mt-1 capitalize">{club.status}</p>
+                  </div>
+                </div>
+
+                <div>
+                  <label className="text-[#9eb7a8] text-sm font-medium">Manager Email</label>
+                  <p className="text-white text-sm mt-1">{club.managerEmail}</p>
+                </div>
+
+                <div className="grid grid-cols-2 gap-4">
+                  <div>
+                    <label className="text-[#9eb7a8] text-sm font-medium">Members</label>
+                    <p className="text-white text-sm mt-1">{club.memberCount || 0}</p>
+                  </div>
+                  <div>
+                    <label className="text-[#9eb7a8] text-sm font-medium">Events</label>
+                    <p className="text-white text-sm mt-1">{club.eventCount || 0}</p>
+                  </div>
+                </div>
+
+                {club.joinedDate && (
+                  <div>
+                    <label className="text-[#9eb7a8] text-sm font-medium">Created Date</label>
+                    <p className="text-white text-sm mt-1">{club.joinedDate}</p>
+                  </div>
+                )}
+              </div>
+
+              {/* Close Button */}
+              <div className="flex justify-end pt-4 border-t border-[#3d5245]">
+                <button
+                  onClick={onClose}
+                  className="text-[#9eb7a8] font-semibold hover:text-white px-6 py-2.5 transition-colors rounded-lg hover:bg-[#29382f]"
+                >
+                  Close
+                </button>
+              </div>
+            </div>
+          ) : (
+            <div className="text-center py-12 text-[#9eb7a8]">Club not found</div>
+          )}
+        </div>
+      </div>
+    </div>
+  );
+};
+
+// Edit Club Modal Component
+const EditClubModal = ({ isOpen, onClose, clubId, onSubmit, isLoading }) => {
+  const [formData, setFormData] = useState({
+    name: '',
+    description: '',
+    category: '',
+    location: '',
+    fee: '',
+    managerEmail: ''
+  });
+  const [bannerImage, setBannerImage] = useState(null);
+  const [bannerPreview, setBannerPreview] = useState(null);
+  const [isUploadingImage, setIsUploadingImage] = useState(false);
+
+  // Fetch categories
+  const { data: categoriesData } = useQuery({
+    queryKey: ['admin-categories'],
+    queryFn: async () => {
+      const response = await api.get('/api/admin/categories');
+      return response.data;
+    }
+  });
+
+  const categories = categoriesData?.categories || [];
+
+  // Fetch club data
+  const { data: club, isLoading: isLoadingClub } = useQuery({
+    queryKey: ['admin-club', clubId],
+    queryFn: async () => {
+      const response = await api.get(`/api/admin/clubs/${clubId}`);
+      return response.data;
+    },
+    enabled: !!clubId && isOpen,
+    onSuccess: (data) => {
+      if (data) {
+        setFormData({
+          name: data.name || '',
+          description: data.description || '',
+          category: data.category || '',
+          location: data.location || '',
+          fee: data.fee === 0 || data.fee === 'Free' ? '' : data.fee.toString(),
+          managerEmail: data.managerEmail || ''
+        });
+        if (data.image) {
+          setBannerPreview(data.image);
+        }
+      }
+    }
+  });
+
+  // Upload image to ImgBB
+  const uploadImageToImgBB = async (file) => {
+    const apiKey = import.meta.env.VITE_IMGBB_API_KEY;
+    if (!apiKey) {
+      console.warn('ImgBB API key is not configured. Skipping image upload.');
+      return null;
+    }
+
+    const formData = new FormData();
+    formData.append('image', file);
+
+    try {
+      const response = await fetch(`https://api.imgbb.com/1/upload?key=${apiKey}`, {
+        method: 'POST',
+        body: formData,
+      });
+
+      if (!response.ok) {
+        const errorData = await response.json().catch(() => ({}));
+        throw new Error(errorData.error?.message || 'Failed to upload image');
+      }
+
+      const data = await response.json();
+      if (data.success && data.data && data.data.url) {
+        return data.data.url;
+      } else {
+        throw new Error('Failed to get image URL from ImgBB');
+      }
+    } catch (error) {
+      console.error('Image upload failed:', error);
+      throw error;
+    }
+  };
+
+  const handleImageChange = (e) => {
+    const file = e.target.files[0];
+    if (file) {
+      if (!file.type.startsWith('image/')) {
+        Swal.fire({
+          icon: 'error',
+          title: 'Invalid File',
+          text: 'Please select an image file.',
+        });
+        return;
+      }
+      
+      if (file.size > 5 * 1024 * 1024) {
+        Swal.fire({
+          icon: 'error',
+          title: 'File Too Large',
+          text: 'Please select an image smaller than 5MB.',
+        });
+        return;
+      }
+
+      setBannerImage(file);
+      
+      const reader = new FileReader();
+      reader.onloadend = () => {
+        setBannerPreview(reader.result);
+      };
+      reader.readAsDataURL(file);
+    }
+  };
+
+  const handleInputChange = (e) => {
+    const { name, value } = e.target;
+    setFormData(prev => ({
+      ...prev,
+      [name]: value
+    }));
+  };
+
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+    
+    if (!formData.name || !formData.description || !formData.category || !formData.location || !formData.managerEmail) {
+      Swal.fire({
+        icon: 'error',
+        title: 'Missing Fields',
+        text: 'Please fill in all required fields.',
+      });
+      return;
+    }
+
+    let imageURL = club?.image || null;
+    
+    if (bannerImage) {
+      setIsUploadingImage(true);
+      try {
+        imageURL = await uploadImageToImgBB(bannerImage);
+      } catch (error) {
+        Swal.fire({
+          icon: 'error',
+          title: 'Upload Failed',
+          text: 'Failed to upload banner image. Please try again.',
+        });
+        setIsUploadingImage(false);
+        return;
+      }
+      setIsUploadingImage(false);
+    }
+
+    onSubmit({
+      name: formData.name,
+      description: formData.description,
+      category: formData.category,
+      location: formData.location,
+      fee: parseFloat(formData.fee) || 0,
+      managerEmail: formData.managerEmail,
+      image: imageURL
+    });
+  };
+
+  if (!isOpen) return null;
+
+  return (
+    <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/50 backdrop-blur-sm overflow-y-auto">
+      <div className="bg-[#1a231f] border border-[#3d5245] rounded-xl w-full max-w-[800px] my-8 max-h-[90vh] overflow-y-auto">
+        <div className="p-6 md:p-8">
+          <div className="flex items-center justify-between mb-6">
+            <div className="flex flex-col gap-2">
+              <h1 className="text-white text-3xl md:text-4xl font-black leading-tight tracking-tight">Edit Club</h1>
+              <p className="text-[#9eb7a8] text-base font-normal">Update club information and details.</p>
+            </div>
+            <button
+              onClick={onClose}
+              className="text-[#9eb7a8] hover:text-white transition-colors p-2 rounded-lg hover:bg-[#29382f]"
+            >
+              <span className="material-symbols-outlined text-[24px]">close</span>
+            </button>
+          </div>
+
+          {isLoadingClub ? (
+            <div className="flex items-center justify-center py-12">
+              <Loader />
+            </div>
+          ) : (
+            <form onSubmit={handleSubmit} className="flex flex-col gap-6">
+              {/* Banner Image */}
+              <div className="flex flex-col gap-2">
+                <label className="text-[#9eb7a8] text-sm font-medium flex gap-1">
+                  Banner Image
+                </label>
+                <div className="group border-2 border-dashed border-[#3d5245] rounded-xl p-8 flex flex-col items-center justify-center text-center hover:bg-[#202b25] hover:border-primary/50 transition-all cursor-pointer relative bg-[#29382f]/30">
+                  <input
+                    accept="image/*"
+                    className="absolute inset-0 w-full h-full opacity-0 cursor-pointer"
+                    type="file"
+                    onChange={handleImageChange}
+                  />
+                  {bannerPreview ? (
+                    <img src={bannerPreview} alt="Banner preview" className="w-full h-48 object-cover rounded-lg mb-3" />
+                  ) : (
+                    <>
+                      <div className="bg-[#29382f] p-3 rounded-full mb-3 text-[#9eb7a8] group-hover:text-white transition-colors shadow-sm">
+                        <span className="material-symbols-outlined text-[24px]">cloud_upload</span>
+                      </div>
+                      <p className="text-white font-medium text-sm">Click to upload or drag and drop</p>
+                      <p className="text-[#9eb7a8] text-xs mt-1">SVG, PNG, JPG or GIF (max. 1920x400px)</p>
+                    </>
+                  )}
+                </div>
+              </div>
+
+              {/* Club Name */}
+              <div className="flex flex-col gap-2">
+                <label className="text-[#9eb7a8] text-sm font-medium flex gap-1" htmlFor="editClubName">
+                  Club Name <span className="text-red-400">*</span>
+                </label>
+                <input
+                  className="bg-[#29382f] border border-transparent focus:border-primary/50 focus:ring-0 rounded-lg text-white placeholder:text-[#5c7266] h-12 px-4 w-full transition-colors"
+                  id="editClubName"
+                  name="name"
+                  placeholder="e.g. Downtown Runners"
+                  type="text"
+                  value={formData.name}
+                  onChange={handleInputChange}
+                  required
+                />
+              </div>
+
+              {/* Description */}
+              <div className="flex flex-col gap-2">
+                <label className="text-[#9eb7a8] text-sm font-medium flex gap-1" htmlFor="editDescription">
+                  Description <span className="text-red-400">*</span>
+                </label>
+                <textarea
+                  className="bg-[#29382f] border border-transparent focus:border-primary/50 focus:ring-0 rounded-lg text-white placeholder:text-[#5c7266] p-4 w-full transition-colors resize-none"
+                  id="editDescription"
+                  name="description"
+                  placeholder="Describe the club's mission, activities, and who should join..."
+                  rows="4"
+                  value={formData.description}
+                  onChange={handleInputChange}
+                  required
+                />
+              </div>
+
+              {/* Category and Location */}
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <div className="flex flex-col gap-2">
+                  <label className="text-[#9eb7a8] text-sm font-medium flex gap-1" htmlFor="editCategory">
+                    Category <span className="text-red-400">*</span>
+                  </label>
+                  <div className="relative">
+                    <select
+                      className="bg-[#29382f] border border-transparent focus:border-primary/50 focus:ring-0 rounded-lg text-white h-12 px-4 w-full transition-colors appearance-none cursor-pointer"
+                      id="editCategory"
+                      name="category"
+                      value={formData.category}
+                      onChange={handleInputChange}
+                      required
+                      >
+                        <option disabled value="">Select a category</option>
+                        {categories.map((cat) => (
+                          <option key={cat._id || cat.id} value={cat.name}>
+                            {cat.displayName}
+                          </option>
+                        ))}
+                      </select>
+                    <span className="material-symbols-outlined absolute right-4 top-1/2 -translate-y-1/2 text-[#9eb7a8] pointer-events-none">expand_more</span>
+                  </div>
+                </div>
+                <div className="flex flex-col gap-2">
+                  <label className="text-[#9eb7a8] text-sm font-medium flex gap-1" htmlFor="editLocation">
+                    Location <span className="text-red-400">*</span>
+                  </label>
+                  <div className="relative">
+                    <span className="material-symbols-outlined absolute left-4 top-1/2 -translate-y-1/2 text-[#5c7266]">location_on</span>
+                    <input
+                      className="bg-[#29382f] border border-transparent focus:border-primary/50 focus:ring-0 rounded-lg text-white placeholder:text-[#5c7266] h-12 pl-12 pr-4 w-full transition-colors"
+                      id="editLocation"
+                      name="location"
+                      placeholder="e.g. New York, NY"
+                      type="text"
+                      value={formData.location}
+                      onChange={handleInputChange}
+                      required
+                    />
+                  </div>
+                </div>
+              </div>
+
+              {/* Fee and Manager Email */}
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <div className="flex flex-col gap-2">
+                  <label className="text-[#9eb7a8] text-sm font-medium flex gap-1" htmlFor="editFee">
+                    Membership Fee (Monthly)
+                  </label>
+                  <div className="relative">
+                    <span className="absolute left-4 top-1/2 -translate-y-1/2 text-[#5c7266] font-bold">৳</span>
+                    <input
+                      className="bg-[#29382f] border border-transparent focus:border-primary/50 focus:ring-0 rounded-lg text-white placeholder:text-[#5c7266] h-12 pl-10 pr-4 w-full transition-colors"
+                      id="editFee"
+                      name="fee"
+                      min="0"
+                      placeholder="0"
+                      step="0.01"
+                      type="number"
+                      value={formData.fee}
+                      onChange={handleInputChange}
+                    />
+                  </div>
+                  <p className="text-xs text-[#5c7266] mt-1">Enter 0 for free clubs.</p>
+                </div>
+                <div className="flex flex-col gap-2">
+                  <label className="text-[#9eb7a8] text-sm font-medium flex gap-1" htmlFor="editManagerEmail">
+                    Manager Email <span className="text-red-400">*</span>
+                  </label>
+                  <div className="relative">
+                    <span className="material-symbols-outlined absolute left-4 top-1/2 -translate-y-1/2 text-[#5c7266]">person</span>
+                    <input
+                      className="bg-[#29382f] border border-transparent focus:border-primary/50 focus:ring-0 rounded-lg text-white placeholder:text-[#5c7266] h-12 pl-12 pr-4 w-full transition-colors"
+                      id="editManagerEmail"
+                      name="managerEmail"
+                      placeholder="user@example.com"
+                      type="email"
+                      value={formData.managerEmail}
+                      onChange={handleInputChange}
+                      required
+                    />
+                  </div>
+                  <p className="text-xs text-[#5c7266] mt-1">Must be an existing registered user.</p>
+                </div>
+              </div>
+
+              {/* Form Actions */}
+              <div className="flex items-center justify-end gap-4 mt-6 pt-6 border-t border-[#3d5245]">
+                <button
+                  type="button"
+                  onClick={onClose}
+                  className="text-[#9eb7a8] font-semibold hover:text-white px-6 py-2.5 transition-colors rounded-lg hover:bg-[#29382f]"
+                  disabled={isLoading || isUploadingImage}
+                >
+                  Cancel
+                </button>
+                <button
+                  type="submit"
+                  className="bg-primary text-black px-8 py-2.5 rounded-lg font-bold hover:bg-opacity-90 transition-opacity shadow-[0_0_15px_rgba(54,226,123,0.3)] flex items-center justify-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed"
+                  disabled={isLoading || isUploadingImage}
+                >
+                  {isLoading || isUploadingImage ? (
+                    <>
+                      <div className="flex items-center justify-center">
+                        <div className="w-5 h-5 border-2 border-black border-t-transparent rounded-full animate-spin"></div>
+                      </div>
+                      <span>{isUploadingImage ? 'Uploading...' : 'Updating...'}</span>
+                    </>
+                  ) : (
+                    <>
+                      <span className="material-symbols-outlined text-[20px]">save</span>
+                      <span>Update Club</span>
+                    </>
+                  )}
+                </button>
+              </div>
+            </form>
+          )}
         </div>
       </div>
     </div>

@@ -11,6 +11,7 @@ import AdminManageUsers from '../pages/AdminManageUsers';
 import AdminManageClubs from '../pages/AdminManageClubs';
 import AdminManageEvents from '../pages/AdminManageEvents';
 import AdminViewFinances from '../pages/AdminViewFinances';
+import AdminManageCategories from '../pages/AdminManageCategories';
 import ClubManagerDashboard from '../pages/ClubManagerDashboard';
 import ManagerMyClubs from '../pages/ManagerMyClubs';
 import ManagerClubMembers from '../pages/ManagerClubMembers';
@@ -71,6 +72,14 @@ const AppRoutes = () => {
         element={
           <PrivateRoute requiredRole="admin">
             <AdminViewFinances />
+          </PrivateRoute>
+        } 
+      />
+      <Route 
+        path="/dashboard/admin/categories" 
+        element={
+          <PrivateRoute requiredRole="admin">
+            <AdminManageCategories />
           </PrivateRoute>
         } 
       />
