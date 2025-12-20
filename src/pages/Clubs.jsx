@@ -13,53 +13,25 @@ const Clubs = () => {
   const [searchTerm, setSearchTerm] = useState('');
   const [selectedCategory, setSelectedCategory] = useState('all');
 
-  // Fetch clubs - using mock data for now since backend isn't ready
+  // Fetch clubs from API
   const { data: clubs = [], isLoading } = useQuery({
     queryKey: ['clubs', searchTerm, selectedCategory],
     queryFn: async () => {
-      // TODO: Replace with actual API call
-      // const response = await api.get('/clubs', { params: { search: searchTerm, category: selectedCategory } });
-      // return response.data;
-      
-      // Mock data for now
-      return [
-        {
-          id: 1,
-          clubName: "Neon Runners",
-          category: "Fitness",
-          location: "Seattle, WA",
-          membershipFee: 10,
-          memberCount: 1200,
-          bannerImage: "https://lh3.googleusercontent.com/aida-public/AB6AXuB1oVhmYN0DfGgB3WM3uMQa2TeHZMqqJxnDx34d1QAZLoETbEi83st3nfM8GceERbgrwfthKtMc2WNKhP76RH08ZBju-M5ig9sWeFJLn8HDmhUzlWfZ3KRgz5rd7RB-W4zOaWvrNgfJo_ZC8xpQfA59kE_Ke8L1r29e6laR5N_StIqoXR6B4ARg0OwgYyvz2L93Crrg3j3KeFItlJ2vW8KD64ThdOMAykMdix4bLJhrGLFj0VDuLthxAfIo9pUUHsEPmH0XQ7fK7fyK"
-        },
-        {
-          id: 2,
-          clubName: "Midnight Coders",
-          category: "Tech",
-          location: "San Francisco, CA",
-          membershipFee: 0,
-          memberCount: 850,
-          bannerImage: "https://lh3.googleusercontent.com/aida-public/AB6AXuBteC4aGpO3UEQXOWahWRrPoqJZTbGLB5VqPjOoIiSE5a_L60C9b8AMfuZq2ipa-1QiCKKuciucMYXan_PuaVabc5oAy4LuO1YZ83f4d3RwOwX0De1CCG1X4N3evjKcde9HiedZVzjoBGmuL9iuFYMzoRE59AD9SF0H9vUMPh6m0irxXqE4UQTIJ6-P9k4R_If4xbyOIpeS8p0lh8J6c0_9zXotZrjUdk6SK0Kc-9HsiuC-GwEIcZ_YgKQyo7gUqyRVVUCFaGH1TT_i"
-        },
-        {
-          id: 3,
-          clubName: "Urban Gardeners",
-          category: "Lifestyle",
-          location: "Portland, OR",
-          membershipFee: 5,
-          memberCount: 300,
-          bannerImage: "https://lh3.googleusercontent.com/aida-public/AB6AXuAZ-wgSneLBqO6Sku_rwpzpS1eFz-IhhRGFH8KHnVT9FHHxZ_0cx1bfk7AkIAu2iIbrYOO6z6wWwusT58_gt2Xx6gGB-mr-HJHdsK0V1ioJgfjJ8zjp3_jEzrE4241ISMv3HZdPQHWyVsUUISVAkWZkvsQmfixjUV55qpJN9yBW3hFElFviW_UwgFnqcvoQl_nkYhx4PxLwqK3cI_GruSKoJ6oaoAJb8kqB7bpsFcSjfKo6W99B0RkLWxQdWdqeT_0FZ4qZ4ZgbsDPd"
-        },
-        {
-          id: 4,
-          clubName: "Canvas & Coffee",
-          category: "Arts",
-          location: "New York, NY",
-          membershipFee: 15,
-          memberCount: 150,
-          bannerImage: "https://lh3.googleusercontent.com/aida-public/AB6AXuDkW4HrA3xdKEXDesEnRS4_i5RWy0V3PmwPD6VYkidpg8GaiVi_NvLKn3o__ILmJSXxp1QFMHXJ-xlyt78_VS0TTMJmiBwNwAcl5HFFdr5C_r2RTcC4noem9eZiHEvOphfr8D2tJ8DAyd1w78l0s0DeyDtO8R9D6v4Ps11GVF0ncUNffrUfHkh99vZ3u2FVPCdrvFa0Lj1Bu22DyWfdXHpBe-dnKS3VgAgfq2saI_sgJcQOeLb_rZtDTemwTQIi-kQfkGbNQLGV89aC"
+      try {
+        const params = {};
+        if (searchTerm) {
+          params.search = searchTerm;
         }
-      ];
+        if (selectedCategory && selectedCategory !== 'all') {
+          params.category = selectedCategory;
+        }
+        const response = await api.get('/clubs', { params });
+        return response.data || [];
+      } catch (error) {
+        console.error('Error fetching clubs:', error);
+        // Return empty array on error instead of throwing
+        return [];
+      }
     },
   });
 
@@ -126,17 +98,9 @@ const Clubs = () => {
         ) : (
           <>
             <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-6 lg:gap-8">
-              {clubs
-                .filter((club) => {
-                  const matchesSearch = !searchTerm || 
-                    club.clubName?.toLowerCase().includes(searchTerm.toLowerCase()) ||
-                    club.location?.toLowerCase().includes(searchTerm.toLowerCase());
-                  const matchesCategory = selectedCategory === 'all' || club.category === selectedCategory;
-                  return matchesSearch && matchesCategory;
-                })
-                .map((club) => (
-                  <ClubCard key={club.id} club={club} />
-                ))}
+              {clubs.map((club) => (
+                <ClubCard key={club.id} club={club} />
+              ))}
             </div>
             {clubs.length === 0 && (
               <div className="text-center py-12">
