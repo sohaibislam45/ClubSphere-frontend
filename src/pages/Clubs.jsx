@@ -9,6 +9,8 @@ import api from '../lib/api';
 const Clubs = () => {
   useEffect(() => {
     document.title = 'Discover Clubs - ClubSphere';
+    // Scroll to top when component mounts
+    window.scrollTo(0, 0);
   }, []);
   const [searchTerm, setSearchTerm] = useState('');
   const [selectedCategory, setSelectedCategory] = useState('all');

@@ -1,6 +1,9 @@
 import { useState, useRef, useEffect } from 'react';
 import { Link, useLocation } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
+import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
+import api from '../lib/api';
+import Loader from '../components/ui/Loader';
 
 const AdminDashboard = () => {
   const { user, logout } = useAuth();
@@ -8,8 +11,12 @@ const AdminDashboard = () => {
   const [dropdownOpen, setDropdownOpen] = useState(false);
   const dropdownRef = useRef(null);
 
+  const queryClient = useQueryClient();
+
   useEffect(() => {
     document.title = 'Admin Dashboard - ClubSphere';
+    // Scroll to top when component mounts
+    window.scrollTo(0, 0);
   }, []);
 
   // Close dropdown when clicking outside
@@ -29,59 +36,75 @@ const AdminDashboard = () => {
     };
   }, [dropdownOpen]);
 
-  const pendingClubs = [
-    {
-      id: 1,
-      name: 'Peak Hikers',
-      category: 'Outdoor',
-      members: 12,
-      image: 'https://lh3.googleusercontent.com/aida-public/AB6AXuAFZXXm8mPoSpgRR3W8yGSfqdRx_EdDIKL1ra9rSVDnruQ5Q2DsdWNiTJcIkcZhEzAKDefG1G5LFiVntvwRyeTzWmY5E2MM_-J91v-l78zv8EFOswWclN7w8cU7bDF_83HKUNtdhXFfkfctR1hu6Z2pHMEE0cC1cMh86t1wnZU7KtfsO_1aur1dYh8rK6crJdTXQbu62gqazl0gjg1krYvywkuAwIMhoDsVkFehn2Ot7_jvWBVT2YB8xXLkHh8VmVpOwsypqvybOf0b'
-    },
-    {
-      id: 2,
-      name: 'Grandmasters',
-      category: 'Strategy',
-      members: 5,
-      image: 'https://lh3.googleusercontent.com/aida-public/AB6AXuCCpRcvw_GVaQOT0aQVwV45QIFeXYAgR7cQ7-w00OzgjZ6_W0QKpNkQsoR6yNE8e9EvhRFvw05crCHhBbgv9uo8A9lBU0HdSD5D0ss7j_b6dHHiOoqCfVaPHRxEMet5ZY7og1OilDiF1njuQEOg4q353M0YBh1PrRuQYvuRCjoeO46p49akBKtTB_m-VlMdqqL19sYZWubovG-dCq3T9ey-bOcwexiWfhj1HAsWBIQcKt223ArphZ86Tw8MNZ4-KqaEMwDfuLnb3ytY'
-    },
-    {
-      id: 3,
-      name: 'Night Readers',
-      category: 'Literature',
-      members: 24,
-      image: 'https://lh3.googleusercontent.com/aida-public/AB6AXuByYAGsCP7_sICl8l8lq1CiEbm92kAgktlUMJIxhELhDZmLrswsCREHJQjXhzmCkmb5-3qS8fSyjuon8kbC2kEmeIdLKuiUAcY9CGwRMZJjTH9ARnHmxFwAa0PCntO2DQZUHnzGtwmOFIwtijrIo9mSr-UOL7cTjd-oqhD2UoFuNYytnI0RD4axZaFUe0P57RFNxRNyg80cr5BUEfeLSH0bOUrCYvxWhiv4ZqKygonunenjZm94W9Hoo4LeanW6Nc5MBwn23SDpw2RR'
+  // Fetch dashboard stats
+  const { data: dashboardStats, isLoading: statsLoading } = useQuery({
+    queryKey: ['admin-dashboard-stats'],
+    queryFn: async () => {
+      const response = await api.get('/api/admin/dashboard/stats');
+      return response.data;
     }
-  ];
+  });
 
-  const transactions = [
-    {
-      id: 1,
-      userName: 'Sarah Jenkins',
-      userImage: 'https://lh3.googleusercontent.com/aida-public/AB6AXuDMQRoeWUSepmmgcAb5P1-OSIDCkkI3eOaIp44JbTSutqR15SFU1DxGWbHGzG9uT-D5UD2I7vIs5JY4gEbE8T0NpA8PBCgFSRZqKfg4UauSed43gN26gRdMo8WUe1qwfFNd1DjIMEui8PxuN4TvOsulF2w2QypvofSZSCxlPo2XDXMkabCENL16nWMQCtMnRwR3PH1blfIqmO7MceORI76VXkeYf6iACaF7949y-OBTRkTn6sivOqWeMMZx9AR-URK6hnN36kq8xwRt',
-      type: 'Club Membership',
-      date: 'Oct 24, 2023',
-      amount: '৳25.00',
-      status: 'Completed'
-    },
-    {
-      id: 2,
-      userName: 'Mike Thompson',
-      userImage: 'https://lh3.googleusercontent.com/aida-public/AB6AXuDCvF930ehAJEagQS44RjrMtXub1h9GiRCUdtu63eQmmWFDlGgHvXsRO6lbAjwIozQttr8n5ERDbTibJl1WfOSSuCl380NTYxl3qifUETyLkJj3dAOm3e87EgEDyKDH0jsa4x79p5nJq-fnqDeQuEG88WRqlPKbZD2a4M2w6AhyGN0ewCV2EwRKIzvgDKaaDzTMfnW7e4CLySX1RuJbpcXMglzaG8a5VMhPH5pnBtgzXz8SvZHfpz76rUwyJN8qmMqVSWd833nFa_pz',
-      type: 'Event Ticket',
-      date: 'Oct 23, 2023',
-      amount: '৳15.00',
-      status: 'Completed'
-    },
-    {
-      id: 3,
-      userName: 'Alex Rivera',
-      userImage: 'https://lh3.googleusercontent.com/aida-public/AB6AXuC2GdXyox6nfdq4M4Dl0JZHycOK85Sc9J3bHCLCEaAz65Y5VpdckQTo03GIXG7IRHrS8sM0leL4L21RH44e2dSU9218c3bV7-nvMEQ6YnBHsMibPAhX3mmiSqVW3kE2WyRHEPFEj6b7oEb4sqM_c2V0h6ZKFAQwHgZLqy7VSL5nQ1_T0X1Z_ITxUEgqmviWgoVhvrs4YIQ09TpCwKfAvBcyb0C_dMbZZHRPaaQAvjbHgtSER802KnaAy4N6kyI_hCpz4UkdDDxeuCBc',
-      type: 'Donation',
-      date: 'Oct 21, 2023',
-      amount: '৳50.00',
-      status: 'Processing'
+  // Fetch pending clubs
+  const { data: pendingClubsData, isLoading: pendingClubsLoading } = useQuery({
+    queryKey: ['admin-pending-clubs'],
+    queryFn: async () => {
+      const response = await api.get('/api/admin/clubs', { 
+        params: { status: 'pending', limit: 5 } 
+      });
+      return response.data;
     }
-  ];
+  });
+
+  // Fetch recent transactions
+  const { data: transactionsData, isLoading: transactionsLoading } = useQuery({
+    queryKey: ['admin-recent-transactions'],
+    queryFn: async () => {
+      const response = await api.get('/api/admin/finances', { 
+        params: { limit: 10 } 
+      });
+      return response.data;
+    }
+  });
+
+  // Approve club mutation
+  const approveClubMutation = useMutation({
+    mutationFn: async (clubId) => {
+      const response = await api.put(`/api/admin/clubs/${clubId}/approve`);
+      return response.data;
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries(['admin-pending-clubs']);
+      queryClient.invalidateQueries(['admin-dashboard-stats']);
+    }
+  });
+
+  // Reject club mutation
+  const rejectClubMutation = useMutation({
+    mutationFn: async (clubId) => {
+      const response = await api.put(`/api/admin/clubs/${clubId}/reject`);
+      return response.data;
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries(['admin-pending-clubs']);
+      queryClient.invalidateQueries(['admin-dashboard-stats']);
+    }
+  });
+
+  const handleApproveClub = (clubId) => {
+    if (window.confirm('Are you sure you want to approve this club?')) {
+      approveClubMutation.mutate(clubId);
+    }
+  };
+
+  const handleRejectClub = (clubId) => {
+    if (window.confirm('Are you sure you want to reject this club?')) {
+      rejectClubMutation.mutate(clubId);
+    }
+  };
+
+  const pendingClubs = pendingClubsData?.clubs || [];
+  const transactions = transactionsData?.transactions || [];
 
   return (
     <div className="flex h-screen w-full overflow-hidden bg-background-light dark:bg-background-dark font-display text-slate-900 dark:text-white">
@@ -231,66 +254,96 @@ const AdminDashboard = () => {
             </div>
 
             {/* Stats Grid */}
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
-              {/* Total Users */}
-              <div className="flex flex-col gap-4 rounded-[2rem] p-6 bg-surface-dark border border-surface-highlight hover:border-primary/30 transition-colors group">
-                <div className="flex items-center justify-between">
-                  <p className="text-gray-400 text-sm font-medium">Total Users</p>
-                  <span className="material-symbols-outlined text-gray-500 group-hover:text-primary transition-colors">group</span>
-                </div>
-                <div>
-                  <p className="text-white text-3xl font-bold">1,240</p>
-                  <div className="flex items-center gap-1 mt-1">
-                    <span className="material-symbols-outlined text-primary text-sm">trending_up</span>
-                    <p className="text-primary text-xs font-bold">+12% <span className="text-gray-500 font-normal ml-1">from last month</span></p>
+            {statsLoading ? (
+              <div className="flex items-center justify-center py-20">
+                <Loader />
+              </div>
+            ) : (
+              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+                {/* Total Users */}
+                <div className="flex flex-col gap-4 rounded-[2rem] p-6 bg-surface-dark border border-surface-highlight hover:border-primary/30 transition-colors group">
+                  <div className="flex items-center justify-between">
+                    <p className="text-gray-400 text-sm font-medium">Total Users</p>
+                    <span className="material-symbols-outlined text-gray-500 group-hover:text-primary transition-colors">group</span>
+                  </div>
+                  <div>
+                    <p className="text-white text-3xl font-bold">
+                      {dashboardStats?.totalUsers?.toLocaleString() || '0'}
+                    </p>
+                    <div className="flex items-center gap-1 mt-1">
+                      {dashboardStats?.usersGrowth > 0 && (
+                        <span className="material-symbols-outlined text-primary text-sm">trending_up</span>
+                      )}
+                      {dashboardStats?.usersGrowth < 0 && (
+                        <span className="material-symbols-outlined text-red-400 text-sm">trending_down</span>
+                      )}
+                      <p className={`text-xs font-bold ${dashboardStats?.usersGrowth >= 0 ? 'text-primary' : 'text-red-400'}`}>
+                        {dashboardStats?.usersGrowth >= 0 ? '+' : ''}{dashboardStats?.usersGrowth || 0}% 
+                        <span className="text-gray-500 font-normal ml-1">from last month</span>
+                      </p>
+                    </div>
                   </div>
                 </div>
-              </div>
 
-              {/* Pending Clubs */}
-              <div className="flex flex-col gap-4 rounded-[2rem] p-6 bg-surface-dark border border-surface-highlight hover:border-primary/30 transition-colors group relative overflow-hidden">
-                <div className="absolute -right-4 -top-4 w-20 h-20 bg-primary/10 rounded-full blur-xl group-hover:bg-primary/20 transition-all"></div>
-                <div className="flex items-center justify-between relative z-10">
-                  <p className="text-gray-400 text-sm font-medium">Pending Clubs</p>
-                  <span className="material-symbols-outlined text-white bg-primary/20 p-1 rounded-full text-[18px]">priority_high</span>
-                </div>
-                <div className="relative z-10">
-                  <p className="text-white text-3xl font-bold">5</p>
-                  <div className="flex items-center gap-1 mt-1">
-                    <p className="text-primary text-xs font-bold">+2 <span className="text-gray-500 font-normal ml-1">since yesterday</span></p>
+                {/* Pending Clubs */}
+                <div className="flex flex-col gap-4 rounded-[2rem] p-6 bg-surface-dark border border-surface-highlight hover:border-primary/30 transition-colors group relative overflow-hidden">
+                  <div className="absolute -right-4 -top-4 w-20 h-20 bg-primary/10 rounded-full blur-xl group-hover:bg-primary/20 transition-all"></div>
+                  <div className="flex items-center justify-between relative z-10">
+                    <p className="text-gray-400 text-sm font-medium">Pending Clubs</p>
+                    <span className="material-symbols-outlined text-white bg-primary/20 p-1 rounded-full text-[18px]">priority_high</span>
+                  </div>
+                  <div className="relative z-10">
+                    <p className="text-white text-3xl font-bold">{dashboardStats?.pendingClubs || 0}</p>
+                    <div className="flex items-center gap-1 mt-1">
+                      {dashboardStats?.pendingClubsNew > 0 && (
+                        <p className="text-primary text-xs font-bold">
+                          +{dashboardStats.pendingClubsNew} <span className="text-gray-500 font-normal ml-1">since yesterday</span>
+                        </p>
+                      )}
+                    </div>
                   </div>
                 </div>
-              </div>
 
-              {/* Total Revenue */}
-              <div className="flex flex-col gap-4 rounded-[2rem] p-6 bg-surface-dark border border-surface-highlight hover:border-primary/30 transition-colors group">
-                <div className="flex items-center justify-between">
-                  <p className="text-gray-400 text-sm font-medium">Total Revenue</p>
-                  <span className="material-symbols-outlined text-gray-500 group-hover:text-primary transition-colors">payments</span>
-                </div>
-                <div>
-                  <p className="text-white text-3xl font-bold">৳12,450</p>
-                  <div className="flex items-center gap-1 mt-1">
-                    <span className="material-symbols-outlined text-primary text-sm">trending_up</span>
-                    <p className="text-primary text-xs font-bold">+8% <span className="text-gray-500 font-normal ml-1">growth</span></p>
+                {/* Total Revenue */}
+                <div className="flex flex-col gap-4 rounded-[2rem] p-6 bg-surface-dark border border-surface-highlight hover:border-primary/30 transition-colors group">
+                  <div className="flex items-center justify-between">
+                    <p className="text-gray-400 text-sm font-medium">Total Revenue</p>
+                    <span className="material-symbols-outlined text-gray-500 group-hover:text-primary transition-colors">payments</span>
+                  </div>
+                  <div>
+                    <p className="text-white text-3xl font-bold">
+                      ৳{dashboardStats?.totalRevenue?.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 }) || '0.00'}
+                    </p>
+                    <div className="flex items-center gap-1 mt-1">
+                      {dashboardStats?.revenueGrowth > 0 && (
+                        <span className="material-symbols-outlined text-primary text-sm">trending_up</span>
+                      )}
+                      {dashboardStats?.revenueGrowth < 0 && (
+                        <span className="material-symbols-outlined text-red-400 text-sm">trending_down</span>
+                      )}
+                      <p className={`text-xs font-bold ${dashboardStats?.revenueGrowth >= 0 ? 'text-primary' : 'text-red-400'}`}>
+                        {dashboardStats?.revenueGrowth >= 0 ? '+' : ''}{dashboardStats?.revenueGrowth || 0}% 
+                        <span className="text-gray-500 font-normal ml-1">growth</span>
+                      </p>
+                    </div>
                   </div>
                 </div>
-              </div>
 
-              {/* Active Events */}
-              <div className="flex flex-col gap-4 rounded-[2rem] p-6 bg-surface-dark border border-surface-highlight hover:border-primary/30 transition-colors group">
-                <div className="flex items-center justify-between">
-                  <p className="text-gray-400 text-sm font-medium">Active Events</p>
-                  <span className="material-symbols-outlined text-gray-500 group-hover:text-primary transition-colors">event_available</span>
-                </div>
-                <div>
-                  <p className="text-white text-3xl font-bold">34</p>
-                  <div className="flex items-center gap-1 mt-1">
-                    <p className="text-primary text-xs font-bold">+5% <span className="text-gray-500 font-normal ml-1">engagement</span></p>
+                {/* Active Events */}
+                <div className="flex flex-col gap-4 rounded-[2rem] p-6 bg-surface-dark border border-surface-highlight hover:border-primary/30 transition-colors group">
+                  <div className="flex items-center justify-between">
+                    <p className="text-gray-400 text-sm font-medium">Active Events</p>
+                    <span className="material-symbols-outlined text-gray-500 group-hover:text-primary transition-colors">event_available</span>
+                  </div>
+                  <div>
+                    <p className="text-white text-3xl font-bold">{dashboardStats?.activeEvents || 0}</p>
+                    <div className="flex items-center gap-1 mt-1">
+                      <p className="text-primary text-xs font-bold">Upcoming events</p>
+                    </div>
                   </div>
                 </div>
               </div>
-            </div>
+            )}
 
             {/* Main Grid Layout for Chart & Tables */}
             <div className="grid grid-cols-1 xl:grid-cols-3 gap-6">
@@ -340,30 +393,54 @@ const AdminDashboard = () => {
               <div className="flex flex-col gap-4 p-6 rounded-[2rem] bg-surface-dark border border-surface-highlight">
                 <div className="flex items-center justify-between">
                   <h3 className="text-white text-lg font-bold">Pending Approvals</h3>
-                  <a className="text-primary text-xs font-bold hover:underline" href="#">View All</a>
+                  <Link to="/dashboard/admin/clubs?status=pending" className="text-primary text-xs font-bold hover:underline">
+                    View All
+                  </Link>
                 </div>
-                {pendingClubs.map((club) => (
-                  <div key={club.id} className="flex items-center justify-between gap-3 p-3 rounded-2xl bg-background-dark border border-surface-highlight/50">
-                    <div className="flex items-center gap-3">
-                      <div 
-                        className="size-10 rounded-full bg-cover bg-center"
-                        style={{ backgroundImage: `url("${club.image}")` }}
-                      ></div>
-                      <div className="flex flex-col">
-                        <p className="text-white text-sm font-bold">{club.name}</p>
-                        <p className="text-gray-500 text-xs">{club.category} • {club.members} Members</p>
+                {pendingClubsLoading ? (
+                  <div className="flex items-center justify-center py-8">
+                    <Loader />
+                  </div>
+                ) : pendingClubs.length === 0 ? (
+                  <div className="text-center py-8">
+                    <p className="text-gray-500 text-sm">No pending clubs</p>
+                  </div>
+                ) : (
+                  pendingClubs.map((club) => (
+                    <div key={club.id} className="flex items-center justify-between gap-3 p-3 rounded-2xl bg-background-dark border border-surface-highlight/50">
+                      <div className="flex items-center gap-3">
+                        <div 
+                          className="size-10 rounded-full bg-cover bg-center bg-card-dark"
+                          style={{ backgroundImage: club.image ? `url("${club.image}")` : 'none' }}
+                        ></div>
+                        <div className="flex flex-col">
+                          <p className="text-white text-sm font-bold">{club.name}</p>
+                          <p className="text-gray-500 text-xs">
+                            {club.category || 'General'} • {club.memberCount || 0} Members
+                          </p>
+                        </div>
+                      </div>
+                      <div className="flex gap-2">
+                        <button 
+                          onClick={() => handleRejectClub(club.id)}
+                          disabled={rejectClubMutation.isPending}
+                          className="size-8 flex items-center justify-center rounded-full bg-surface-highlight text-gray-400 hover:text-red-400 hover:bg-red-400/10 transition-colors disabled:opacity-50" 
+                          title="Reject"
+                        >
+                          <span className="material-symbols-outlined text-[18px]">close</span>
+                        </button>
+                        <button 
+                          onClick={() => handleApproveClub(club.id)}
+                          disabled={approveClubMutation.isPending}
+                          className="size-8 flex items-center justify-center rounded-full bg-primary text-background-dark hover:bg-white transition-colors shadow-lg shadow-primary/20 disabled:opacity-50" 
+                          title="Approve"
+                        >
+                          <span className="material-symbols-outlined text-[18px]">check</span>
+                        </button>
                       </div>
                     </div>
-                    <div className="flex gap-2">
-                      <button className="size-8 flex items-center justify-center rounded-full bg-surface-highlight text-gray-400 hover:text-red-400 hover:bg-red-400/10 transition-colors" title="Reject">
-                        <span className="material-symbols-outlined text-[18px]">close</span>
-                      </button>
-                      <button className="size-8 flex items-center justify-center rounded-full bg-primary text-background-dark hover:bg-white transition-colors shadow-lg shadow-primary/20" title="Approve">
-                        <span className="material-symbols-outlined text-[18px]">check</span>
-                      </button>
-                    </div>
-                  </div>
-                ))}
+                  ))
+                )}
               </div>
             </div>
 
@@ -372,50 +449,74 @@ const AdminDashboard = () => {
               <div className="flex-1 flex flex-col rounded-[2rem] bg-surface-dark border border-surface-highlight overflow-hidden">
                 <div className="flex items-center justify-between p-6 pb-4">
                   <h3 className="text-white text-lg font-bold">Recent Transactions</h3>
-                  <button className="flex items-center gap-1 text-gray-400 hover:text-white text-xs font-medium transition-colors">
-                    Filter <span className="material-symbols-outlined text-[16px]">filter_list</span>
-                  </button>
+                  <Link to="/dashboard/admin/finances" className="flex items-center gap-1 text-gray-400 hover:text-white text-xs font-medium transition-colors">
+                    View All <span className="material-symbols-outlined text-[16px]">arrow_forward</span>
+                  </Link>
                 </div>
-                <div className="overflow-x-auto w-full">
-                  <table className="w-full text-left">
-                    <thead className="bg-surface-highlight/30 text-gray-400 text-xs uppercase tracking-wider">
-                      <tr>
-                        <th className="px-6 py-3 font-medium">User</th>
-                        <th className="px-6 py-3 font-medium">Type</th>
-                        <th className="px-6 py-3 font-medium">Date</th>
-                        <th className="px-6 py-3 font-medium text-right">Amount</th>
-                        <th className="px-6 py-3 font-medium text-center">Status</th>
-                      </tr>
-                    </thead>
-                    <tbody className="divide-y divide-surface-highlight/50">
-                      {transactions.map((transaction) => (
-                        <tr key={transaction.id} className="hover:bg-surface-highlight/10 transition-colors">
-                          <td className="px-6 py-4 whitespace-nowrap">
-                            <div className="flex items-center gap-3">
-                              <div 
-                                className="size-8 rounded-full bg-cover bg-center"
-                                style={{ backgroundImage: `url("${transaction.userImage}")` }}
-                              ></div>
-                              <span className="text-white text-sm font-medium">{transaction.userName}</span>
-                            </div>
-                          </td>
-                          <td className="px-6 py-4 whitespace-nowrap text-gray-400 text-sm">{transaction.type}</td>
-                          <td className="px-6 py-4 whitespace-nowrap text-gray-400 text-sm">{transaction.date}</td>
-                          <td className="px-6 py-4 whitespace-nowrap text-white text-sm font-bold text-right">{transaction.amount}</td>
-                          <td className="px-6 py-4 whitespace-nowrap text-center">
-                            <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${
-                              transaction.status === 'Completed' 
-                                ? 'bg-green-900/50 text-green-400 border border-green-800'
-                                : 'bg-yellow-900/30 text-yellow-500 border border-yellow-800'
-                            }`}>
-                              {transaction.status}
-                            </span>
-                          </td>
+                {transactionsLoading ? (
+                  <div className="flex items-center justify-center py-20">
+                    <Loader />
+                  </div>
+                ) : (
+                  <div className="overflow-x-auto w-full">
+                    <table className="w-full text-left">
+                      <thead className="bg-surface-highlight/30 text-gray-400 text-xs uppercase tracking-wider">
+                        <tr>
+                          <th className="px-6 py-3 font-medium">User</th>
+                          <th className="px-6 py-3 font-medium">Type</th>
+                          <th className="px-6 py-3 font-medium">Date</th>
+                          <th className="px-6 py-3 font-medium text-right">Amount</th>
+                          <th className="px-6 py-3 font-medium text-center">Status</th>
                         </tr>
-                      ))}
-                    </tbody>
-                  </table>
-                </div>
+                      </thead>
+                      <tbody className="divide-y divide-surface-highlight/50">
+                        {transactions.length === 0 ? (
+                          <tr>
+                            <td colSpan="5" className="px-6 py-8 text-center text-gray-500 text-sm">
+                              No transactions found
+                            </td>
+                          </tr>
+                        ) : (
+                          transactions.map((transaction) => (
+                            <tr key={transaction.id} className="hover:bg-surface-highlight/10 transition-colors">
+                              <td className="px-6 py-4 whitespace-nowrap">
+                                <div className="flex items-center gap-3">
+                                  {transaction.userPhotoURL ? (
+                                    <div 
+                                      className="size-8 rounded-full bg-cover bg-center"
+                                      style={{ backgroundImage: `url("${transaction.userPhotoURL}")` }}
+                                    ></div>
+                                  ) : (
+                                    <div className="size-8 rounded-full bg-primary/20 flex items-center justify-center text-primary text-xs font-bold">
+                                      {transaction.userInitials || 'U'}
+                                    </div>
+                                  )}
+                                  <span className="text-white text-sm font-medium">
+                                    {transaction.userName || transaction.userEmail || 'Unknown User'}
+                                  </span>
+                                </div>
+                              </td>
+                              <td className="px-6 py-4 whitespace-nowrap text-gray-400 text-sm">{transaction.type || 'N/A'}</td>
+                              <td className="px-6 py-4 whitespace-nowrap text-gray-400 text-sm">{transaction.date || 'N/A'}</td>
+                              <td className="px-6 py-4 whitespace-nowrap text-white text-sm font-bold text-right">{transaction.amount || '৳0.00'}</td>
+                              <td className="px-6 py-4 whitespace-nowrap text-center">
+                                <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${
+                                  transaction.status === 'paid' || transaction.status === 'Completed'
+                                    ? 'bg-green-900/50 text-green-400 border border-green-800'
+                                    : transaction.status === 'pending' || transaction.status === 'Processing'
+                                    ? 'bg-yellow-900/30 text-yellow-500 border border-yellow-800'
+                                    : 'bg-gray-900/50 text-gray-400 border border-gray-800'
+                                }`}>
+                                  {transaction.status === 'paid' ? 'Completed' : transaction.status === 'pending' ? 'Processing' : transaction.status || 'Pending'}
+                                </span>
+                              </td>
+                            </tr>
+                          ))
+                        )}
+                      </tbody>
+                    </table>
+                  </div>
+                )}
               </div>
             </div>
           </div>

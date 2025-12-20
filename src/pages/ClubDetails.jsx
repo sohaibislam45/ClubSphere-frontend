@@ -18,6 +18,18 @@ const ClubDetails = () => {
     },
   });
 
+  // Fetch upcoming events for this club
+  const { data: eventsData, isLoading: eventsLoading } = useQuery({
+    queryKey: ['club-events', id],
+    queryFn: async () => {
+      const response = await api.get(`/api/clubs/${id}/events`, { params: { limit: 5 } });
+      return response.data;
+    },
+    enabled: !!id, // Only fetch if club ID exists
+  });
+
+  const upcomingEvents = eventsData?.events || [];
+
   // Set document title - must be called before any early returns (Rules of Hooks)
   useEffect(() => {
     if (club) {
@@ -140,37 +152,58 @@ const ClubDetails = () => {
                   View all <span className="material-symbols-outlined text-sm">arrow_forward</span>
                 </a>
               </div>
-              <div className="space-y-4">
-                {/* Event Card Placeholder */}
-                <div className="group flex flex-col sm:flex-row bg-surface-light dark:bg-surface-dark-alt hover:bg-slate-50 dark:hover:bg-[#23362b] rounded-lg-alt overflow-hidden transition-all duration-300 border border-transparent dark:hover:border-primary/20">
-                  <div className="sm:w-48 h-32 sm:h-auto bg-cover bg-center" style={{ backgroundImage: `url("https://via.placeholder.com/200")` }}></div>
-                  <div className="flex-1 p-5 flex flex-col justify-center">
-                    <div className="flex justify-between items-start mb-2">
-                      <span className="text-primary font-bold text-sm uppercase tracking-wider">This Saturday</span>
-                      <span className="hidden sm:inline-block bg-slate-100 dark:bg-[#122017] px-3 py-1 rounded-lg text-xs font-bold text-slate-500 dark:text-slate-400">OCT 24</span>
-                    </div>
-                    <h4 className="text-xl font-bold mb-1 group-hover:text-primary transition-colors">Full Moon Discovery Park Trek</h4>
-                    <div className="flex items-center gap-4 text-sm text-slate-500 dark:text-[#9eb7a8] mb-4">
-                      <div className="flex items-center gap-1">
-                        <span className="material-symbols-outlined text-base">schedule</span>
-                        7:00 PM
-                      </div>
-                      <div className="flex items-center gap-1">
-                        <span className="material-symbols-outlined text-base">location_on</span>
-                        Discovery Park South
-                      </div>
-                    </div>
-                    <div className="flex items-center justify-between mt-auto">
-                      <div className="flex -space-x-2">
-                        <div className="w-6 h-6 rounded-full border border-surface-light dark:border-surface-dark bg-gray-400"></div>
-                        <div className="w-6 h-6 rounded-full border border-surface-light dark:border-surface-dark bg-gray-500"></div>
-                        <span className="text-xs text-slate-500 ml-3 pl-1">+12 attending</span>
-                      </div>
-                      <button className="px-4 py-2 rounded-full bg-slate-200 dark:bg-[#29382f] text-sm font-medium hover:bg-primary hover:text-black transition-all">Register</button>
-                    </div>
-                  </div>
+              {eventsLoading ? (
+                <div className="flex items-center justify-center py-8">
+                  <Loader />
                 </div>
-              </div>
+              ) : upcomingEvents.length === 0 ? (
+                <div className="text-center py-8">
+                  <p className="text-text-secondary">No upcoming events scheduled for this club.</p>
+                </div>
+              ) : (
+                <div className="space-y-4">
+                  {upcomingEvents.map((event) => (
+                    <div key={event.id} className="group flex flex-col sm:flex-row bg-surface-light dark:bg-surface-dark-alt hover:bg-slate-50 dark:hover:bg-[#23362b] rounded-lg-alt overflow-hidden transition-all duration-300 border border-transparent dark:hover:border-primary/20">
+                      <div 
+                        className="sm:w-48 h-32 sm:h-auto bg-cover bg-center bg-card-dark" 
+                        style={{ backgroundImage: event.image ? `url("${event.image}")` : 'none' }}
+                      ></div>
+                      <div className="flex-1 p-5 flex flex-col justify-center">
+                        <div className="flex justify-between items-start mb-2">
+                          <span className="text-primary font-bold text-sm uppercase tracking-wider">{event.dayOfWeek || 'Upcoming'}</span>
+                          <span className="hidden sm:inline-block bg-slate-100 dark:bg-[#122017] px-3 py-1 rounded-lg text-xs font-bold text-slate-500 dark:text-slate-400">
+                            {event.month} {event.day}
+                          </span>
+                        </div>
+                        <h4 className="text-xl font-bold mb-1 group-hover:text-primary transition-colors">{event.name || event.title}</h4>
+                        <div className="flex items-center gap-4 text-sm text-slate-500 dark:text-[#9eb7a8] mb-4">
+                          <div className="flex items-center gap-1">
+                            <span className="material-symbols-outlined text-base">schedule</span>
+                            {event.time || 'TBA'}
+                          </div>
+                          <div className="flex items-center gap-1">
+                            <span className="material-symbols-outlined text-base">location_on</span>
+                            {event.location || 'Location TBA'}
+                          </div>
+                        </div>
+                        <div className="flex items-center justify-between mt-auto">
+                          <div className="flex -space-x-2">
+                            <div className="w-6 h-6 rounded-full border border-surface-light dark:border-surface-dark bg-gray-400"></div>
+                            <div className="w-6 h-6 rounded-full border border-surface-light dark:border-surface-dark bg-gray-500"></div>
+                            <span className="text-xs text-slate-500 ml-3 pl-1">+{Math.floor(Math.random() * 20)} attending</span>
+                          </div>
+                          <a 
+                            href={`/events/${event.id}`}
+                            className="px-4 py-2 rounded-full bg-slate-200 dark:bg-[#29382f] text-sm font-medium hover:bg-primary hover:text-black transition-all"
+                          >
+                            Register
+                          </a>
+                        </div>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              )}
             </div>
           </div>
 
