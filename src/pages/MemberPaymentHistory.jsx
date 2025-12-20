@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useQuery } from '@tanstack/react-query';
 import { useAuth } from '../context/AuthContext';
 import MemberSidebar from '../components/layout/MemberSidebar';
@@ -7,6 +7,10 @@ import api from '../lib/api';
 
 const MemberPaymentHistory = () => {
   const { user } = useAuth();
+
+  useEffect(() => {
+    document.title = 'Payment History - ClubSphere';
+  }, []);
   const [typeFilter, setTypeFilter] = useState('All Types');
   const [statusFilter, setStatusFilter] = useState('All Status');
   const [dateRange, setDateRange] = useState('this_year');
@@ -146,7 +150,7 @@ const MemberPaymentHistory = () => {
                 </div>
                 <div>
                   <p className="text-[#9eb7a8] text-sm font-medium leading-normal mb-1">Total Spent (YTD)</p>
-                  <p className="text-white tracking-tight text-3xl font-bold leading-tight">${stats.totalSpent}</p>
+                  <p className="text-white tracking-tight text-3xl font-bold leading-tight">৳{stats.totalSpent}</p>
                 </div>
               </div>
               <div className="flex flex-col gap-3 rounded-2xl p-6 bg-[#29382f] border border-white/5 hover:border-white/10 transition-colors shadow-lg shadow-black/20">
@@ -159,7 +163,7 @@ const MemberPaymentHistory = () => {
                   <p className="text-[#9eb7a8] text-sm font-medium leading-normal mb-1">Last Payment</p>
                   <div className="flex items-baseline gap-2">
                     <p className="text-white tracking-tight text-3xl font-bold leading-tight">
-                      ${stats.lastPayment?.amount || '0.00'}
+                      ৳{stats.lastPayment?.amount || '0.00'}
                     </p>
                     {stats.lastPayment && (
                       <span className="text-[#9eb7a8] text-sm">for {stats.lastPayment.description}</span>
@@ -278,7 +282,7 @@ const MemberPaymentHistory = () => {
                                 {transaction.statusLabel}
                               </span>
                             </td>
-                            <td className="p-5 text-sm text-white font-bold text-right">${transaction.amount}</td>
+                            <td className="p-5 text-sm text-white font-bold text-right">৳{transaction.amount}</td>
                             <td className="p-5 text-right">
                               {transaction.status === 'failed' ? (
                                 <button className="text-[#9eb7a8] hover:text-primary transition-colors p-2 hover:bg-primary/10 rounded-full opacity-50 cursor-not-allowed">

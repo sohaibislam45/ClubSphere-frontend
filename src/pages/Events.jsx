@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useQuery } from '@tanstack/react-query';
 import Navbar from '../components/layout/Navbar';
 import Footer from '../components/layout/Footer';
@@ -7,6 +7,9 @@ import Loader from '../components/ui/Loader';
 import api from '../lib/api';
 
 const Events = () => {
+  useEffect(() => {
+    document.title = 'Upcoming Events - ClubSphere';
+  }, []);
   const [searchTerm, setSearchTerm] = useState('');
   const [selectedFilter, setSelectedFilter] = useState('all');
 

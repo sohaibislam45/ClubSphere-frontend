@@ -8,6 +8,10 @@ const ClubManagerDashboard = () => {
   const [dropdownOpen, setDropdownOpen] = useState(false);
   const dropdownRef = useRef(null);
 
+  useEffect(() => {
+    document.title = 'Club Manager Dashboard - ClubSphere';
+  }, []);
+
   // Close dropdown when clicking outside
   useEffect(() => {
     const handleClickOutside = (event) => {
@@ -90,7 +94,7 @@ const ClubManagerDashboard = () => {
       id: 3,
       user: 'Elena R.',
       action: 'payment received',
-      amount: '$45.00',
+      amount: '৳45.00',
       time: '3 hours ago',
       isPrimary: false
     },
@@ -272,12 +276,12 @@ const ClubManagerDashboard = () => {
                   </div>
                   <div className="flex items-center gap-1 text-primary bg-primary/10 px-2 py-1 rounded-full text-xs font-bold">
                     <span className="material-symbols-outlined text-xs">trending_up</span>
-                    <span>$500</span>
+                    <span>৳500</span>
                   </div>
                 </div>
                 <div>
                   <p className="text-slate-500 dark:text-slate-400 text-sm font-medium mb-1">Total Revenue</p>
-                  <h3 className="text-3xl font-bold text-slate-900 dark:text-white">$4,500</h3>
+                  <h3 className="text-3xl font-bold text-slate-900 dark:text-white">৳4,500</h3>
                 </div>
               </div>
             </div>

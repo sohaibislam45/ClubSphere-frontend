@@ -1,3 +1,4 @@
+import { useEffect } from 'react';
 import { useParams } from 'react-router-dom';
 import { useQuery } from '@tanstack/react-query';
 import Navbar from '../components/layout/Navbar';
@@ -45,6 +46,14 @@ const ClubDetails = () => {
       </div>
     );
   }
+
+  useEffect(() => {
+    if (club) {
+      document.title = `${club.clubName} - ClubSphere`;
+    } else {
+      document.title = 'Club Details - ClubSphere';
+    }
+  }, [club]);
 
   if (!club) {
     return (
@@ -191,7 +200,7 @@ const ClubDetails = () => {
                   <div>
                     <p className="text-sm text-slate-500 dark:text-[#9eb7a8] font-medium">Membership Fee</p>
                     <div className="flex items-baseline gap-1">
-                      <span className="text-3xl font-black">${club.membershipFee || 0}</span>
+                      <span className="text-3xl font-black">৳{club.membershipFee || 0}</span>
                       <span className="text-sm text-slate-500 dark:text-[#9eb7a8]">/ month</span>
                     </div>
                   </div>

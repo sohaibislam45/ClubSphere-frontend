@@ -8,6 +8,10 @@ const MemberDashboard = () => {
   const [dropdownOpen, setDropdownOpen] = useState(false);
   const dropdownRef = useRef(null);
 
+  useEffect(() => {
+    document.title = 'Member Dashboard - ClubSphere';
+  }, []);
+
   // Close dropdown when clicking outside
   useEffect(() => {
     const handleClickOutside = (event) => {
@@ -80,7 +84,7 @@ const MemberDashboard = () => {
       icon: 'card_membership',
       club: 'Dev Society',
       date: 'Oct 25, 2023',
-      amount: '$50.00',
+      amount: '৳50.00',
       status: 'Paid'
     },
     {
@@ -89,7 +93,7 @@ const MemberDashboard = () => {
       icon: 'confirmation_number',
       club: 'Zen Circle',
       date: 'Oct 12, 2023',
-      amount: '$25.00',
+      amount: '৳25.00',
       status: 'Paid'
     }
   ];

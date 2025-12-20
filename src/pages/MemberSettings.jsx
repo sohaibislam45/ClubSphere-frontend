@@ -9,6 +9,10 @@ const MemberSettings = () => {
   const { user } = useAuth();
   const queryClient = useQueryClient();
   const [activeTab, setActiveTab] = useState('profile');
+
+  useEffect(() => {
+    document.title = 'Settings - ClubSphere';
+  }, []);
   const [profileData, setProfileData] = useState({
     name: user?.name || '',
     email: user?.email || '',

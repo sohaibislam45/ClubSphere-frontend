@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { Link, useSearchParams, useNavigate } from 'react-router-dom';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { useAuth } from '../context/AuthContext';
@@ -8,6 +8,10 @@ import Loader from '../components/ui/Loader';
 
 const ManagerEventsManagement = () => {
   const { user, logout } = useAuth();
+
+  useEffect(() => {
+    document.title = 'Events Management - Club Manager - ClubSphere';
+  }, []);
   const navigate = useNavigate();
   const [searchParams] = useSearchParams();
   const clubIdFromQuery = searchParams.get('clubId');

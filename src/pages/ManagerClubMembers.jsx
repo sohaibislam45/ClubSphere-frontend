@@ -13,6 +13,10 @@ const ManagerClubMembers = () => {
   const [selectedClubId, setSelectedClubId] = useState(clubIdFromParams || '');
   const [search, setSearch] = useState('');
   const [statusFilter, setStatusFilter] = useState('All Members');
+
+  useEffect(() => {
+    document.title = 'Club Members - Club Manager - ClubSphere';
+  }, []);
   const [page, setPage] = useState(1);
   const limit = 10;
 

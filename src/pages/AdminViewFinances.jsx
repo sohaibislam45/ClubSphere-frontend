@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { Link, useLocation } from 'react-router-dom';
 import { useQuery } from '@tanstack/react-query';
 import { useAuth } from '../context/AuthContext';
@@ -7,6 +7,10 @@ import Loader from '../components/ui/Loader';
 
 const AdminViewFinances = () => {
   const { user, logout } = useAuth();
+
+  useEffect(() => {
+    document.title = 'Financial Records - Admin - ClubSphere';
+  }, []);
   const location = useLocation();
   const [page, setPage] = useState(1);
   const [search, setSearch] = useState('');
@@ -99,7 +103,10 @@ const AdminViewFinances = () => {
           <div className="flex items-center gap-3 px-2">
             <div 
               className="bg-center bg-no-repeat aspect-square bg-cover rounded-full size-10 shrink-0 border-2 border-primary/20"
-              style={{ backgroundImage: 'url("https://lh3.googleusercontent.com/aida-public/AB6AXuBjuschDidP2UNlYBKT4j1Q75XdF-c6Fs6Ft4n07qksKr1_mieQwsNxnQIZ5XIa08VFLDDHmsnzjKeB2nUshvggwb7mgzzC5h95UnkZclOKPWoOqzg_iiD0zJuDwGvR6_rpPvYzadxz93TcWfNV73IRJ-f1t3O5L0BYP0NwvuOHnA8CezIw_O0YHxs23Pv4V1zdR3OMAVioKtXjqm_HBLQC4wnzUkyk5XDN7ylBIV8s_oFPKFwNw2j_LdkTUNvrWodTzqKVRtetak5L")' }}
+              style={{ 
+                backgroundImage: user?.photoURL ? `url("${user.photoURL}")` : 'none',
+                backgroundColor: '#1c2620'
+              }}
             ></div>
             <h1 className="text-white text-lg font-bold leading-normal hidden lg:block tracking-wide">ClubSphere</h1>
           </div>
@@ -169,7 +176,7 @@ const AdminViewFinances = () => {
                 <p className="text-[#9eb7a8] text-sm font-medium">Total Revenue</p>
               </div>
               <div className="flex items-end gap-3 mt-2">
-                <p className="text-white text-3xl font-bold leading-none tracking-tight">${stats.totalRevenue.toLocaleString()}</p>
+                <p className="text-white text-3xl font-bold leading-none tracking-tight">৳{stats.totalRevenue.toLocaleString()}</p>
                 <div className="flex items-center text-primary text-sm font-bold bg-primary/10 px-2 py-0.5 rounded-full">
                   <span className="material-symbols-outlined text-[16px]">trending_up</span>
                   <span className="ml-1">12%</span>

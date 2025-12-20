@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { Link, useLocation } from 'react-router-dom';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { useAuth } from '../context/AuthContext';
@@ -8,12 +8,17 @@ import Loader from '../components/ui/Loader';
 
 const AdminManageEvents = () => {
   const { user, logout } = useAuth();
+
+  useEffect(() => {
+    document.title = 'Manage Events - Admin - ClubSphere';
+  }, []);
   const location = useLocation();
   const queryClient = useQueryClient();
   const [page, setPage] = useState(1);
   const [search, setSearch] = useState('');
   const [statusFilter, setStatusFilter] = useState('any');
   const [typeFilter, setTypeFilter] = useState('all');
+  const [isAddEventModalOpen, setIsAddEventModalOpen] = useState(false);
   const limit = 5;
 
   // Fetch events stats
@@ -61,6 +66,33 @@ const AdminManageEvents = () => {
     }
   });
 
+  // Create event mutation
+  const createEventMutation = useMutation({
+    mutationFn: async (eventData) => {
+      const response = await api.post('/api/admin/events', eventData);
+      return response.data;
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries(['admin-events']);
+      queryClient.invalidateQueries(['admin-events-stats']);
+      setIsAddEventModalOpen(false);
+      Swal.fire({
+        icon: 'success',
+        title: 'Event Created',
+        text: 'Event has been created successfully',
+        timer: 2000,
+        showConfirmButton: false
+      });
+    },
+    onError: (error) => {
+      Swal.fire({
+        icon: 'error',
+        title: 'Error',
+        text: error.response?.data?.error || 'Failed to create event'
+      });
+    }
+  });
+
   const getUserInitials = (name) => {
     if (!name) return 'U';
     const parts = name.trim().split(' ');
@@ -76,9 +108,9 @@ const AdminManageEvents = () => {
 
   const formatRevenue = (amount) => {
     if (amount >= 1000) {
-      return `$${(amount / 1000).toFixed(1)}k`;
+      return `৳${(amount / 1000).toFixed(1)}k`;
     }
-    return `$${amount.toFixed(0)}`;
+    return `৳${amount.toFixed(0)}`;
   };
 
   const getTypeBadge = (type) => {
@@ -107,7 +139,10 @@ const AdminManageEvents = () => {
           <div className="flex items-center gap-3 px-2">
             <div 
               className="bg-center bg-no-repeat aspect-square bg-cover rounded-full size-10 shrink-0 border-2 border-primary/20"
-              style={{ backgroundImage: 'url("https://lh3.googleusercontent.com/aida-public/AB6AXuBjuschDidP2UNlYBKT4j1Q75XdF-c6Fs6Ft4n07qksKr1_mieQwsNxnQIZ5XIa08VFLDDHmsnzjKeB2nUshvggwb7mgzzC5h95UnkZclOKPWoOqzg_iiD0zJuDwGvR6_rpPvYzadxz93TcWfNV73IRJ-f1t3O5L0BYP0NwvuOHnA8CezIw_O0YHxs23Pv4V1zdR3OMAVioKtXjqm_HBLQC4wnzUkyk5XDN7ylBIV8s_oFPKFwNw2j_LdkTUNvrWodTzqKVRtetak5L")' }}
+              style={{ 
+                backgroundImage: user?.photoURL ? `url("${user.photoURL}")` : 'none',
+                backgroundColor: '#1c2620'
+              }}
             ></div>
             <h1 className="text-white text-lg font-bold leading-normal hidden lg:block tracking-wide">ClubSphere</h1>
           </div>
@@ -162,7 +197,10 @@ const AdminManageEvents = () => {
               <h1 className="text-3xl md:text-4xl font-black tracking-tight text-slate-900 dark:text-white">Manage Events</h1>
               <p className="text-slate-500 dark:text-[#9eb7a8] text-base">Oversee all scheduled events across the platform</p>
             </div>
-            <button className="flex items-center justify-center gap-2 rounded-full h-12 px-6 bg-primary hover:bg-green-400 text-slate-900 text-sm font-bold tracking-wide transition-all shadow-lg shadow-primary/20">
+            <button 
+              onClick={() => setIsAddEventModalOpen(true)}
+              className="flex items-center justify-center gap-2 rounded-full h-12 px-6 bg-primary hover:bg-green-400 text-slate-900 text-sm font-bold tracking-wide transition-all shadow-lg shadow-primary/20"
+            >
               <span className="material-symbols-outlined text-[20px]">add</span>
               <span>Create Event</span>
             </button>
@@ -235,7 +273,7 @@ const AdminManageEvents = () => {
               <table className="w-full text-left border-collapse">
               <thead className="sticky top-0 z-10 bg-slate-50 dark:bg-[#1c2e24] text-xs uppercase text-slate-500 dark:text-[#9eb7a8] font-bold tracking-wider">
                 <tr>
-                  <th className="px-6 py-4 font-bold border-b border-slate-200 dark:border-[#3d5245]">Event Name</th>
+                  <th className="px-6 py-4 font-bold border-b border-slate-200 dark:border-[#3d5245]">Event Title</th>
                   <th className="px-6 py-4 font-bold border-b border-slate-200 dark:border-[#3d5245]">Club</th>
                   <th className="px-6 py-4 font-bold border-b border-slate-200 dark:border-[#3d5245]">Date & Time</th>
                   <th className="px-6 py-4 font-bold border-b border-slate-200 dark:border-[#3d5245]">Location</th>
@@ -396,6 +434,342 @@ const AdminManageEvents = () => {
           </div>
         </div>
       </main>
+
+      {/* Add Event Modal */}
+      {isAddEventModalOpen && (
+        <AddEventModal
+          isOpen={isAddEventModalOpen}
+          onClose={() => setIsAddEventModalOpen(false)}
+          onSubmit={createEventMutation.mutate}
+          isLoading={createEventMutation.isLoading}
+        />
+      )}
+    </div>
+  );
+};
+
+// Add Event Modal Component
+const AddEventModal = ({ isOpen, onClose, onSubmit, isLoading }) => {
+  const [formData, setFormData] = useState({
+    name: '',
+    description: '',
+    date: '',
+    location: '',
+    clubId: '',
+    isPaid: false,
+    fee: '15.00',
+    maxAttendees: ''
+  });
+  const [charCount, setCharCount] = useState(0);
+
+  // Fetch clubs for dropdown
+  const { data: clubsData } = useQuery({
+    queryKey: ['admin-clubs-for-events'],
+    queryFn: async () => {
+      const response = await api.get('/api/admin/clubs', {
+        params: { page: 1, limit: 100, status: 'active' }
+      });
+      return response.data;
+    }
+  });
+
+  const clubs = clubsData?.clubs || [];
+
+  const handleInputChange = (e) => {
+    const { name, value, type, checked } = e.target;
+    
+    if (name === 'description') {
+      setCharCount(value.length);
+    }
+
+    setFormData(prev => ({
+      ...prev,
+      [name]: type === 'checkbox' ? checked : value
+    }));
+  };
+
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+    
+    // Validate required fields
+    if (!formData.name || !formData.description || !formData.date || !formData.location || !formData.clubId) {
+      Swal.fire({
+        icon: 'error',
+        title: 'Missing Fields',
+        text: 'Please fill in all required fields.',
+      });
+      return;
+    }
+
+    // Parse datetime-local to separate date and time
+    const dateTime = new Date(formData.date);
+    const dateStr = dateTime.toISOString().split('T')[0];
+    const timeStr = dateTime.toLocaleTimeString('en-US', { 
+      hour: 'numeric', 
+      minute: '2-digit',
+      hour12: true 
+    });
+
+    // Submit form data
+    onSubmit({
+      name: formData.name,
+      description: formData.description,
+      date: dateStr,
+      time: timeStr,
+      location: formData.location,
+      clubId: formData.clubId,
+      type: formData.isPaid ? 'paid' : 'free',
+      fee: formData.isPaid ? parseFloat(formData.fee) : 0,
+      maxAttendees: formData.maxAttendees || null
+    });
+
+    // Reset form
+    setFormData({
+      name: '',
+      description: '',
+      date: '',
+      location: '',
+      clubId: '',
+      isPaid: false,
+      fee: '15.00',
+      maxAttendees: ''
+    });
+    setCharCount(0);
+  };
+
+  if (!isOpen) return null;
+
+  return (
+    <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/50 backdrop-blur-sm overflow-y-auto">
+      <div className="bg-white dark:bg-[#111714] rounded-2xl border border-slate-200 dark:border-[#3d5245] w-full max-w-4xl my-8 shadow-sm max-h-[90vh] overflow-y-auto">
+        <div className="p-6 md:p-8">
+          {/* Header */}
+          <div className="flex items-center justify-between mb-6">
+            <div className="flex flex-col gap-2">
+              <h1 className="text-3xl md:text-4xl font-black tracking-tight text-slate-900 dark:text-white">Create New Event</h1>
+              <p className="text-slate-500 dark:text-[#9eb7a8] text-base">Fill in the details below to schedule a new event for the community.</p>
+            </div>
+            <button
+              onClick={onClose}
+              className="text-slate-500 dark:text-[#9eb7a8] hover:text-slate-900 dark:hover:text-white transition-colors p-2 rounded-lg hover:bg-slate-100 dark:hover:bg-[#29382f]"
+            >
+              <span className="material-symbols-outlined text-[24px]">close</span>
+            </button>
+          </div>
+
+          <form onSubmit={handleSubmit} className="flex flex-col gap-8">
+            {/* Basic Information */}
+            <div className="flex flex-col gap-6">
+              <h2 className="text-xl font-bold text-slate-900 dark:text-white flex items-center gap-3">
+                <span className="flex items-center justify-center w-8 h-8 rounded-full bg-primary/10 text-primary">
+                  <span className="material-symbols-outlined text-[20px]">info</span>
+                </span>
+                Basic Information
+              </h2>
+              <div className="grid grid-cols-1 gap-6">
+                <div className="flex flex-col gap-2">
+                  <label className="text-sm font-bold text-slate-700 dark:text-slate-200 uppercase tracking-wide">
+                    Event Title <span className="text-red-500">*</span>
+                  </label>
+                  <input
+                    className="w-full h-12 px-4 bg-slate-50 dark:bg-[#1c2e24] border border-slate-200 dark:border-[#3d5245] rounded-xl focus:ring-2 focus:ring-primary focus:border-transparent text-slate-900 dark:text-white placeholder:text-slate-400 dark:placeholder:text-slate-500 transition-all outline-none"
+                    placeholder="e.g. Saturday Night Jazz Concert"
+                    type="text"
+                    name="name"
+                    value={formData.name}
+                    onChange={handleInputChange}
+                    required
+                  />
+                </div>
+                <div className="flex flex-col gap-2">
+                  <label className="text-sm font-bold text-slate-700 dark:text-slate-200 uppercase tracking-wide">
+                    Description <span className="text-red-500">*</span>
+                  </label>
+                  <textarea
+                    className="w-full p-4 bg-slate-50 dark:bg-[#1c2e24] border border-slate-200 dark:border-[#3d5245] rounded-xl focus:ring-2 focus:ring-primary focus:border-transparent text-slate-900 dark:text-white placeholder:text-slate-400 dark:placeholder:text-slate-500 transition-all outline-none resize-none"
+                    placeholder="Describe what the event is about, what to expect, and any requirements..."
+                    rows="5"
+                    name="description"
+                    value={formData.description}
+                    onChange={handleInputChange}
+                    maxLength={500}
+                    required
+                  />
+                  <p className="text-xs text-slate-400 dark:text-[#9eb7a8] text-right">{charCount}/500 characters</p>
+                </div>
+              </div>
+            </div>
+
+            <hr className="border-slate-200 dark:border-[#29382f]" />
+
+            {/* Logistics & Hosting */}
+            <div className="flex flex-col gap-6">
+              <h2 className="text-xl font-bold text-slate-900 dark:text-white flex items-center gap-3">
+                <span className="flex items-center justify-center w-8 h-8 rounded-full bg-primary/10 text-primary">
+                  <span className="material-symbols-outlined text-[20px]">location_on</span>
+                </span>
+                Logistics & Hosting
+              </h2>
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <div className="flex flex-col gap-2">
+                  <label className="text-sm font-bold text-slate-700 dark:text-slate-200 uppercase tracking-wide">
+                    Event Date & Time <span className="text-red-500">*</span>
+                  </label>
+                  <div className="relative group">
+                    <span className="material-symbols-outlined absolute left-4 top-1/2 -translate-y-1/2 text-slate-400 group-focus-within:text-primary transition-colors">calendar_today</span>
+                    <input
+                      className="w-full h-12 pl-12 pr-4 bg-slate-50 dark:bg-[#1c2e24] border border-slate-200 dark:border-[#3d5245] rounded-xl focus:ring-2 focus:ring-primary focus:border-transparent text-slate-900 dark:text-white placeholder:text-slate-400 dark:placeholder:text-slate-500 transition-all outline-none [color-scheme:light] dark:[color-scheme:dark]"
+                      type="datetime-local"
+                      name="date"
+                      value={formData.date}
+                      onChange={handleInputChange}
+                      required
+                    />
+                  </div>
+                </div>
+                <div className="flex flex-col gap-2">
+                  <label className="text-sm font-bold text-slate-700 dark:text-slate-200 uppercase tracking-wide">
+                    Location <span className="text-red-500">*</span>
+                  </label>
+                  <div className="relative group">
+                    <span className="material-symbols-outlined absolute left-4 top-1/2 -translate-y-1/2 text-slate-400 group-focus-within:text-primary transition-colors">pin_drop</span>
+                    <input
+                      className="w-full h-12 pl-12 pr-4 bg-slate-50 dark:bg-[#1c2e24] border border-slate-200 dark:border-[#3d5245] rounded-xl focus:ring-2 focus:ring-primary focus:border-transparent text-slate-900 dark:text-white placeholder:text-slate-400 dark:placeholder:text-slate-500 transition-all outline-none"
+                      placeholder="e.g. Main St. Hall"
+                      type="text"
+                      name="location"
+                      value={formData.location}
+                      onChange={handleInputChange}
+                      required
+                    />
+                  </div>
+                </div>
+                <div className="flex flex-col gap-2 md:col-span-2">
+                  <label className="text-sm font-bold text-slate-700 dark:text-slate-200 uppercase tracking-wide">
+                    Associated Club <span className="text-red-500">*</span>
+                  </label>
+                  <div className="relative group">
+                    <span className="material-symbols-outlined absolute left-4 top-1/2 -translate-y-1/2 text-slate-400 group-focus-within:text-primary transition-colors">diversity_3</span>
+                    <select
+                      className="w-full h-12 pl-12 pr-10 bg-slate-50 dark:bg-[#1c2e24] border border-slate-200 dark:border-[#3d5245] rounded-xl focus:ring-2 focus:ring-primary focus:border-transparent text-slate-900 dark:text-white transition-all outline-none appearance-none cursor-pointer"
+                      name="clubId"
+                      value={formData.clubId}
+                      onChange={handleInputChange}
+                      required
+                    >
+                      <option disabled value="">Select a club...</option>
+                      {clubs.map((club) => (
+                        <option key={club.id} value={club.id}>
+                          {club.name}
+                        </option>
+                      ))}
+                    </select>
+                    <span className="material-symbols-outlined absolute right-4 top-1/2 -translate-y-1/2 text-slate-400 pointer-events-none">expand_more</span>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <hr className="border-slate-200 dark:border-[#29382f]" />
+
+            {/* Ticketing & Capacity */}
+            <div className="flex flex-col gap-6">
+              <h2 className="text-xl font-bold text-slate-900 dark:text-white flex items-center gap-3">
+                <span className="flex items-center justify-center w-8 h-8 rounded-full bg-primary/10 text-primary">
+                  <span className="material-symbols-outlined text-[20px]">payments</span>
+                </span>
+                Ticketing & Capacity
+              </h2>
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-6 items-start">
+                <div className="bg-slate-50 dark:bg-[#1c2e24] border border-slate-200 dark:border-[#3d5245] rounded-xl p-5 flex flex-col gap-5">
+                  <div className="flex items-center justify-between">
+                    <div className="flex flex-col">
+                      <label className="text-sm font-bold text-slate-900 dark:text-white">Is this a paid event?</label>
+                      <span className="text-xs text-slate-500 dark:text-[#9eb7a8]">Turn on if tickets are sold.</span>
+                    </div>
+                    <label className="relative inline-flex items-center cursor-pointer">
+                      <input
+                        className="sr-only peer"
+                        type="checkbox"
+                        name="isPaid"
+                        checked={formData.isPaid}
+                        onChange={handleInputChange}
+                      />
+                      <div className="w-11 h-6 bg-slate-200 peer-focus:outline-none peer-focus:ring-2 peer-focus:ring-primary dark:peer-focus:ring-primary rounded-full peer dark:bg-slate-700 peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all dark:border-gray-600 peer-checked:bg-primary"></div>
+                    </label>
+                  </div>
+                  {formData.isPaid && (
+                    <div className="pt-4 border-t border-slate-200 dark:border-[#29382f] animate-fade-in-down">
+                      <label className="text-xs font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wide mb-2 block">
+                        Event Fee (৳)
+                      </label>
+                      <div className="relative group">
+                        <span className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400 font-bold">৳</span>
+                        <input
+                          className="w-full h-12 pl-8 pr-4 bg-white dark:bg-[#111714] border border-slate-200 dark:border-[#3d5245] rounded-lg focus:ring-1 focus:ring-primary focus:border-primary outline-none text-slate-900 dark:text-white"
+                          min="0"
+                          step="0.01"
+                          type="number"
+                          name="fee"
+                          value={formData.fee}
+                          onChange={handleInputChange}
+                        />
+                      </div>
+                    </div>
+                  )}
+                </div>
+                <div className="flex flex-col gap-2">
+                  <label className="text-sm font-bold text-slate-700 dark:text-slate-200 uppercase tracking-wide">
+                    Max Attendees <span className="text-slate-400 font-normal normal-case ml-1">(Optional)</span>
+                  </label>
+                  <div className="relative group">
+                    <span className="material-symbols-outlined absolute left-4 top-1/2 -translate-y-1/2 text-slate-400 group-focus-within:text-primary transition-colors">group</span>
+                    <input
+                      className="w-full h-12 pl-12 pr-4 bg-slate-50 dark:bg-[#1c2e24] border border-slate-200 dark:border-[#3d5245] rounded-xl focus:ring-2 focus:ring-primary focus:border-transparent text-slate-900 dark:text-white placeholder:text-slate-400 dark:placeholder:text-slate-500 transition-all outline-none"
+                      min="1"
+                      placeholder="e.g. 100"
+                      type="number"
+                      name="maxAttendees"
+                      value={formData.maxAttendees}
+                      onChange={handleInputChange}
+                    />
+                  </div>
+                  <p className="text-xs text-slate-400 dark:text-[#9eb7a8] mt-1">Leave blank for unlimited capacity.</p>
+                </div>
+              </div>
+            </div>
+
+            {/* Form Actions */}
+            <div className="flex flex-col-reverse md:flex-row justify-end gap-4 mt-8 pt-6 border-t border-slate-200 dark:border-[#29382f]">
+              <button
+                type="button"
+                onClick={onClose}
+                className="h-12 px-8 rounded-full border border-slate-200 dark:border-[#3d5245] text-slate-700 dark:text-slate-300 font-bold hover:bg-slate-100 dark:hover:bg-[#29382f] transition-colors focus:ring-4 focus:ring-slate-100 dark:focus:ring-slate-800 outline-none disabled:opacity-50"
+                disabled={isLoading}
+              >
+                Cancel
+              </button>
+              <button
+                type="submit"
+                className="h-12 px-8 rounded-full bg-primary hover:bg-green-400 text-slate-900 font-bold shadow-lg shadow-primary/20 hover:shadow-primary/40 transition-all flex items-center justify-center gap-2 focus:ring-4 focus:ring-primary/30 outline-none disabled:opacity-50 disabled:cursor-not-allowed"
+                disabled={isLoading}
+              >
+                {isLoading ? (
+                  <>
+                    <Loader />
+                    <span>Creating...</span>
+                  </>
+                ) : (
+                  <>
+                    <span className="material-symbols-outlined">add_circle</span>
+                    <span>Create Event</span>
+                  </>
+                )}
+              </button>
+            </div>
+          </form>
+        </div>
+      </div>
     </div>
   );
 };

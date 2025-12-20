@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useQuery } from '@tanstack/react-query';
 import { useAuth } from '../context/AuthContext';
 import MemberSidebar from '../components/layout/MemberSidebar';
@@ -7,6 +7,10 @@ import api from '../lib/api';
 
 const MemberMyEvents = () => {
   const { user } = useAuth();
+
+  useEffect(() => {
+    document.title = 'My Events - ClubSphere';
+  }, []);
   const [activeTab, setActiveTab] = useState('upcoming');
   const [search, setSearch] = useState('');
 

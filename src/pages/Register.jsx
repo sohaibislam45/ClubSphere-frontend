@@ -15,6 +15,10 @@ const Register = () => {
   const { register: registerUser, loginWithGoogle } = useAuth();
   const password = watch('password', '');
 
+  useEffect(() => {
+    document.title = 'Register - ClubSphere';
+  }, []);
+
   // Password validation rules
   const passwordRules = {
     minLength: password.length >= 6,

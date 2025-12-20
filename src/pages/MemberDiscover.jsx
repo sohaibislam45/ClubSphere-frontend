@@ -11,6 +11,10 @@ const MemberDiscover = () => {
   const [category, setCategory] = useState('');
   const [filter, setFilter] = useState('');
 
+  useEffect(() => {
+    document.title = 'Discover Clubs - ClubSphere';
+  }, []);
+
   const { data, isLoading, error } = useQuery({
     queryKey: ['discover', search, category, filter],
     queryFn: async () => {

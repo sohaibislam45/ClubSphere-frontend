@@ -1,3 +1,4 @@
+import { useEffect } from 'react';
 import { useParams } from 'react-router-dom';
 import { useQuery } from '@tanstack/react-query';
 import Navbar from '../components/layout/Navbar';
@@ -44,6 +45,14 @@ const EventDetails = () => {
       </div>
     );
   }
+
+  useEffect(() => {
+    if (event) {
+      document.title = `${event.title} - ClubSphere`;
+    } else {
+      document.title = 'Event Details - ClubSphere';
+    }
+  }, [event]);
 
   if (!event) {
     return (
@@ -154,7 +163,7 @@ const EventDetails = () => {
                     <p className="text-sm text-slate-500 dark:text-[#9eb7a8] font-medium">Event Fee</p>
                     <div className="flex items-baseline gap-1">
                       <span className="text-3xl font-black">
-                        {event.eventFee > 0 ? `$${event.eventFee}` : 'Free'}
+                        {event.eventFee > 0 ? `৳${event.eventFee}` : 'Free'}
                       </span>
                     </div>
                   </div>

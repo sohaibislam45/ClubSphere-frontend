@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { useQuery } from '@tanstack/react-query';
 import { useAuth } from '../context/AuthContext';
@@ -8,6 +8,10 @@ import Loader from '../components/ui/Loader';
 
 const ManagerMyClubs = () => {
   const { user, logout } = useAuth();
+
+  useEffect(() => {
+    document.title = 'My Clubs - Club Manager - ClubSphere';
+  }, []);
   const navigate = useNavigate();
   const [search, setSearch] = useState('');
   const [categoryFilter, setCategoryFilter] = useState('All Clubs');

@@ -36,7 +36,7 @@ const EventCard = ({ event }) => {
               ? 'bg-slate-900 dark:bg-white text-white dark:text-black'
               : 'bg-primary text-black'
           }`}>
-            {event.eventFee > 0 ? `$${event.eventFee.toFixed(2)}` : 'Free'}
+            {event.eventFee > 0 ? `৳${event.eventFee.toFixed(2)}` : 'Free'}
           </span>
         </div>
       </div>

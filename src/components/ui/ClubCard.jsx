@@ -42,7 +42,7 @@ const ClubCard = ({ club }) => {
             <span>{club.memberCount || club.members || "0"} Members</span>
           </div>
           <div className="text-sm font-bold text-primary">
-            {club.membershipFee > 0 ? `$${club.membershipFee}` : "Free"}
+            {club.membershipFee > 0 ? `৳${club.membershipFee}` : "Free"}
           </div>
         </div>
       </div>

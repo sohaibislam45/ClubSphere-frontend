@@ -8,6 +8,10 @@ const AdminDashboard = () => {
   const [dropdownOpen, setDropdownOpen] = useState(false);
   const dropdownRef = useRef(null);
 
+  useEffect(() => {
+    document.title = 'Admin Dashboard - ClubSphere';
+  }, []);
+
   // Close dropdown when clicking outside
   useEffect(() => {
     const handleClickOutside = (event) => {
@@ -56,7 +60,7 @@ const AdminDashboard = () => {
       userImage: 'https://lh3.googleusercontent.com/aida-public/AB6AXuDMQRoeWUSepmmgcAb5P1-OSIDCkkI3eOaIp44JbTSutqR15SFU1DxGWbHGzG9uT-D5UD2I7vIs5JY4gEbE8T0NpA8PBCgFSRZqKfg4UauSed43gN26gRdMo8WUe1qwfFNd1DjIMEui8PxuN4TvOsulF2w2QypvofSZSCxlPo2XDXMkabCENL16nWMQCtMnRwR3PH1blfIqmO7MceORI76VXkeYf6iACaF7949y-OBTRkTn6sivOqWeMMZx9AR-URK6hnN36kq8xwRt',
       type: 'Club Membership',
       date: 'Oct 24, 2023',
-      amount: '$25.00',
+      amount: '৳25.00',
       status: 'Completed'
     },
     {
@@ -65,7 +69,7 @@ const AdminDashboard = () => {
       userImage: 'https://lh3.googleusercontent.com/aida-public/AB6AXuDCvF930ehAJEagQS44RjrMtXub1h9GiRCUdtu63eQmmWFDlGgHvXsRO6lbAjwIozQttr8n5ERDbTibJl1WfOSSuCl380NTYxl3qifUETyLkJj3dAOm3e87EgEDyKDH0jsa4x79p5nJq-fnqDeQuEG88WRqlPKbZD2a4M2w6AhyGN0ewCV2EwRKIzvgDKaaDzTMfnW7e4CLySX1RuJbpcXMglzaG8a5VMhPH5pnBtgzXz8SvZHfpz76rUwyJN8qmMqVSWd833nFa_pz',
       type: 'Event Ticket',
       date: 'Oct 23, 2023',
-      amount: '$15.00',
+      amount: '৳15.00',
       status: 'Completed'
     },
     {
@@ -74,7 +78,7 @@ const AdminDashboard = () => {
       userImage: 'https://lh3.googleusercontent.com/aida-public/AB6AXuC2GdXyox6nfdq4M4Dl0JZHycOK85Sc9J3bHCLCEaAz65Y5VpdckQTo03GIXG7IRHrS8sM0leL4L21RH44e2dSU9218c3bV7-nvMEQ6YnBHsMibPAhX3mmiSqVW3kE2WyRHEPFEj6b7oEb4sqM_c2V0h6ZKFAQwHgZLqy7VSL5nQ1_T0X1Z_ITxUEgqmviWgoVhvrs4YIQ09TpCwKfAvBcyb0C_dMbZZHRPaaQAvjbHgtSER802KnaAy4N6kyI_hCpz4UkdDDxeuCBc',
       type: 'Donation',
       date: 'Oct 21, 2023',
-      amount: '$50.00',
+      amount: '৳50.00',
       status: 'Processing'
     }
   ];
@@ -88,7 +92,10 @@ const AdminDashboard = () => {
           <div className="flex items-center gap-3 px-2">
             <div 
               className="bg-center bg-no-repeat aspect-square bg-cover rounded-full size-10 shrink-0 border-2 border-primary/20"
-              style={{ backgroundImage: 'url("https://lh3.googleusercontent.com/aida-public/AB6AXuBjuschDidP2UNlYBKT4j1Q75XdF-c6Fs6Ft4n07qksKr1_mieQwsNxnQIZ5XIa08VFLDDHmsnzjKeB2nUshvggwb7mgzzC5h95UnkZclOKPWoOqzg_iiD0zJuDwGvR6_rpPvYzadxz93TcWfNV73IRJ-f1t3O5L0BYP0NwvuOHnA8CezIw_O0YHxs23Pv4V1zdR3OMAVioKtXjqm_HBLQC4wnzUkyk5XDN7ylBIV8s_oFPKFwNw2j_LdkTUNvrWodTzqKVRtetak5L")' }}
+              style={{ 
+                backgroundImage: user?.photoURL ? `url("${user.photoURL}")` : 'none',
+                backgroundColor: '#1c2620'
+              }}
             ></div>
             <h1 className="text-white text-lg font-bold leading-normal hidden lg:block tracking-wide">ClubSphere</h1>
           </div>
@@ -258,7 +265,7 @@ const AdminDashboard = () => {
                   <span className="material-symbols-outlined text-gray-500 group-hover:text-primary transition-colors">payments</span>
                 </div>
                 <div>
-                  <p className="text-white text-3xl font-bold">$12,450</p>
+                  <p className="text-white text-3xl font-bold">৳12,450</p>
                   <div className="flex items-center gap-1 mt-1">
                     <span className="material-symbols-outlined text-primary text-sm">trending_up</span>
                     <p className="text-primary text-xs font-bold">+8% <span className="text-gray-500 font-normal ml-1">growth</span></p>
