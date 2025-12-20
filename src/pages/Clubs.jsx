@@ -3,6 +3,7 @@ import { useQuery } from '@tanstack/react-query';
 import Navbar from '../components/layout/Navbar';
 import Footer from '../components/layout/Footer';
 import ClubCard from '../components/ui/ClubCard';
+import Loader from '../components/ui/Loader';
 import api from '../lib/api';
 
 const Clubs = () => {
@@ -116,10 +117,8 @@ const Clubs = () => {
 
         {/* Clubs Grid */}
         {isLoading ? (
-          <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-6 lg:gap-8">
-            {[...Array(6)].map((_, i) => (
-              <div key={i} className="h-96 bg-surface-dark animate-pulse rounded-2xl"></div>
-            ))}
+          <div className="flex items-center justify-center py-20">
+            <Loader />
           </div>
         ) : (
           <>

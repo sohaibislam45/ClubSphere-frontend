@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react';
 import { useQuery } from '@tanstack/react-query';
 import { useAuth } from '../context/AuthContext';
 import MemberSidebar from '../components/layout/MemberSidebar';
+import Loader from '../components/ui/Loader';
 import api from '../lib/api';
 
 const MemberDiscover = () => {
@@ -158,7 +159,9 @@ const MemberDiscover = () => {
             <a className="text-primary text-sm font-semibold hover:underline" href="#">View all</a>
           </div>
           {isLoading ? (
-            <div className="text-center py-10 text-gray-400">Loading...</div>
+            <div className="flex items-center justify-center py-10">
+              <Loader />
+            </div>
           ) : error ? (
             <div className="text-center py-10 text-red-400">Error loading clubs</div>
           ) : (
@@ -240,7 +243,9 @@ const MemberDiscover = () => {
         <section className="max-w-7xl mx-auto px-8 pb-12">
           <h2 className="text-2xl font-bold text-gray-900 dark:text-white mb-4">Happening This Week</h2>
           {isLoading ? (
-            <div className="text-center py-10 text-gray-400">Loading events...</div>
+            <div className="flex items-center justify-center py-10">
+              <Loader />
+            </div>
           ) : error ? (
             <div className="text-center py-10 text-red-400">Error loading events</div>
           ) : (

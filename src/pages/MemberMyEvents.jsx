@@ -2,6 +2,7 @@ import { useState } from 'react';
 import { useQuery } from '@tanstack/react-query';
 import { useAuth } from '../context/AuthContext';
 import MemberSidebar from '../components/layout/MemberSidebar';
+import Loader from '../components/ui/Loader';
 import api from '../lib/api';
 
 const MemberMyEvents = () => {
@@ -148,7 +149,9 @@ const MemberMyEvents = () => {
 
             {/* Events Table */}
             {isLoading ? (
-              <div className="text-center py-20 text-gray-400">Loading events...</div>
+              <div className="flex items-center justify-center py-20">
+                <Loader />
+              </div>
             ) : error ? (
               <div className="text-center py-20 text-red-400">Error loading events</div>
             ) : events.length === 0 ? (

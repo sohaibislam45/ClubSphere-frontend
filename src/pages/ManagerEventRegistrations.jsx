@@ -4,6 +4,7 @@ import { useQuery } from '@tanstack/react-query';
 import { useAuth } from '../context/AuthContext';
 import api from '../lib/api';
 import ManagerSidebar from '../components/layout/ManagerSidebar';
+import Loader from '../components/ui/Loader';
 
 const ManagerEventRegistrations = () => {
   const { user, logout } = useAuth();
@@ -236,7 +237,7 @@ const ManagerEventRegistrations = () => {
                   {/* Table */}
                   {isLoading ? (
                     <div className="flex items-center justify-center py-20">
-                      <div className="text-slate-500 dark:text-[#9da6b9]">Loading registrations...</div>
+                      <Loader />
                     </div>
                   ) : error ? (
                     <div className="flex items-center justify-center py-20">

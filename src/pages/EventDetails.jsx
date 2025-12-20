@@ -2,6 +2,7 @@ import { useParams } from 'react-router-dom';
 import { useQuery } from '@tanstack/react-query';
 import Navbar from '../components/layout/Navbar';
 import Footer from '../components/layout/Footer';
+import Loader from '../components/ui/Loader';
 import api from '../lib/api';
 
 const EventDetails = () => {
@@ -38,7 +39,7 @@ const EventDetails = () => {
       <div className="flex flex-col min-h-screen bg-background-light dark:bg-background-dark-alt text-slate-900 dark:text-white font-display">
         <Navbar />
         <div className="flex-1 flex items-center justify-center">
-          <div className="text-text-secondary">Loading...</div>
+          <Loader />
         </div>
       </div>
     );

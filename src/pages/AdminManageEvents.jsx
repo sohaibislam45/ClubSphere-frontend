@@ -4,6 +4,7 @@ import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { useAuth } from '../context/AuthContext';
 import api from '../lib/api';
 import Swal from 'sweetalert2';
+import Loader from '../components/ui/Loader';
 
 const AdminManageEvents = () => {
   const { user, logout } = useAuth();
@@ -245,7 +246,11 @@ const AdminManageEvents = () => {
               <tbody className="divide-y divide-slate-200 dark:divide-[#29382f]">
                 {isLoading ? (
                   <tr>
-                    <td colSpan="6" className="px-6 py-4 text-center text-[#9eb7a8]">Loading...</td>
+                    <td colSpan="6" className="px-6 py-4">
+                      <div className="flex items-center justify-center">
+                        <Loader />
+                      </div>
+                    </td>
                   </tr>
                 ) : events.length === 0 ? (
                   <tr>

@@ -4,6 +4,7 @@ import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { useAuth } from '../context/AuthContext';
 import api from '../lib/api';
 import ManagerSidebar from '../components/layout/ManagerSidebar';
+import Loader from '../components/ui/Loader';
 
 const ManagerEventsManagement = () => {
   const { user, logout } = useAuth();
@@ -237,7 +238,7 @@ const ManagerEventsManagement = () => {
         {/* Events Grid */}
         {isLoading ? (
           <div className="flex items-center justify-center py-20">
-            <div className="text-[#9eb7a8]">Loading events...</div>
+            <Loader />
           </div>
         ) : (
           <div className="grid grid-cols-1 lg:grid-cols-2 xl:grid-cols-3 gap-6 mb-20">

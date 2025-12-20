@@ -43,6 +43,19 @@ const MemberSidebar = () => {
         </div>
         <nav className="flex flex-col gap-2">
           <Link 
+            to="/" 
+            className={`flex items-center gap-3 px-4 py-3 rounded-full transition-colors group ${
+              location.pathname === '/'
+                ? 'bg-surface-dark text-white'
+                : 'hover:bg-gray-100 dark:hover:bg-surface-dark-hover text-gray-700 dark:text-gray-300'
+            }`}
+          >
+            <span className={`material-symbols-outlined ${location.pathname === '/' ? 'text-primary filled' : 'text-gray-500 dark:text-gray-400 group-hover:text-primary'} transition-colors`}>
+              home
+            </span>
+            <span className={`text-sm ${location.pathname === '/' ? 'font-bold' : 'font-medium'}`}>Home</span>
+          </Link>
+          <Link 
             to="/dashboard/member" 
             className={`flex items-center gap-3 px-4 py-3 rounded-full transition-colors group ${
               isActive('/dashboard/member') && location.pathname === '/dashboard/member'
@@ -118,7 +131,7 @@ const MemberSidebar = () => {
             <span className={`material-symbols-outlined ${isActive('/dashboard/member/settings') ? 'text-primary filled' : 'text-gray-500 dark:text-gray-400 group-hover:text-primary'} transition-colors`}>
               account_circle
             </span>
-            <span className={`text-sm ${isActive('/dashboard/member/settings') ? 'font-bold' : 'font-medium'}`}>Profile</span>
+            <span className={`text-sm ${isActive('/dashboard/member/settings') ? 'font-bold' : 'font-medium'}`}>Settings</span>
           </Link>
         </nav>
       </div>

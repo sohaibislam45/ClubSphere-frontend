@@ -1,7 +1,8 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { useAuth } from '../context/AuthContext';
 import MemberSidebar from '../components/layout/MemberSidebar';
+import Loader from '../components/ui/Loader';
 import api from '../lib/api';
 
 const MemberSettings = () => {
@@ -9,12 +10,12 @@ const MemberSettings = () => {
   const queryClient = useQueryClient();
   const [activeTab, setActiveTab] = useState('profile');
   const [profileData, setProfileData] = useState({
-    name: '',
-    email: '',
-    username: '',
+    name: user?.name || '',
+    email: user?.email || '',
+    username: user?.email?.split('@')[0] || '',
     bio: '',
     location: '',
-    photoURL: ''
+    photoURL: user?.photoURL || ''
   });
   const [passwordData, setPasswordData] = useState({
     currentPassword: '',
@@ -28,29 +29,47 @@ const MemberSettings = () => {
   });
   const [twoFactorEnabled, setTwoFactorEnabled] = useState(false);
 
-  const { data, isLoading } = useQuery({
+  const { data, isLoading, error } = useQuery({
     queryKey: ['memberSettings'],
     queryFn: async () => {
       const response = await api.get('/api/member/settings');
       return response.data;
     },
     onSuccess: (data) => {
-      setProfileData({
-        name: data.profile.name || '',
-        email: data.profile.email || '',
-        username: data.profile.username || '',
-        bio: data.profile.bio || '',
-        location: data.profile.location || '',
-        photoURL: data.profile.photoURL || ''
-      });
-      setNotifications(data.notifications || {
-        emailDigests: false,
-        eventReminders: false,
-        newClubAlerts: false
-      });
-      setTwoFactorEnabled(data.security?.twoFactorEnabled || false);
-    }
+      if (data) {
+        setProfileData({
+          name: data.profile?.name || user?.name || '',
+          email: data.profile?.email || user?.email || '',
+          username: data.profile?.username || user?.email?.split('@')[0] || '',
+          bio: data.profile?.bio || '',
+          location: data.profile?.location || '',
+          photoURL: data.profile?.photoURL || user?.photoURL || ''
+        });
+        setNotifications(data.notifications || {
+          emailDigests: false,
+          eventReminders: false,
+          newClubAlerts: false
+        });
+        setTwoFactorEnabled(data.security?.twoFactorEnabled || false);
+      }
+    },
+    retry: 1,
+    refetchOnWindowFocus: false
   });
+
+  // Initialize with user data if available
+  useEffect(() => {
+    if (user && !data && !isLoading) {
+      setProfileData(prev => ({
+        name: prev.name || user.name || '',
+        email: prev.email || user.email || '',
+        username: prev.username || (user.email ? user.email.split('@')[0] : ''),
+        bio: prev.bio || '',
+        location: prev.location || '',
+        photoURL: prev.photoURL || user.photoURL || ''
+      }));
+    }
+  }, [user, data, isLoading]);
 
   const updateProfileMutation = useMutation({
     mutationFn: async (data) => {
@@ -130,70 +149,64 @@ const MemberSettings = () => {
     update2FAMutation.mutate(newValue);
   };
 
-  if (isLoading) {
-    return (
-      <div className="bg-background-light dark:bg-background-dark text-black dark:text-white font-display overflow-hidden h-screen flex">
-        <MemberSidebar />
-        <main className="flex-1 flex flex-col h-full overflow-y-auto bg-background-light dark:bg-background-dark scroll-smooth">
-          <div className="w-full max-w-[1000px] mx-auto px-4 md:px-8 py-8">
-            <div className="text-center py-20 text-gray-400">Loading settings...</div>
-          </div>
-        </main>
-      </div>
-    );
-  }
+  // Show error state but still render the form with user data
+  const hasError = error && !data;
 
   return (
-    <div className="bg-background-light dark:bg-background-dark text-black dark:text-white font-display overflow-hidden h-screen flex flex-col">
+    <div className="bg-background-light dark:bg-background-dark text-black dark:text-white font-display overflow-hidden h-screen flex">
       <MemberSidebar />
       
       <main className="flex-1 flex flex-col h-full overflow-y-auto bg-background-light dark:bg-background-dark scroll-smooth">
         <div className="w-full max-w-[1000px] mx-auto px-4 md:px-8 py-8 flex flex-col gap-8">
+          {/* Loading Indicator */}
+          {isLoading && !data && (
+            <div className="flex items-center justify-center py-20">
+              <Loader />
+            </div>
+          )}
+
+          {/* Error Banner */}
+          {hasError && (
+            <div className="bg-red-900/20 border border-red-500/30 rounded-xl p-4">
+              <p className="text-red-400 text-sm">
+                Error loading settings: {error?.response?.data?.error || error?.message || 'Unknown error'}. 
+                Using default values. You can still update your profile.
+              </p>
+            </div>
+          )}
+
           {/* Page Header */}
           <div className="flex flex-col gap-2">
-            <h1 className="text-white text-4xl font-black leading-tight tracking-[-0.033em]">Account Settings</h1>
-            <p className="text-text-secondary text-base">Manage your profile details, security preferences, and notifications.</p>
+            <h1 className="text-white dark:text-white text-4xl font-black leading-tight tracking-[-0.033em]">Account Settings</h1>
+            <p className="text-text-secondary dark:text-text-secondary text-base">Manage your profile details, security preferences, and notifications.</p>
           </div>
 
           {/* Tabs */}
           <div className="border-b border-border-dark">
             <div className="flex gap-8">
-              <button
-                onClick={() => setActiveTab('profile')}
-                className={`flex items-center justify-center border-b-[3px] pb-3 px-2 transition-colors ${
-                  activeTab === 'profile'
-                    ? 'border-primary text-white'
-                    : 'border-transparent text-text-secondary hover:text-white'
-                }`}
+              <a
+                href="#profile"
+                className="flex items-center justify-center border-b-[3px] border-primary text-white pb-3 px-2"
               >
                 <p className="text-sm font-bold tracking-[0.015em]">Profile</p>
-              </button>
-              <button
-                onClick={() => setActiveTab('security')}
-                className={`flex items-center justify-center border-b-[3px] pb-3 px-2 transition-colors ${
-                  activeTab === 'security'
-                    ? 'border-primary text-white'
-                    : 'border-transparent text-text-secondary hover:text-white'
-                }`}
+              </a>
+              <a
+                href="#security"
+                className="flex items-center justify-center border-b-[3px] border-transparent text-text-secondary hover:text-white pb-3 px-2 transition-colors"
               >
                 <p className="text-sm font-bold tracking-[0.015em]">Security</p>
-              </button>
-              <button
-                onClick={() => setActiveTab('notifications')}
-                className={`flex items-center justify-center border-b-[3px] pb-3 px-2 transition-colors ${
-                  activeTab === 'notifications'
-                    ? 'border-primary text-white'
-                    : 'border-transparent text-text-secondary hover:text-white'
-                }`}
+              </a>
+              <a
+                href="#notifications"
+                className="flex items-center justify-center border-b-[3px] border-transparent text-text-secondary hover:text-white pb-3 px-2 transition-colors"
               >
                 <p className="text-sm font-bold tracking-[0.015em]">Notifications</p>
-              </button>
+              </a>
             </div>
           </div>
 
           {/* Profile Section */}
-          {activeTab === 'profile' && (
-            <section className="flex flex-col gap-6 animate-fade-in" id="profile">
+          <section className="flex flex-col gap-6 animate-fade-in" id="profile">
               <div className="flex flex-col md:flex-row md:items-center justify-between gap-6 p-6 rounded-2xl bg-surface-dark border border-border-dark">
                 <div className="flex items-center gap-5">
                   <div className="relative group cursor-pointer">
@@ -217,9 +230,9 @@ const MemberSettings = () => {
                     </div>
                   </div>
                   <div className="flex flex-col">
-                    <h3 className="text-white text-xl font-bold">{profileData.name || user?.name}</h3>
-                    <p className="text-text-secondary">{profileData.email || user?.email}</p>
-                    <p className="text-xs text-primary mt-1 font-medium">Member since {data?.memberSince || '2023'}</p>
+                    <h3 className="text-white text-xl font-bold">{profileData.name || user?.name || 'Member'}</h3>
+                    <p className="text-text-secondary">{profileData.email || user?.email || ''}</p>
+                    <p className="text-xs text-primary mt-1 font-medium">Member since {data?.memberSince || user?.createdAt || '2023'}</p>
                   </div>
                 </div>
                 <div className="flex gap-3">
@@ -297,12 +310,11 @@ const MemberSettings = () => {
                   Save Changes
                 </button>
               </div>
-            </section>
-          )}
+          </section>
+          <hr className="border-border-dark my-2" />
 
           {/* Security Section */}
-          {activeTab === 'security' && (
-            <section className="flex flex-col gap-6" id="security">
+          <section className="flex flex-col gap-6" id="security">
               <div className="flex flex-col gap-2 mb-2">
                 <h2 className="text-white text-2xl font-bold">Security</h2>
                 <p className="text-text-secondary text-sm">Update your password and secure your account.</p>
@@ -367,12 +379,11 @@ const MemberSettings = () => {
                   ></span>
                 </button>
               </div>
-            </section>
-          )}
+          </section>
+          <hr className="border-border-dark my-2" />
 
           {/* Notifications Section */}
-          {activeTab === 'notifications' && (
-            <section className="flex flex-col gap-6" id="notifications">
+          <section className="flex flex-col gap-6" id="notifications">
               <div className="flex flex-col gap-2 mb-2">
                 <h2 className="text-white text-2xl font-bold">Notifications</h2>
                 <p className="text-text-secondary text-sm">Choose what we get in touch about.</p>
@@ -457,9 +468,7 @@ const MemberSettings = () => {
                   </button>
                 </div>
               </div>
-            </section>
-          )}
-
+          </section>
           <hr className="border-border-dark my-2" />
 
           {/* Danger Zone */}

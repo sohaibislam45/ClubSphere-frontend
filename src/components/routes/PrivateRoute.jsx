@@ -1,5 +1,6 @@
 import { Navigate } from 'react-router-dom';
 import { useAuth } from '../../context/AuthContext';
+import Loader from '../ui/Loader';
 
 const PrivateRoute = ({ children, requiredRole }) => {
   const { isAuthenticated, hasRole, loading, logout } = useAuth();
@@ -8,7 +9,7 @@ const PrivateRoute = ({ children, requiredRole }) => {
   if (loading) {
     return (
       <div className="flex items-center justify-center min-h-screen bg-background-dark">
-        <div className="text-white">Loading...</div>
+        <Loader />
       </div>
     );
   }

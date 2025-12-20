@@ -2,6 +2,7 @@ import { useState } from 'react';
 import { useQuery } from '@tanstack/react-query';
 import { useAuth } from '../context/AuthContext';
 import MemberSidebar from '../components/layout/MemberSidebar';
+import Loader from '../components/ui/Loader';
 import api from '../lib/api';
 
 const MemberMyClubs = () => {
@@ -151,7 +152,9 @@ const MemberMyClubs = () => {
 
             {/* Content Grid */}
             {isLoading ? (
-              <div className="text-center py-20 text-slate-400">Loading clubs...</div>
+              <div className="flex items-center justify-center py-20">
+                <Loader />
+              </div>
             ) : error ? (
               <div className="text-center py-20 text-red-400">Error loading clubs</div>
             ) : clubs.length === 0 ? (

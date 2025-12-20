@@ -3,6 +3,7 @@ import { Link, useLocation } from 'react-router-dom';
 import { useQuery } from '@tanstack/react-query';
 import { useAuth } from '../context/AuthContext';
 import api from '../lib/api';
+import Loader from '../components/ui/Loader';
 
 const AdminViewFinances = () => {
   const { user, logout } = useAuth();
@@ -284,7 +285,11 @@ const AdminViewFinances = () => {
                   <tbody className="text-sm divide-y divide-[#3d5245]">
                     {isLoading ? (
                       <tr>
-                        <td colSpan="7" className="p-5 text-center text-[#9eb7a8]">Loading...</td>
+                        <td colSpan="7" className="p-5">
+                          <div className="flex items-center justify-center">
+                            <Loader />
+                          </div>
+                        </td>
                       </tr>
                     ) : transactions.length === 0 ? (
                       <tr>

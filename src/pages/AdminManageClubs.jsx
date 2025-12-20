@@ -4,6 +4,7 @@ import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { useAuth } from '../context/AuthContext';
 import api from '../lib/api';
 import Swal from 'sweetalert2';
+import Loader from '../components/ui/Loader';
 
 const AdminManageClubs = () => {
   const { user, logout } = useAuth();
@@ -278,7 +279,11 @@ const AdminManageClubs = () => {
                   <tbody className="divide-y divide-[#29382f]">
                     {isLoading ? (
                       <tr>
-                        <td colSpan="6" className="p-4 text-center text-[#9eb7a8]">Loading...</td>
+                        <td colSpan="6" className="p-4">
+                          <div className="flex items-center justify-center">
+                            <Loader />
+                          </div>
+                        </td>
                       </tr>
                     ) : clubs.length === 0 ? (
                       <tr>
