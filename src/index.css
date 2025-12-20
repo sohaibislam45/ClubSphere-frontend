@@ -71,3 +71,24 @@ body {
 .form-input::placeholder {
   color: #9eb7a8;
 }
+
+/* Select dropdown styling for dark theme */
+select {
+  background-color: #1c2620 !important;
+  color: #ffffff !important;
+}
+
+select option {
+  background-color: #1c2620 !important;
+  color: #ffffff !important;
+}
+
+/* Ensure select dropdown options are visible in dark modals */
+select:focus option:checked {
+  background-color: #38e07b !important;
+  color: #111714 !important;
+}
+
+select option:hover {
+  background-color: #29382f !important;
+}

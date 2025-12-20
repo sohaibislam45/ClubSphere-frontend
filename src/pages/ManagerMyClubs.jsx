@@ -1,20 +1,54 @@
 import { useState, useEffect } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
-import { useQuery } from '@tanstack/react-query';
+import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
+import { useForm } from 'react-hook-form';
 import { useAuth } from '../context/AuthContext';
 import api from '../lib/api';
 import ManagerSidebar from '../components/layout/ManagerSidebar';
 import Loader from '../components/ui/Loader';
+import Swal from '../lib/sweetalertConfig';
 
 const ManagerMyClubs = () => {
   const { user, logout } = useAuth();
+  const queryClient = useQueryClient();
+  const navigate = useNavigate();
+  const [search, setSearch] = useState('');
+  const [categoryFilter, setCategoryFilter] = useState('All Clubs');
+  const [showAllCategories, setShowAllCategories] = useState(false);
+  const [showCreateModal, setShowCreateModal] = useState(false);
+  const [showEditModal, setShowEditModal] = useState(false);
+  const [editingClub, setEditingClub] = useState(null);
+  const [imagePreview, setImagePreview] = useState(null);
+  const [selectedImage, setSelectedImage] = useState(null);
+  const [isUploadingImage, setIsUploadingImage] = useState(false);
+  const [deleteMenuOpen, setDeleteMenuOpen] = useState(null);
 
   useEffect(() => {
     document.title = 'My Clubs - Club Manager - ClubSphere';
   }, []);
-  const navigate = useNavigate();
-  const [search, setSearch] = useState('');
-  const [categoryFilter, setCategoryFilter] = useState('All Clubs');
+
+  // Close delete menu when clicking outside
+  useEffect(() => {
+    const handleClickOutside = (event) => {
+      if (deleteMenuOpen && !event.target.closest('.relative')) {
+        setDeleteMenuOpen(null);
+      }
+    };
+    document.addEventListener('mousedown', handleClickOutside);
+    return () => document.removeEventListener('mousedown', handleClickOutside);
+  }, [deleteMenuOpen]);
+
+  const { register, handleSubmit, reset, setValue, watch, formState: { errors } } = useForm();
+  const imageUrl = watch('image');
+
+  // Fetch categories from backend
+  const { data: categoriesData } = useQuery({
+    queryKey: ['categories'],
+    queryFn: async () => {
+      const response = await api.get('/api/categories');
+      return response.data;
+    }
+  });
 
   // Fetch clubs
   const { data: clubsData, isLoading, error } = useQuery({
@@ -29,19 +63,250 @@ const ManagerMyClubs = () => {
   });
 
   const clubs = clubsData?.clubs || [];
-  const categories = ['All Clubs', 'Sports', 'Technology', 'Lifestyle', 'Arts & Culture'];
+  const backendCategories = categoriesData?.categories || [];
+  // Create filter categories list with "All Clubs" first, then backend categories
+  const allCategories = ['All Clubs', ...backendCategories.map(cat => cat.displayName || cat.name)];
+  // Show only first 4 categories (including "All Clubs") initially, or all if expanded
+  const categories = showAllCategories ? allCategories : allCategories.slice(0, 4);
+  // Create dropdown categories list (without "All Clubs")
+  const clubCategories = backendCategories.map(cat => cat.displayName || cat.name);
+
+  // Upload image to ImgBB
+  const uploadImageToImgBB = async (file) => {
+    if (!import.meta.env.VITE_IMGBB_API_KEY) {
+      return null;
+    }
+
+    const formData = new FormData();
+    formData.append('image', file);
+    formData.append('key', import.meta.env.VITE_IMGBB_API_KEY);
+
+    try {
+      const response = await fetch('https://api.imgbb.com/1/upload', {
+        method: 'POST',
+        body: formData
+      });
+
+      const data = await response.json();
+      if (data.success) {
+        return data.data.url;
+      }
+      return null;
+    } catch (error) {
+      console.error('Image upload failed:', error);
+      return null;
+    }
+  };
+
+  // Create club mutation
+  const createClubMutation = useMutation({
+    mutationFn: async (data) => {
+      let imageURL = data.image || null;
+      
+      // Upload image if a file is selected
+      if (selectedImage && import.meta.env.VITE_IMGBB_API_KEY) {
+        setIsUploadingImage(true);
+        try {
+          imageURL = await uploadImageToImgBB(selectedImage);
+        } catch (error) {
+          console.warn('Image upload failed, continuing without image:', error);
+        } finally {
+          setIsUploadingImage(false);
+        }
+      }
+
+      const response = await api.post('/api/manager/clubs', {
+        name: data.name,
+        description: data.description,
+        category: data.category,
+        schedule: data.schedule,
+        location: data.location,
+        fee: data.fee ? parseFloat(data.fee) : 0,
+        image: imageURL
+      });
+      return response.data;
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries(['managerClubs']);
+      setShowCreateModal(false);
+      reset();
+      setImagePreview(null);
+      setSelectedImage(null);
+      Swal.fire({
+        icon: 'success',
+        title: 'Club Created!',
+        text: 'Your club has been created and is pending admin approval.',
+        timer: 3000,
+        showConfirmButton: false
+      });
+    },
+    onError: (error) => {
+      Swal.fire({
+        icon: 'error',
+        title: 'Error',
+        text: error.response?.data?.error || 'Failed to create club. Please try again.'
+      });
+    }
+  });
+
+  // Delete club mutation
+  const deleteClubMutation = useMutation({
+    mutationFn: async (clubId) => {
+      const response = await api.delete(`/api/manager/clubs/${clubId}`);
+      return response.data;
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries(['managerClubs']);
+      setDeleteMenuOpen(null);
+      Swal.fire({
+        icon: 'success',
+        title: 'Club Deleted!',
+        text: 'Your club has been deleted successfully.',
+        timer: 2000,
+        showConfirmButton: false
+      });
+    },
+    onError: (error) => {
+      Swal.fire({
+        icon: 'error',
+        title: 'Error',
+        text: error.response?.data?.error || 'Failed to delete club. Please try again.'
+      });
+    }
+  });
+
+  // Update club mutation
+  const updateClubMutation = useMutation({
+    mutationFn: async ({ id, data }) => {
+      let imageURL = data.image || editingClub?.image || null;
+      
+      // Upload image if a new file is selected
+      if (selectedImage && import.meta.env.VITE_IMGBB_API_KEY) {
+        setIsUploadingImage(true);
+        try {
+          imageURL = await uploadImageToImgBB(selectedImage);
+        } catch (error) {
+          console.warn('Image upload failed, keeping existing image:', error);
+        } finally {
+          setIsUploadingImage(false);
+        }
+      }
+
+      const response = await api.put(`/api/manager/clubs/${id}`, {
+        name: data.name,
+        description: data.description,
+        category: data.category,
+        schedule: data.schedule,
+        location: data.location,
+        fee: data.fee ? parseFloat(data.fee) : 0,
+        image: imageURL
+      });
+      return response.data;
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries(['managerClubs']);
+      setShowEditModal(false);
+      setEditingClub(null);
+      reset();
+      setImagePreview(null);
+      setSelectedImage(null);
+      Swal.fire({
+        icon: 'success',
+        title: 'Club Updated!',
+        text: 'Your club has been updated successfully.',
+        timer: 2000,
+        showConfirmButton: false
+      });
+    },
+    onError: (error) => {
+      Swal.fire({
+        icon: 'error',
+        title: 'Error',
+        text: error.response?.data?.error || 'Failed to update club. Please try again.'
+      });
+    }
+  });
 
   const handleManageClub = (clubId) => {
     navigate(`/dashboard/club-manager/clubs/${clubId}/members`);
   };
 
-  const handleEditClub = (clubId) => {
-    // TODO: Open edit modal or navigate to edit page
-    console.log('Edit club:', clubId);
+  const handleEditClub = (club) => {
+    setEditingClub(club);
+    setValue('name', club.name);
+    setValue('description', club.description || '');
+    setValue('category', club.category || 'Sports');
+    setValue('schedule', club.schedule || '');
+    setValue('location', club.location || '');
+    // Fee is already in taka from backend (converted from cents)
+    setValue('fee', club.fee ? club.fee.toString() : '0');
+    setValue('image', club.image || '');
+    setImagePreview(club.image || null);
+    setSelectedImage(null);
+    setShowEditModal(true);
   };
 
   const handleCreateEvent = (clubId) => {
     navigate(`/dashboard/club-manager/events?clubId=${clubId}`);
+  };
+
+  const handleImageChange = (e) => {
+    const file = e.target.files[0];
+    if (file) {
+      if (!file.type.startsWith('image/')) {
+        Swal.fire({
+          icon: 'error',
+          title: 'Invalid File',
+          text: 'Please select an image file.'
+        });
+        return;
+      }
+      
+      if (file.size > 5 * 1024 * 1024) {
+        Swal.fire({
+          icon: 'error',
+          title: 'File Too Large',
+          text: 'Please select an image smaller than 5MB.'
+        });
+        return;
+      }
+
+      setSelectedImage(file);
+      const reader = new FileReader();
+      reader.onloadend = () => {
+        setImagePreview(reader.result);
+      };
+      reader.readAsDataURL(file);
+    }
+  };
+
+  const onSubmitCreate = (data) => {
+    createClubMutation.mutate(data);
+  };
+
+  const onSubmitEdit = (data) => {
+    if (editingClub) {
+      updateClubMutation.mutate({ id: editingClub.id, data });
+    }
+  };
+
+  const openCreateModal = () => {
+    reset();
+    // Set default category to first available category from backend (use name, not displayName)
+    const defaultCategory = backendCategories.length > 0 ? backendCategories[0].name : '';
+    setValue('category', defaultCategory);
+    setImagePreview(null);
+    setSelectedImage(null);
+    setShowCreateModal(true);
+  };
+
+  const closeModals = () => {
+    setShowCreateModal(false);
+    setShowEditModal(false);
+    setEditingClub(null);
+    reset();
+    setImagePreview(null);
+    setSelectedImage(null);
   };
 
   return (
@@ -69,7 +334,10 @@ const ManagerMyClubs = () => {
               <h1 className="text-4xl font-black leading-tight tracking-tight text-white md:text-5xl">My Clubs</h1>
               <p className="text-base text-[#9eb7a8]">View and manage your active communities</p>
             </div>
-            <button className="flex items-center gap-2 rounded-full bg-primary px-6 py-3 text-sm font-bold text-[#111714] shadow-lg shadow-primary/20 transition-transform hover:scale-105 active:scale-95">
+            <button 
+              onClick={openCreateModal}
+              className="flex items-center gap-2 rounded-full bg-primary px-6 py-3 text-sm font-bold text-[#111714] shadow-lg shadow-primary/20 transition-transform hover:scale-105 active:scale-95"
+            >
               <span className="material-symbols-outlined text-[20px]">add</span>
               Create New Club
             </button>
@@ -105,6 +373,24 @@ const ManagerMyClubs = () => {
                   {category}
                 </button>
               ))}
+              {!showAllCategories && allCategories.length > 4 && (
+                <button
+                  onClick={() => setShowAllCategories(true)}
+                  className="flex h-10 items-center justify-center gap-1 rounded-full px-5 text-sm font-medium bg-surface-dark text-[#9eb7a8] hover:bg-surface-hover hover:text-white transition-colors"
+                >
+                  See more
+                  <span className="material-symbols-outlined text-base">expand_more</span>
+                </button>
+              )}
+              {showAllCategories && allCategories.length > 4 && (
+                <button
+                  onClick={() => setShowAllCategories(false)}
+                  className="flex h-10 items-center justify-center gap-1 rounded-full px-5 text-sm font-medium bg-surface-dark text-[#9eb7a8] hover:bg-surface-hover hover:text-white transition-colors"
+                >
+                  See less
+                  <span className="material-symbols-outlined text-base">expand_less</span>
+                </button>
+              )}
             </div>
           </div>
 
@@ -148,9 +434,42 @@ const ManagerMyClubs = () => {
                         <h3 className="mb-1 text-xl font-bold text-white">{club.name}</h3>
                         <p className="text-sm text-[#9eb7a8]">{club.schedule || club.description}</p>
                       </div>
-                      <button className="text-[#9eb7a8] hover:text-white">
-                        <span className="material-symbols-outlined">more_vert</span>
-                      </button>
+                      <div className="relative">
+                        <button 
+                          onClick={() => setDeleteMenuOpen(deleteMenuOpen === club.id ? null : club.id)}
+                          className="text-[#9eb7a8] hover:text-white transition-colors"
+                        >
+                          <span className="material-symbols-outlined">more_vert</span>
+                        </button>
+                        {deleteMenuOpen === club.id && (
+                          <div className="absolute right-0 top-8 z-50 w-48 bg-surface-dark rounded-xl border border-border-dark shadow-lg overflow-hidden">
+                            <button
+                              onClick={() => {
+                                setDeleteMenuOpen(null);
+                                Swal.fire({
+                                  title: 'Delete Club?',
+                                  text: `Are you sure you want to delete "${club.name}"? This action cannot be undone.`,
+                                  icon: 'warning',
+                                  showCancelButton: true,
+                                  confirmButtonColor: '#ef4444',
+                                  cancelButtonColor: '#6b7280',
+                                  confirmButtonText: 'Yes, Delete',
+                                  cancelButtonText: 'Cancel',
+                                  reverseButtons: true
+                                }).then((result) => {
+                                  if (result.isConfirmed) {
+                                    deleteClubMutation.mutate(club.id);
+                                  }
+                                });
+                              }}
+                              className="w-full px-4 py-3 text-left text-sm text-red-400 hover:bg-red-500/10 transition-colors flex items-center gap-2"
+                            >
+                              <span className="material-symbols-outlined text-lg">delete</span>
+                              Delete Club
+                            </button>
+                          </div>
+                        )}
+                      </div>
                     </div>
                     {/* Stats */}
                     <div className="mb-6 grid grid-cols-2 gap-4 rounded-lg bg-black/20 p-3">
@@ -197,7 +516,7 @@ const ManagerMyClubs = () => {
                         <span className="material-symbols-outlined text-[20px]">add_circle</span>
                       </button>
                       <button
-                        onClick={() => handleEditClub(club.id)}
+                        onClick={() => handleEditClub(club)}
                         className="flex size-10 items-center justify-center rounded-full border border-white/10 text-white transition-colors hover:bg-white/10"
                         title="Edit Details"
                       >
@@ -208,7 +527,10 @@ const ManagerMyClubs = () => {
                 </div>
               ))}
               {/* Add New Club Card */}
-              <div className="group relative flex flex-col overflow-hidden rounded-xl border border-dashed border-white/10 bg-transparent shadow-sm transition-all hover:border-primary/50">
+              <button
+                onClick={openCreateModal}
+                className="group relative flex flex-col overflow-hidden rounded-xl border border-dashed border-white/10 bg-transparent shadow-sm transition-all hover:border-primary/50 cursor-pointer"
+              >
                 <div className="flex h-full min-h-[300px] flex-col items-center justify-center gap-4 p-8 text-center">
                   <div className="flex size-16 items-center justify-center rounded-full bg-surface-dark text-[#9eb7a8] transition-colors group-hover:bg-primary group-hover:text-background-dark">
                     <span className="material-symbols-outlined text-3xl">add</span>
@@ -218,11 +540,343 @@ const ManagerMyClubs = () => {
                     <p className="mt-1 text-sm text-[#9eb7a8]">Build a community around your passion</p>
                   </div>
                 </div>
-              </div>
+              </button>
             </div>
           )}
         </div>
       </main>
+
+      {/* Create Club Modal */}
+      {showCreateModal && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm p-4">
+          <div className="relative w-full max-w-2xl max-h-[90vh] overflow-y-auto bg-surface-dark rounded-2xl border border-border-dark shadow-2xl">
+            <div className="sticky top-0 bg-surface-dark border-b border-border-dark p-6 flex items-center justify-between z-10">
+              <h2 className="text-2xl font-bold text-white">Create New Club</h2>
+              <button
+                onClick={closeModals}
+                className="text-text-secondary hover:text-white transition-colors"
+              >
+                <span className="material-symbols-outlined text-2xl">close</span>
+              </button>
+            </div>
+            <form onSubmit={handleSubmit(onSubmitCreate)} className="p-6 space-y-6">
+              {/* Image Upload */}
+              <div>
+                <label className="block text-sm font-medium text-white mb-2">Club Image</label>
+                <div className="flex items-center gap-4">
+                  {imagePreview ? (
+                    <div className="relative w-32 h-32 rounded-xl overflow-hidden border-2 border-border-dark">
+                      <img src={imagePreview} alt="Preview" className="w-full h-full object-cover" />
+                      <button
+                        type="button"
+                        onClick={() => {
+                          setImagePreview(null);
+                          setSelectedImage(null);
+                          setValue('image', '');
+                        }}
+                        className="absolute top-1 right-1 bg-red-500 text-white rounded-full p-1 hover:bg-red-600"
+                      >
+                        <span className="material-symbols-outlined text-sm">close</span>
+                      </button>
+                    </div>
+                  ) : (
+                    <div className="w-32 h-32 rounded-xl border-2 border-dashed border-border-dark flex items-center justify-center bg-surface-highlight">
+                      <span className="material-symbols-outlined text-4xl text-text-secondary">image</span>
+                    </div>
+                  )}
+                  <div>
+                    <input
+                      type="file"
+                      accept="image/*"
+                      onChange={handleImageChange}
+                      className="hidden"
+                      id="club-image-upload"
+                    />
+                    <label
+                      htmlFor="club-image-upload"
+                      className="inline-flex items-center gap-2 px-4 py-2 rounded-lg bg-surface-highlight text-white hover:bg-surface-highlight/80 transition-colors cursor-pointer"
+                    >
+                      <span className="material-symbols-outlined text-lg">upload</span>
+                      Upload Image
+                    </label>
+                    <p className="text-xs text-text-secondary mt-1">Max 5MB, JPG/PNG</p>
+                  </div>
+                </div>
+              </div>
+
+              {/* Name */}
+              <div>
+                <label className="block text-sm font-medium text-white mb-2">Club Name *</label>
+                <input
+                  {...register('name', { required: 'Club name is required' })}
+                  type="text"
+                  className="w-full px-4 py-3 rounded-lg bg-surface-highlight border border-border-dark text-white placeholder-text-secondary focus:outline-none focus:ring-2 focus:ring-primary"
+                  placeholder="Enter club name"
+                />
+                {errors.name && <p className="text-red-400 text-sm mt-1">{errors.name.message}</p>}
+              </div>
+
+              {/* Description */}
+              <div>
+                <label className="block text-sm font-medium text-white mb-2">Description</label>
+                <textarea
+                  {...register('description')}
+                  rows={4}
+                  className="w-full px-4 py-3 rounded-lg bg-surface-highlight border border-border-dark text-white placeholder-text-secondary focus:outline-none focus:ring-2 focus:ring-primary resize-none"
+                  placeholder="Describe your club..."
+                />
+              </div>
+
+              {/* Category */}
+              <div>
+                <label className="block text-sm font-medium text-white mb-2">Category *</label>
+                <select
+                  {...register('category', { required: 'Category is required' })}
+                  className="w-full px-4 py-3 rounded-lg bg-surface-highlight border border-border-dark text-white focus:outline-none focus:ring-2 focus:ring-primary appearance-none cursor-pointer"
+                  style={{ 
+                    backgroundImage: `url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='24' height='24' viewBox='0 0 24 24' fill='none' stroke='%23ffffff' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpolyline points='6 9 12 15 18 9'%3E%3C/polyline%3E%3C/svg%3E")`,
+                    backgroundRepeat: 'no-repeat',
+                    backgroundPosition: 'right 0.75rem center',
+                    backgroundSize: '1.5em 1.5em',
+                    paddingRight: '2.5rem',
+                    backgroundColor: '#1c2620'
+                  }}
+                >
+                  {backendCategories.map(cat => (
+                    <option key={cat.id} value={cat.name} style={{ backgroundColor: '#1c2620', color: '#ffffff' }}>
+                      {cat.displayName || cat.name}
+                    </option>
+                  ))}
+                </select>
+                {errors.category && <p className="text-red-400 text-sm mt-1">{errors.category.message}</p>}
+              </div>
+
+              {/* Schedule */}
+              <div>
+                <label className="block text-sm font-medium text-white mb-2">Schedule</label>
+                <div className="relative">
+                  <span className="material-symbols-outlined absolute left-4 top-1/2 -translate-y-1/2 text-lg pointer-events-none" style={{ color: '#ffffff' }}>calendar_today</span>
+                  <input
+                    {...register('schedule')}
+                    type="datetime-local"
+                    className="w-full pl-12 pr-4 py-3 rounded-lg bg-surface-highlight border border-border-dark text-white placeholder-text-secondary focus:outline-none focus:ring-2 focus:ring-primary"
+                    placeholder="Select date and time"
+                  />
+                </div>
+                <p className="text-xs text-text-secondary mt-1">Or enter a recurring schedule like "Every Saturday, 10:00 AM"</p>
+              </div>
+
+              {/* Location */}
+              <div>
+                <label className="block text-sm font-medium text-white mb-2">Location</label>
+                <input
+                  {...register('location')}
+                  type="text"
+                  className="w-full px-4 py-3 rounded-lg bg-surface-highlight border border-border-dark text-white placeholder-text-secondary focus:outline-none focus:ring-2 focus:ring-primary"
+                  placeholder="City, Country"
+                />
+              </div>
+
+              {/* Membership Fee */}
+              <div>
+                <label className="block text-sm font-medium text-white mb-2">Membership Fee (৳)</label>
+                <input
+                  {...register('fee', { min: 0 })}
+                  type="number"
+                  step="0.01"
+                  min="0"
+                  className="w-full px-4 py-3 rounded-lg bg-surface-highlight border border-border-dark text-white placeholder-text-secondary focus:outline-none focus:ring-2 focus:ring-primary"
+                  placeholder="0.00"
+                />
+              </div>
+
+              {/* Actions */}
+              <div className="flex gap-3 pt-4">
+                <button
+                  type="button"
+                  onClick={closeModals}
+                  className="flex-1 px-6 py-3 rounded-lg bg-surface-highlight text-white hover:bg-surface-highlight/80 transition-colors font-medium"
+                >
+                  Cancel
+                </button>
+                <button
+                  type="submit"
+                  disabled={createClubMutation.isLoading || isUploadingImage}
+                  className="flex-1 px-6 py-3 rounded-lg bg-primary text-background-dark hover:bg-primary-hover transition-colors font-bold disabled:opacity-50 disabled:cursor-not-allowed"
+                >
+                  {isUploadingImage ? 'Uploading...' : createClubMutation.isLoading ? 'Creating...' : 'Create Club'}
+                </button>
+              </div>
+            </form>
+          </div>
+        </div>
+      )}
+
+      {/* Edit Club Modal */}
+      {showEditModal && editingClub && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm p-4">
+          <div className="relative w-full max-w-2xl max-h-[90vh] overflow-y-auto bg-surface-dark rounded-2xl border border-border-dark shadow-2xl">
+            <div className="sticky top-0 bg-surface-dark border-b border-border-dark p-6 flex items-center justify-between z-10">
+              <h2 className="text-2xl font-bold text-white">Edit Club</h2>
+              <button
+                onClick={closeModals}
+                className="text-text-secondary hover:text-white transition-colors"
+              >
+                <span className="material-symbols-outlined text-2xl">close</span>
+              </button>
+            </div>
+            <form onSubmit={handleSubmit(onSubmitEdit)} className="p-6 space-y-6">
+              {/* Image Upload */}
+              <div>
+                <label className="block text-sm font-medium text-white mb-2">Club Image</label>
+                <div className="flex items-center gap-4">
+                  {imagePreview ? (
+                    <div className="relative w-32 h-32 rounded-xl overflow-hidden border-2 border-border-dark">
+                      <img src={imagePreview} alt="Preview" className="w-full h-full object-cover" />
+                      <button
+                        type="button"
+                        onClick={() => {
+                          setImagePreview(null);
+                          setSelectedImage(null);
+                          setValue('image', editingClub.image || '');
+                        }}
+                        className="absolute top-1 right-1 bg-red-500 text-white rounded-full p-1 hover:bg-red-600"
+                      >
+                        <span className="material-symbols-outlined text-sm">close</span>
+                      </button>
+                    </div>
+                  ) : (
+                    <div className="w-32 h-32 rounded-xl border-2 border-dashed border-border-dark flex items-center justify-center bg-surface-highlight">
+                      <span className="material-symbols-outlined text-4xl text-text-secondary">image</span>
+                    </div>
+                  )}
+                  <div>
+                    <input
+                      type="file"
+                      accept="image/*"
+                      onChange={handleImageChange}
+                      className="hidden"
+                      id="club-image-edit-upload"
+                    />
+                    <label
+                      htmlFor="club-image-edit-upload"
+                      className="inline-flex items-center gap-2 px-4 py-2 rounded-lg bg-surface-highlight text-white hover:bg-surface-highlight/80 transition-colors cursor-pointer"
+                    >
+                      <span className="material-symbols-outlined text-lg">upload</span>
+                      {imagePreview ? 'Change Image' : 'Upload Image'}
+                    </label>
+                    <p className="text-xs text-text-secondary mt-1">Max 5MB, JPG/PNG</p>
+                  </div>
+                </div>
+              </div>
+
+              {/* Name */}
+              <div>
+                <label className="block text-sm font-medium text-white mb-2">Club Name *</label>
+                <input
+                  {...register('name', { required: 'Club name is required' })}
+                  type="text"
+                  className="w-full px-4 py-3 rounded-lg bg-surface-highlight border border-border-dark text-white placeholder-text-secondary focus:outline-none focus:ring-2 focus:ring-primary"
+                  placeholder="Enter club name"
+                />
+                {errors.name && <p className="text-red-400 text-sm mt-1">{errors.name.message}</p>}
+              </div>
+
+              {/* Description */}
+              <div>
+                <label className="block text-sm font-medium text-white mb-2">Description</label>
+                <textarea
+                  {...register('description')}
+                  rows={4}
+                  className="w-full px-4 py-3 rounded-lg bg-surface-highlight border border-border-dark text-white placeholder-text-secondary focus:outline-none focus:ring-2 focus:ring-primary resize-none"
+                  placeholder="Describe your club..."
+                />
+              </div>
+
+              {/* Category */}
+              <div>
+                <label className="block text-sm font-medium text-white mb-2">Category *</label>
+                <select
+                  {...register('category', { required: 'Category is required' })}
+                  className="w-full px-4 py-3 rounded-lg bg-surface-highlight border border-border-dark text-white focus:outline-none focus:ring-2 focus:ring-primary appearance-none cursor-pointer"
+                  style={{ 
+                    backgroundImage: `url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='24' height='24' viewBox='0 0 24 24' fill='none' stroke='%23ffffff' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpolyline points='6 9 12 15 18 9'%3E%3C/polyline%3E%3C/svg%3E")`,
+                    backgroundRepeat: 'no-repeat',
+                    backgroundPosition: 'right 0.75rem center',
+                    backgroundSize: '1.5em 1.5em',
+                    paddingRight: '2.5rem',
+                    backgroundColor: '#1c2620'
+                  }}
+                >
+                  {backendCategories.map(cat => (
+                    <option key={cat.id} value={cat.name} style={{ backgroundColor: '#1c2620', color: '#ffffff' }}>
+                      {cat.displayName || cat.name}
+                    </option>
+                  ))}
+                </select>
+                {errors.category && <p className="text-red-400 text-sm mt-1">{errors.category.message}</p>}
+              </div>
+
+              {/* Schedule */}
+              <div>
+                <label className="block text-sm font-medium text-white mb-2">Schedule</label>
+                <div className="relative">
+                  <span className="material-symbols-outlined absolute left-4 top-1/2 -translate-y-1/2 text-lg pointer-events-none" style={{ color: '#ffffff' }}>calendar_today</span>
+                  <input
+                    {...register('schedule')}
+                    type="datetime-local"
+                    className="w-full pl-12 pr-4 py-3 rounded-lg bg-surface-highlight border border-border-dark text-white placeholder-text-secondary focus:outline-none focus:ring-2 focus:ring-primary"
+                    placeholder="Select date and time"
+                  />
+                </div>
+                <p className="text-xs text-text-secondary mt-1">Or enter a recurring schedule like "Every Saturday, 10:00 AM"</p>
+              </div>
+
+              {/* Location */}
+              <div>
+                <label className="block text-sm font-medium text-white mb-2">Location</label>
+                <input
+                  {...register('location')}
+                  type="text"
+                  className="w-full px-4 py-3 rounded-lg bg-surface-highlight border border-border-dark text-white placeholder-text-secondary focus:outline-none focus:ring-2 focus:ring-primary"
+                  placeholder="City, Country"
+                />
+              </div>
+
+              {/* Membership Fee */}
+              <div>
+                <label className="block text-sm font-medium text-white mb-2">Membership Fee (৳)</label>
+                <input
+                  {...register('fee', { min: 0 })}
+                  type="number"
+                  step="0.01"
+                  min="0"
+                  className="w-full px-4 py-3 rounded-lg bg-surface-highlight border border-border-dark text-white placeholder-text-secondary focus:outline-none focus:ring-2 focus:ring-primary"
+                  placeholder="0.00"
+                />
+              </div>
+
+              {/* Actions */}
+              <div className="flex gap-3 pt-4">
+                <button
+                  type="button"
+                  onClick={closeModals}
+                  className="flex-1 px-6 py-3 rounded-lg bg-surface-highlight text-white hover:bg-surface-highlight/80 transition-colors font-medium"
+                >
+                  Cancel
+                </button>
+                <button
+                  type="submit"
+                  disabled={updateClubMutation.isLoading || isUploadingImage}
+                  className="flex-1 px-6 py-3 rounded-lg bg-primary text-background-dark hover:bg-primary-hover transition-colors font-bold disabled:opacity-50 disabled:cursor-not-allowed"
+                >
+                  {isUploadingImage ? 'Uploading...' : updateClubMutation.isLoading ? 'Updating...' : 'Update Club'}
+                </button>
+              </div>
+            </form>
+          </div>
+        </div>
+      )}
     </div>
   );
 };

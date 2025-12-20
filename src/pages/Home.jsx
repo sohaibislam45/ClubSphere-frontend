@@ -134,40 +134,45 @@ const Home = () => {
             ) : (
               <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
                 {featuredClubs.map((club, index) => (
-                  <motion.div
+                  <Link
                     key={club.id}
-                    initial={{ opacity: 0, y: 20 }}
-                    animate={{ opacity: 1, y: 0 }}
-                    transition={{ duration: 0.5, delay: 0.6 + index * 0.1 }}
-                    className="group flex flex-col bg-card-dark border border-border-dark rounded-2xl overflow-hidden hover:border-primary/50 transition-all duration-300"
+                    to={`/clubs/${club.id}`}
+                    className="block"
                   >
-                    <div className="relative w-full h-48 overflow-hidden">
-                      <div 
-                        className="absolute inset-0 bg-cover bg-center transition-transform duration-500 group-hover:scale-110 bg-card-dark" 
-                        style={{ backgroundImage: club.image ? `url("${club.image}")` : 'none' }}
-                      ></div>
-                      <div className="absolute inset-0 bg-gradient-to-t from-card-dark/90 to-transparent"></div>
-                      <div className="absolute top-4 left-4">
-                        <span className={`${getCategoryColor(club.category)} text-background-dark text-xs font-bold px-3 py-1 rounded-full uppercase tracking-wider`}>
-                          {club.category}
-                        </span>
-                      </div>
-                    </div>
-                    <div className="p-5 flex flex-col gap-3 flex-1">
-                      <div className="flex justify-between items-start">
-                        <h3 className="text-xl font-bold leading-tight text-white group-hover:text-primary transition-colors">{club.name}</h3>
-                      </div>
-                      <p className="text-text-secondary text-sm line-clamp-2">{club.description || 'Join this amazing community and connect with like-minded people.'}</p>
-                      <div className="mt-auto pt-4 border-t border-border-dark flex items-center justify-between">
-                        <div className="flex items-center gap-1.5 text-xs font-medium text-text-secondary">
-                          <span className="material-symbols-outlined text-base">group</span> {club.members}
+                    <motion.div
+                      initial={{ opacity: 0, y: 20 }}
+                      animate={{ opacity: 1, y: 0 }}
+                      transition={{ duration: 0.5, delay: 0.6 + index * 0.1 }}
+                      className="group flex flex-col bg-card-dark border border-border-dark rounded-2xl overflow-hidden hover:border-primary/50 transition-all duration-300 cursor-pointer"
+                    >
+                      <div className="relative w-full h-48 overflow-hidden">
+                        <div 
+                          className="absolute inset-0 bg-cover bg-center transition-transform duration-500 group-hover:scale-110 bg-card-dark" 
+                          style={{ backgroundImage: club.image ? `url("${club.image}")` : 'none' }}
+                        ></div>
+                        <div className="absolute inset-0 bg-gradient-to-t from-card-dark/90 to-transparent"></div>
+                        <div className="absolute top-4 left-4">
+                          <span className={`${getCategoryColor(club.category)} text-background-dark text-xs font-bold px-3 py-1 rounded-full uppercase tracking-wider`}>
+                            {club.category}
+                          </span>
                         </div>
-                        <button className="text-sm font-bold text-white hover:text-primary transition-colors flex items-center gap-1">
-                          Join Club <span className="material-symbols-outlined text-sm">chevron_right</span>
-                        </button>
                       </div>
-                    </div>
-                  </motion.div>
+                      <div className="p-5 flex flex-col gap-3 flex-1">
+                        <div className="flex justify-between items-start">
+                          <h3 className="text-xl font-bold leading-tight text-white group-hover:text-primary transition-colors">{club.name}</h3>
+                        </div>
+                        <p className="text-text-secondary text-sm line-clamp-2">{club.description || 'Join this amazing community and connect with like-minded people.'}</p>
+                        <div className="mt-auto pt-4 border-t border-border-dark flex items-center justify-between">
+                          <div className="flex items-center gap-1.5 text-xs font-medium text-text-secondary">
+                            <span className="material-symbols-outlined text-base">group</span> {club.members}
+                          </div>
+                          <div className="text-sm font-bold text-white group-hover:text-primary transition-colors flex items-center gap-1">
+                            View Details <span className="material-symbols-outlined text-sm">chevron_right</span>
+                          </div>
+                        </div>
+                      </div>
+                    </motion.div>
+                  </Link>
                 ))}
               </div>
             )}

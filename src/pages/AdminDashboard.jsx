@@ -4,6 +4,7 @@ import { useAuth } from '../context/AuthContext';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import api from '../lib/api';
 import Loader from '../components/ui/Loader';
+import Swal from '../lib/sweetalertConfig';
 
 const AdminDashboard = () => {
   const { user, logout } = useAuth();
@@ -69,38 +70,92 @@ const AdminDashboard = () => {
 
   // Approve club mutation
   const approveClubMutation = useMutation({
-    mutationFn: async (clubId) => {
+    mutationFn: async ({ clubId }) => {
       const response = await api.put(`/api/admin/clubs/${clubId}/approve`);
       return response.data;
     },
-    onSuccess: () => {
+    onSuccess: (data, variables) => {
       queryClient.invalidateQueries(['admin-pending-clubs']);
       queryClient.invalidateQueries(['admin-dashboard-stats']);
+      
+      Swal.fire({
+        icon: 'success',
+        title: 'Club Approved!',
+        text: `${variables.clubName || 'Club'} has been successfully approved.`,
+        timer: 3000,
+        showConfirmButton: false
+      });
+    },
+    onError: (error) => {
+      Swal.fire({
+        icon: 'error',
+        title: 'Approval Failed',
+        text: error.response?.data?.message || 'Failed to approve club. Please try again.',
+      });
     }
   });
 
   // Reject club mutation
   const rejectClubMutation = useMutation({
-    mutationFn: async (clubId) => {
+    mutationFn: async ({ clubId }) => {
       const response = await api.put(`/api/admin/clubs/${clubId}/reject`);
       return response.data;
     },
-    onSuccess: () => {
+    onSuccess: (data, variables) => {
       queryClient.invalidateQueries(['admin-pending-clubs']);
       queryClient.invalidateQueries(['admin-dashboard-stats']);
+      
+      Swal.fire({
+        icon: 'success',
+        title: 'Club Rejected',
+        text: `${variables.clubName || 'Club'} has been rejected.`,
+        timer: 3000,
+        showConfirmButton: false
+      });
+    },
+    onError: (error) => {
+      Swal.fire({
+        icon: 'error',
+        title: 'Rejection Failed',
+        text: error.response?.data?.message || 'Failed to reject club. Please try again.',
+      });
     }
   });
 
-  const handleApproveClub = (clubId) => {
-    if (window.confirm('Are you sure you want to approve this club?')) {
-      approveClubMutation.mutate(clubId);
-    }
+  const handleApproveClub = (clubId, clubName) => {
+    Swal.fire({
+      title: 'Approve Club?',
+      text: `Are you sure you want to approve ${clubName || 'this club'}?`,
+      icon: 'question',
+      showCancelButton: true,
+      confirmButtonColor: '#38e07b',
+      cancelButtonColor: '#6b7280',
+      confirmButtonText: 'Yes, Approve',
+      cancelButtonText: 'Cancel',
+      reverseButtons: true
+    }).then((result) => {
+      if (result.isConfirmed) {
+        approveClubMutation.mutate({ clubId, clubName });
+      }
+    });
   };
 
-  const handleRejectClub = (clubId) => {
-    if (window.confirm('Are you sure you want to reject this club?')) {
-      rejectClubMutation.mutate(clubId);
-    }
+  const handleRejectClub = (clubId, clubName) => {
+    Swal.fire({
+      title: 'Reject Club?',
+      text: `Are you sure you want to reject ${clubName || 'this club'}?`,
+      icon: 'warning',
+      showCancelButton: true,
+      confirmButtonColor: '#ef4444',
+      cancelButtonColor: '#6b7280',
+      confirmButtonText: 'Yes, Reject',
+      cancelButtonText: 'Cancel',
+      reverseButtons: true
+    }).then((result) => {
+      if (result.isConfirmed) {
+        rejectClubMutation.mutate({ clubId, clubName });
+      }
+    });
   };
 
   const pendingClubs = pendingClubsData?.clubs || [];
@@ -422,7 +477,7 @@ const AdminDashboard = () => {
                       </div>
                       <div className="flex gap-2">
                         <button 
-                          onClick={() => handleRejectClub(club.id)}
+                          onClick={() => handleRejectClub(club.id, club.name)}
                           disabled={rejectClubMutation.isPending}
                           className="size-8 flex items-center justify-center rounded-full bg-surface-highlight text-gray-400 hover:text-red-400 hover:bg-red-400/10 transition-colors disabled:opacity-50" 
                           title="Reject"
@@ -430,7 +485,7 @@ const AdminDashboard = () => {
                           <span className="material-symbols-outlined text-[18px]">close</span>
                         </button>
                         <button 
-                          onClick={() => handleApproveClub(club.id)}
+                          onClick={() => handleApproveClub(club.id, club.name)}
                           disabled={approveClubMutation.isPending}
                           className="size-8 flex items-center justify-center rounded-full bg-primary text-background-dark hover:bg-white transition-colors shadow-lg shadow-primary/20 disabled:opacity-50" 
                           title="Approve"
