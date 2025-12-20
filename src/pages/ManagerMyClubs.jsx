@@ -3,6 +3,7 @@ import { Link, useNavigate } from 'react-router-dom';
 import { useQuery } from '@tanstack/react-query';
 import { useAuth } from '../context/AuthContext';
 import api from '../lib/api';
+import ManagerSidebar from '../components/layout/ManagerSidebar';
 
 const ManagerMyClubs = () => {
   const { user, logout } = useAuth();
@@ -41,56 +42,7 @@ const ManagerMyClubs = () => {
   return (
     <div className="flex h-screen w-full">
       {/* Sidebar */}
-      <aside className="hidden w-72 flex-col border-r border-white/5 bg-background-dark p-4 lg:flex">
-        {/* User Profile / Brand */}
-        <div className="mb-8 flex items-center gap-3 rounded-xl bg-white/5 p-3">
-          {user?.photoURL ? (
-            <img
-              src={user.photoURL}
-              alt={user?.name || 'Profile'}
-              className="size-12 rounded-full object-cover"
-              referrerPolicy="no-referrer"
-            />
-          ) : (
-            <div className="size-12 rounded-full bg-primary/20 flex items-center justify-center text-primary">
-              <span className="material-symbols-outlined">person</span>
-            </div>
-          )}
-          <div className="flex flex-col">
-            <h1 className="text-base font-semibold text-white">{user?.name || 'Club Manager'}</h1>
-            <p className="text-xs font-normal text-[#9eb7a8]">Club Manager</p>
-          </div>
-        </div>
-        {/* Navigation */}
-        <nav className="flex flex-1 flex-col gap-2">
-          <Link to="/dashboard/club-manager" className="group flex items-center gap-3 rounded-full px-4 py-3 text-[#9eb7a8] transition-colors hover:bg-white/5 hover:text-white">
-            <span className="material-symbols-outlined group-hover:text-primary">dashboard</span>
-            <span className="text-sm font-medium">Dashboard</span>
-          </Link>
-          <Link to="/dashboard/club-manager/clubs" className="flex items-center gap-3 rounded-full bg-primary px-4 py-3 text-background-dark shadow-[0_0_15px_rgba(56,224,123,0.3)]">
-            <span className="material-symbols-outlined fill-1">groups</span>
-            <span className="text-sm font-bold">My Clubs</span>
-          </Link>
-          <Link to="/dashboard/club-manager/events" className="group flex items-center gap-3 rounded-full px-4 py-3 text-[#9eb7a8] transition-colors hover:bg-white/5 hover:text-white">
-            <span className="material-symbols-outlined group-hover:text-primary">calendar_month</span>
-            <span className="text-sm font-medium">Events</span>
-          </Link>
-          <Link to="/dashboard/club-manager" className="group flex items-center gap-3 rounded-full px-4 py-3 text-[#9eb7a8] transition-colors hover:bg-white/5 hover:text-white">
-            <span className="material-symbols-outlined group-hover:text-primary">settings</span>
-            <span className="text-sm font-medium">Settings</span>
-          </Link>
-        </nav>
-        {/* Bottom Action */}
-        <div className="mt-auto">
-          <button
-            onClick={logout}
-            className="flex w-full items-center justify-center gap-2 rounded-full bg-white/5 p-3 text-sm font-medium text-[#9eb7a8] transition-colors hover:bg-white/10 hover:text-white"
-          >
-            <span className="material-symbols-outlined text-[20px]">logout</span>
-            Sign Out
-          </button>
-        </div>
-      </aside>
+      <ManagerSidebar />
 
       {/* Main Content */}
       <main className="flex flex-1 flex-col overflow-y-auto bg-background-light dark:bg-background-dark">

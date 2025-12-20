@@ -3,6 +3,7 @@ import { Link, useSearchParams, useNavigate } from 'react-router-dom';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { useAuth } from '../context/AuthContext';
 import api from '../lib/api';
+import ManagerSidebar from '../components/layout/ManagerSidebar';
 
 const ManagerEventsManagement = () => {
   const { user, logout } = useAuth();
@@ -128,55 +129,23 @@ const ManagerEventsManagement = () => {
   };
 
   return (
-    <div className="min-h-screen flex flex-col overflow-x-hidden bg-background-light dark:bg-background-dark font-display text-slate-900 dark:text-white">
-      {/* Top Navigation */}
-      <header className="sticky top-0 z-40 w-full border-b border-[#29382f] bg-[#111714]/90 backdrop-blur-md px-6 py-3">
-        <div className="mx-auto flex max-w-[1440px] items-center justify-between">
-          <div className="flex items-center gap-8">
-            {/* Logo */}
-            <Link to="/dashboard/club-manager" className="flex items-center gap-3 text-white">
-              <div className="size-8 rounded-full bg-gradient-to-tr from-primary/80 to-blue-500/50 flex items-center justify-center text-white">
-                <span className="material-symbols-outlined text-lg">local_activity</span>
-              </div>
-              <h2 className="text-white text-lg font-bold leading-tight tracking-[-0.015em]">Club Manager</h2>
-            </Link>
-            {/* Nav Links */}
-            <nav className="hidden md:flex items-center gap-6">
-              <Link to="/dashboard/club-manager" className="text-[#9eb7a8] hover:text-white text-sm font-medium transition-colors">Dashboard</Link>
-              <Link to="/dashboard/club-manager/clubs" className="text-[#9eb7a8] hover:text-white text-sm font-medium transition-colors">My Clubs</Link>
-              <Link to="/dashboard/club-manager/events" className="text-white text-sm font-bold border-b-2 border-primary py-4">Events</Link>
-              <Link to="/dashboard/club-manager/clubs/:clubId/members" className="text-[#9eb7a8] hover:text-white text-sm font-medium transition-colors">Members</Link>
-              <Link to="/dashboard/club-manager" className="text-[#9eb7a8] hover:text-white text-sm font-medium transition-colors">Finance</Link>
-            </nav>
-          </div>
-          <div className="flex items-center gap-6">
-            {/* Profile */}
-            <div className="flex items-center gap-3 pl-4 border-l border-[#29382f]">
-              <div className="text-right hidden sm:block">
-                <p className="text-sm font-medium text-white">{user?.name || 'Manager'}</p>
-                <p className="text-xs text-[#9eb7a8]">Manager</p>
-              </div>
-              {user?.photoURL ? (
-                <img src={user.photoURL} alt={user?.name} className="rounded-full size-10 ring-2 ring-[#29382f] object-cover" referrerPolicy="no-referrer" />
-              ) : (
-                <div className="rounded-full size-10 ring-2 ring-[#29382f] bg-primary/20 flex items-center justify-center">
-                  <span className="material-symbols-outlined text-primary">person</span>
-                </div>
-              )}
-            </div>
-          </div>
-        </div>
-      </header>
+    <div className="flex h-screen w-full overflow-hidden bg-background-light dark:bg-background-dark font-display text-slate-900 dark:text-white antialiased">
+      {/* Sidebar */}
+      <ManagerSidebar />
 
-      <div className="flex-1 w-full max-w-[1440px] mx-auto px-6 py-8 relative">
-        {/* Breadcrumbs */}
-        <div className="flex items-center gap-2 mb-6 text-sm">
-          <Link to="/dashboard/club-manager" className="text-[#9eb7a8] hover:text-primary transition-colors">Dashboard</Link>
-          <span className="text-[#9eb7a8] material-symbols-outlined text-[16px]">chevron_right</span>
-          <Link to="/dashboard/club-manager/clubs" className="text-[#9eb7a8] hover:text-primary transition-colors">My Club</Link>
-          <span className="text-[#9eb7a8] material-symbols-outlined text-[16px]">chevron_right</span>
-          <span className="text-primary font-medium">Event Management</span>
+      {/* Main Content */}
+      <main className="flex-1 flex flex-col h-full overflow-hidden relative">
+        {/* Mobile Header */}
+        <div className="flex items-center justify-between p-4 lg:hidden">
+          <div className="flex items-center gap-2">
+            <span className="material-symbols-outlined text-primary">spa</span>
+            <span className="text-lg font-bold">ClubMgr</span>
+          </div>
+          <button className="rounded-full bg-surface-dark p-2 text-white">
+            <span className="material-symbols-outlined">menu</span>
+          </button>
         </div>
+        <div className="flex-1 w-full max-w-[1440px] mx-auto px-6 py-8 relative overflow-y-auto">
 
         {/* Page Header */}
         <div className="flex flex-col md:flex-row md:items-center justify-between gap-6 mb-8">
@@ -581,7 +550,8 @@ const ManagerEventsManagement = () => {
             </div>
           </div>
         )}
-      </div>
+        </div>
+      </main>
     </div>
   );
 };

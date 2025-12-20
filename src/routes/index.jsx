@@ -86,7 +86,15 @@ const AppRoutes = () => {
         } 
       />
       <Route 
-        path="/dashboard/club-manager/clubs/:clubId/members" 
+        path="/dashboard/club-manager/events" 
+        element={
+          <PrivateRoute requiredRole="clubManager">
+            <ManagerEventsManagement />
+          </PrivateRoute>
+        } 
+      />
+      <Route 
+        path="/dashboard/club-manager/members" 
         element={
           <PrivateRoute requiredRole="clubManager">
             <ManagerClubMembers />
@@ -94,10 +102,18 @@ const AppRoutes = () => {
         } 
       />
       <Route 
-        path="/dashboard/club-manager/events" 
+        path="/dashboard/club-manager/event-registrations" 
         element={
           <PrivateRoute requiredRole="clubManager">
-            <ManagerEventsManagement />
+            <ManagerEventRegistrations />
+          </PrivateRoute>
+        } 
+      />
+      <Route 
+        path="/dashboard/club-manager/clubs/:clubId/members" 
+        element={
+          <PrivateRoute requiredRole="clubManager">
+            <ManagerClubMembers />
           </PrivateRoute>
         } 
       />

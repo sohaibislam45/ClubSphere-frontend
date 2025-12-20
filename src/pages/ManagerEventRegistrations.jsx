@@ -3,6 +3,7 @@ import { Link, useParams, useNavigate } from 'react-router-dom';
 import { useQuery } from '@tanstack/react-query';
 import { useAuth } from '../context/AuthContext';
 import api from '../lib/api';
+import ManagerSidebar from '../components/layout/ManagerSidebar';
 
 const ManagerEventRegistrations = () => {
   const { user, logout } = useAuth();
@@ -85,83 +86,23 @@ const ManagerEventRegistrations = () => {
   const selectedEvent = events.find(e => e.id === selectedEventId);
 
   return (
-    <div className="flex flex-col h-screen w-full bg-background-light dark:bg-background-dark font-display text-slate-900 dark:text-white overflow-hidden">
-      {/* TopNavBar */}
-      <header className="flex items-center justify-between whitespace-nowrap border-b border-solid border-slate-200 dark:border-[#282e39] bg-white dark:bg-[#111318] px-10 py-3 shrink-0 z-20">
-        <div className="flex items-center gap-4 text-slate-900 dark:text-white">
-          <Link to="/dashboard/club-manager" className="flex items-center gap-4">
-            <div className="size-8 flex items-center justify-center text-primary">
-              <span className="material-symbols-outlined text-3xl">token</span>
-            </div>
-            <h2 className="text-slate-900 dark:text-white text-lg font-bold leading-tight tracking-[-0.015em]">Club Manager</h2>
-          </Link>
-        </div>
-        <div className="flex flex-1 justify-end gap-8">
-          <div className="flex gap-2">
-            <button className="flex size-10 cursor-pointer items-center justify-center overflow-hidden rounded-lg bg-slate-100 dark:bg-[#282e39] text-slate-900 dark:text-white hover:bg-slate-200 dark:hover:bg-[#3b4354] transition-colors">
-              <span className="material-symbols-outlined text-[20px]">notifications</span>
-            </button>
-            <button className="flex size-10 cursor-pointer items-center justify-center overflow-hidden rounded-lg bg-slate-100 dark:bg-[#282e39] text-slate-900 dark:text-white hover:bg-slate-200 dark:hover:bg-[#3b4354] transition-colors">
-              <span className="material-symbols-outlined text-[20px]">settings</span>
-            </button>
-          </div>
-          {user?.photoURL ? (
-            <img src={user.photoURL} alt={user?.name} className="bg-center bg-no-repeat aspect-square bg-cover rounded-full size-10 border border-slate-200 dark:border-[#282e39] object-cover" referrerPolicy="no-referrer" />
-          ) : (
-            <div className="rounded-full size-10 border border-slate-200 dark:border-[#282e39] bg-primary/20 flex items-center justify-center">
-              <span className="material-symbols-outlined text-primary">person</span>
-            </div>
-          )}
-        </div>
-      </header>
+    <div className="flex h-screen w-full overflow-hidden bg-background-light dark:bg-background-dark font-display text-slate-900 dark:text-white antialiased">
+      {/* Sidebar */}
+      <ManagerSidebar />
 
-      <div className="flex flex-1 overflow-hidden relative">
-        {/* SideNavBar */}
-        <aside className="w-[280px] bg-white dark:bg-[#111318] border-r border-slate-200 dark:border-[#282e39] flex flex-col justify-between p-4 hidden lg:flex shrink-0 overflow-y-auto">
-          <div className="flex flex-col gap-4">
-            <div className="flex flex-col px-3">
-              <h1 className="text-slate-900 dark:text-white text-base font-medium leading-normal">Management</h1>
-              <p className="text-slate-500 dark:text-[#9da6b9] text-sm font-normal leading-normal">Admin Console</p>
-            </div>
-            <div className="flex flex-col gap-1">
-              <Link to="/dashboard/club-manager" className="flex items-center gap-3 px-3 py-2 rounded-lg text-slate-500 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-[#1c1f27] transition-colors group">
-                <span className="material-symbols-outlined group-hover:text-primary transition-colors">dashboard</span>
-                <p className="text-sm font-medium leading-normal">Dashboard</p>
-              </Link>
-              <Link to="/dashboard/club-manager/events" className="flex items-center gap-3 px-3 py-2 rounded-lg bg-primary/10 text-primary">
-                <span className="material-symbols-outlined fill-current">calendar_today</span>
-                <p className="text-sm font-medium leading-normal">Events</p>
-              </Link>
-              <Link to="/dashboard/club-manager/clubs/:clubId/members" className="flex items-center gap-3 px-3 py-2 rounded-lg text-slate-500 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-[#1c1f27] transition-colors group">
-                <span className="material-symbols-outlined group-hover:text-primary transition-colors">group</span>
-                <p className="text-sm font-medium leading-normal">Members</p>
-              </Link>
-              <Link to="/dashboard/club-manager" className="flex items-center gap-3 px-3 py-2 rounded-lg text-slate-500 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-[#1c1f27] transition-colors group">
-                <span className="material-symbols-outlined group-hover:text-primary transition-colors">payments</span>
-                <p className="text-sm font-medium leading-normal">Finances</p>
-              </Link>
-              <Link to="/dashboard/club-manager" className="flex items-center gap-3 px-3 py-2 rounded-lg text-slate-500 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-[#1c1f27] transition-colors group">
-                <span className="material-symbols-outlined group-hover:text-primary transition-colors">settings</span>
-                <p className="text-sm font-medium leading-normal">Settings</p>
-              </Link>
-            </div>
+      {/* Main Content */}
+      <main className="flex-1 flex flex-col bg-background-light dark:bg-background-dark overflow-hidden h-full">
+        {/* Mobile Header */}
+        <div className="flex items-center justify-between p-4 lg:hidden">
+          <div className="flex items-center gap-2">
+            <span className="material-symbols-outlined text-primary">spa</span>
+            <span className="text-lg font-bold">ClubMgr</span>
           </div>
-          <div className="px-3 py-4 border-t border-slate-200 dark:border-[#282e39]">
-            <button
-              onClick={logout}
-              className="w-full flex items-center gap-3 p-3 rounded-lg bg-slate-100 dark:bg-[#1c1f27] hover:bg-slate-200 dark:hover:bg-[#282e39] transition-colors text-slate-500 dark:text-slate-400"
-            >
-              <span className="material-symbols-outlined">logout</span>
-              <div className="flex flex-col">
-                <span className="text-xs font-semibold text-slate-900 dark:text-white">Log out</span>
-              </div>
-            </button>
-          </div>
-        </aside>
-
-        {/* Main Content */}
-        <main className="flex-1 flex flex-col bg-background-light dark:bg-background-dark overflow-hidden h-full">
-          <div className="flex-1 overflow-y-auto p-4 md:p-8">
+          <button className="rounded-full bg-surface-dark p-2 text-white">
+            <span className="material-symbols-outlined">menu</span>
+          </button>
+        </div>
+        <div className="flex-1 overflow-y-auto p-4 md:p-8">
             <div className="max-w-[1200px] mx-auto flex flex-col gap-6">
               {/* Breadcrumbs & Heading */}
               <div className="flex flex-col gap-2">
@@ -400,7 +341,6 @@ const ManagerEventRegistrations = () => {
             </div>
           </div>
         </main>
-      </div>
     </div>
   );
 };

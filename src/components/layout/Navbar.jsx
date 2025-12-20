@@ -1,6 +1,37 @@
+import { useState, useRef, useEffect } from 'react';
 import { Link } from 'react-router-dom';
+import { useAuth } from '../../context/AuthContext';
 
 const Navbar = () => {
+  const { user, logout } = useAuth();
+  const [dropdownOpen, setDropdownOpen] = useState(false);
+  const dropdownRef = useRef(null);
+
+  // Close dropdown when clicking outside
+  useEffect(() => {
+    const handleClickOutside = (event) => {
+      if (dropdownRef.current && !dropdownRef.current.contains(event.target)) {
+        setDropdownOpen(false);
+      }
+    };
+
+    if (dropdownOpen) {
+      document.addEventListener('mousedown', handleClickOutside);
+    }
+
+    return () => {
+      document.removeEventListener('mousedown', handleClickOutside);
+    };
+  }, [dropdownOpen]);
+
+  // Get dashboard path based on user role
+  const getDashboardPath = () => {
+    if (!user) return '/';
+    if (user.role === 'admin') return '/dashboard/admin';
+    if (user.role === 'clubManager') return '/dashboard/club-manager';
+    return '/dashboard/member';
+  };
+
   return (
     <header className="sticky top-0 z-50 w-full backdrop-blur-md bg-background-light/90 dark:bg-background-dark/90 border-b border-gray-200 dark:border-border-dark">
       <div className="max-w-[1280px] mx-auto px-4 sm:px-6 lg:px-8">
@@ -26,17 +57,80 @@ const Navbar = () => {
             <Link to="/" className="text-sm font-medium leading-normal hover:text-primary transition-colors">Home</Link>
             <Link to="/clubs" className="text-sm font-medium leading-normal hover:text-primary transition-colors">Clubs</Link>
             <Link to="/events" className="text-sm font-medium leading-normal hover:text-primary transition-colors">Events</Link>
+            {user && (
+              <Link to={getDashboardPath()} className="text-sm font-medium leading-normal hover:text-primary transition-colors">Dashboard</Link>
+            )}
           </nav>
           
           {/* Auth Actions */}
-          <div className="flex gap-3">
-            <Link to="/login" className="flex min-w-[84px] cursor-pointer items-center justify-center overflow-hidden rounded-full h-10 px-6 bg-card-dark dark:bg-[#29382f] text-white hover:bg-gray-700 dark:hover:bg-[#3d5245] transition-colors text-sm font-bold tracking-[0.015em]">
-              <span className="truncate">Login</span>
-            </Link>
-            <Link to="/register" className="flex min-w-[84px] cursor-pointer items-center justify-center overflow-hidden rounded-full h-10 px-6 bg-primary hover:bg-primary-hover transition-colors text-[#111714] text-sm font-bold tracking-[0.015em]">
-              <span className="truncate">Register</span>
-            </Link>
-          </div>
+          {user ? (
+            <div className="relative" ref={dropdownRef}>
+              <button 
+                onClick={() => setDropdownOpen(!dropdownOpen)}
+                className="flex items-center gap-3 group"
+              >
+                {user?.photoURL ? (
+                  <img
+                    key={user.photoURL}
+                    src={user.photoURL}
+                    alt={user?.name || 'User avatar'}
+                    className="size-10 rounded-full object-cover border-2 border-transparent group-hover:border-primary transition-all shrink-0"
+                    referrerPolicy="no-referrer"
+                    loading="lazy"
+                    onError={(e) => {
+                      console.error('Failed to load user photo:', user.photoURL);
+                      if (e.target.src === user.photoURL) {
+                        e.target.src = 'https://lh3.googleusercontent.com/aida-public/AB6AXuA905HuwzoL3J6Hn0Sl4XIIJzbR6IPNZbPOMGRUaFXfkY2aBHeN-VxHwYW4dhAJhgtUHW4DdNBaeFGOCxDkNYmguRofHkXkgTONLxG8Twyt9srdWrXmqamsThx_w9SGvHV4fxnZ6VA6zW6EQJBFnVcEQ9PDbnGGTuoAIZ0-T0gnO6dLwbu1ql6BxoEbyHZP1a71z_eEVtaksinsi6LWEmv4KqhZi6gLJ-7q9XaofobfY-pHbyUlLd_VNzJwzhmyxvA7Iz_DLv8tkUro';
+                      }
+                    }}
+                  />
+                ) : (
+                  <div 
+                    className="size-10 rounded-full bg-cover bg-center border-2 border-transparent group-hover:border-primary transition-all shrink-0"
+                    style={{ 
+                      backgroundImage: 'url("https://lh3.googleusercontent.com/aida-public/AB6AXuA905HuwzoL3J6Hn0Sl4XIIJzbR6IPNZbPOMGRUaFXfkY2aBHeN-VxHwYW4dhAJhgtUHW4DdNBaeFGOCxDkNYmguRofHkXkgTONLxG8Twyt9srdWrXmqamsThx_w9SGvHV4fxnZ6VA6zW6EQJBFnVcEQ9PDbnGGTuoAIZ0-T0gnO6dLwbu1ql6BxoEbyHZP1a71z_eEVtaksinsi6LWEmv4KqhZi6gLJ-7q9XaofobfY-pHbyUlLd_VNzJwzhmyxvA7Iz_DLv8tkUro")',
+                      backgroundColor: '#1c2620'
+                    }}
+                  ></div>
+                )}
+                <div className="hidden md:flex flex-col items-start">
+                  <span className="text-sm font-bold text-gray-900 dark:text-white leading-none group-hover:text-primary transition-colors">{user?.name || 'User'}</span>
+                </div>
+                <span className={`material-symbols-outlined text-gray-600 dark:text-gray-400 group-hover:text-gray-900 dark:group-hover:text-white transition-all hidden md:block ${dropdownOpen ? 'rotate-180' : ''}`}>expand_more</span>
+              </button>
+              
+              {/* Dropdown Menu */}
+              {dropdownOpen && (
+                <div className="absolute right-0 mt-2 w-48 bg-white dark:bg-surface-dark rounded-xl border border-gray-200 dark:border-white/10 shadow-lg z-50 overflow-hidden">
+                  <div className="py-1">
+                    <div className="px-4 py-3 border-b border-gray-200 dark:border-white/5">
+                      <p className="text-sm font-bold text-gray-900 dark:text-white">{user?.name || 'User'}</p>
+                      <p className="text-xs text-gray-500 dark:text-gray-400 mt-0.5">{user?.email || ''}</p>
+                    </div>
+                    <button
+                      onClick={() => {
+                        logout();
+                        setDropdownOpen(false);
+                      }}
+                      className="w-full px-4 py-3 text-left text-sm text-gray-900 dark:text-white hover:bg-gray-100 dark:hover:bg-white/5 transition-colors flex items-center gap-3"
+                    >
+                      <span className="material-symbols-outlined text-lg">logout</span>
+                      <span>Log out</span>
+                    </button>
+                  </div>
+                </div>
+              )}
+            </div>
+          ) : (
+            <div className="flex gap-3">
+              <Link to="/login" className="flex min-w-[84px] cursor-pointer items-center justify-center overflow-hidden rounded-full h-10 px-6 bg-card-dark dark:bg-[#29382f] text-white hover:bg-gray-700 dark:hover:bg-[#3d5245] transition-colors text-sm font-bold tracking-[0.015em]">
+                <span className="truncate">Login</span>
+              </Link>
+              <Link to="/register" className="flex min-w-[84px] cursor-pointer items-center justify-center overflow-hidden rounded-full h-10 px-6 bg-primary hover:bg-primary-hover transition-colors text-[#111714] text-sm font-bold tracking-[0.015em]">
+                <span className="truncate">Register</span>
+              </Link>
+            </div>
+          )}
         </div>
       </div>
     </header>

@@ -1,31 +1,61 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { Link, useParams, useNavigate } from 'react-router-dom';
 import { useQuery } from '@tanstack/react-query';
 import { useAuth } from '../context/AuthContext';
 import api from '../lib/api';
+import ManagerSidebar from '../components/layout/ManagerSidebar';
 
 const ManagerClubMembers = () => {
   const { user, logout } = useAuth();
-  const { clubId } = useParams();
+  const { clubId: clubIdFromParams } = useParams();
   const navigate = useNavigate();
+  const [selectedClubId, setSelectedClubId] = useState(clubIdFromParams || '');
   const [search, setSearch] = useState('');
   const [statusFilter, setStatusFilter] = useState('All Members');
   const [page, setPage] = useState(1);
   const limit = 10;
 
+  // Fetch manager's clubs for selector
+  const { data: clubsData } = useQuery({
+    queryKey: ['managerClubs'],
+    queryFn: async () => {
+      const response = await api.get('/api/manager/clubs');
+      return response.data;
+    }
+  });
+
+  const clubs = clubsData?.clubs || [];
+
+  // Update selectedClubId when clubIdFromParams changes
+  useEffect(() => {
+    if (clubIdFromParams && clubIdFromParams !== selectedClubId) {
+      setSelectedClubId(clubIdFromParams);
+    }
+  }, [clubIdFromParams]);
+
+  const handleClubChange = (newClubId) => {
+    setSelectedClubId(newClubId);
+    setPage(1);
+    if (newClubId) {
+      navigate(`/dashboard/club-manager/clubs/${newClubId}/members`);
+    } else {
+      navigate('/dashboard/club-manager/members');
+    }
+  };
+
   // Fetch club members
   const { data: membersData, isLoading, error } = useQuery({
-    queryKey: ['clubMembers', clubId, search, statusFilter, page],
+    queryKey: ['clubMembers', selectedClubId, search, statusFilter, page],
     queryFn: async () => {
       const params = new URLSearchParams();
       if (search) params.append('search', search);
       if (statusFilter && statusFilter !== 'All Members') params.append('status', statusFilter);
       params.append('page', page.toString());
       params.append('limit', limit.toString());
-      const response = await api.get(`/api/manager/clubs/${clubId}/members?${params.toString()}`);
+      const response = await api.get(`/api/manager/clubs/${selectedClubId}/members?${params.toString()}`);
       return response.data;
     },
-    enabled: !!clubId
+    enabled: !!selectedClubId
   });
 
   const members = membersData?.members || [];
@@ -69,55 +99,20 @@ const ManagerClubMembers = () => {
   return (
     <div className="flex h-screen w-full overflow-hidden">
       {/* Sidebar */}
-      <aside className="w-64 shrink-0 h-full border-r border-border-dark/30 bg-surface-dark hidden md:flex flex-col justify-between p-4">
-        <div className="flex flex-col gap-6">
-          {/* User Profile / App Header */}
-          <div className="flex gap-3 items-center px-2">
-            <div className="bg-primary/20 rounded-full size-10 flex items-center justify-center">
-              <span className="material-symbols-outlined text-primary">groups</span>
-            </div>
-            <div className="flex flex-col">
-              <h1 className="text-white text-base font-medium leading-normal">Club Manager</h1>
-              <p className="text-text-secondary text-xs font-normal leading-normal">Admin Panel</p>
-            </div>
-          </div>
-          {/* Navigation */}
-          <nav className="flex flex-col gap-2">
-            <Link to="/dashboard/club-manager" className="flex items-center gap-3 px-3 py-2 rounded-lg hover:bg-surface-highlight/50 transition-colors group">
-              <span className="material-symbols-outlined text-text-secondary group-hover:text-white">dashboard</span>
-              <p className="text-text-secondary group-hover:text-white text-sm font-medium leading-normal">Dashboard</p>
-            </Link>
-            <Link to="/dashboard/club-manager/events" className="flex items-center gap-3 px-3 py-2 rounded-lg hover:bg-surface-highlight/50 transition-colors group">
-              <span className="material-symbols-outlined text-text-secondary group-hover:text-white">calendar_today</span>
-              <p className="text-text-secondary group-hover:text-white text-sm font-medium leading-normal">Events</p>
-            </Link>
-            {/* Active State */}
-            {clubId && (
-              <Link to={`/dashboard/club-manager/clubs/${clubId}/members`} className="flex items-center gap-3 px-3 py-2 rounded-lg bg-surface-highlight border border-border-dark/50">
-                <span className="material-symbols-outlined text-white icon-filled">group</span>
-                <p className="text-white text-sm font-medium leading-normal">Members</p>
-              </Link>
-            )}
-            <Link to="/dashboard/club-manager" className="flex items-center gap-3 px-3 py-2 rounded-lg hover:bg-surface-highlight/50 transition-colors group">
-              <span className="material-symbols-outlined text-text-secondary group-hover:text-white">settings</span>
-              <p className="text-text-secondary group-hover:text-white text-sm font-medium leading-normal">Settings</p>
-            </Link>
-          </nav>
-        </div>
-        {/* Bottom Actions */}
-        <div className="flex flex-col gap-2 border-t border-border-dark/30 pt-4">
-          <button
-            onClick={logout}
-            className="flex items-center gap-3 px-3 py-2 rounded-lg hover:bg-surface-highlight/50 transition-colors text-text-secondary hover:text-white w-full text-left"
-          >
-            <span className="material-symbols-outlined">logout</span>
-            <span className="text-sm font-medium">Log Out</span>
-          </button>
-        </div>
-      </aside>
+      <ManagerSidebar />
 
       {/* Main Content Area */}
       <main className="flex-1 h-full overflow-y-auto bg-background-light dark:bg-background-dark">
+        {/* Mobile Header */}
+        <div className="flex items-center justify-between p-4 lg:hidden">
+          <div className="flex items-center gap-2">
+            <span className="material-symbols-outlined text-primary">spa</span>
+            <span className="text-lg font-bold">ClubMgr</span>
+          </div>
+          <button className="rounded-full bg-surface-dark p-2 text-white">
+            <span className="material-symbols-outlined">menu</span>
+          </button>
+        </div>
         <div className="flex flex-col items-center py-8 px-4 sm:px-6 lg:px-8 min-h-full">
           <div className="flex flex-col w-full max-w-[1024px] gap-6">
             {/* Page Heading & Actions */}
@@ -134,6 +129,44 @@ const ManagerClubMembers = () => {
                 <span>Export CSV</span>
               </button>
             </div>
+
+            {/* Club Selector */}
+            {!selectedClubId && (
+              <div className="flex flex-col gap-4">
+                <label className="text-white text-sm font-medium">Select a Club</label>
+                <select
+                  className="w-full max-w-md rounded-lg border border-border-dark bg-surface-dark text-white px-4 py-2.5 focus:outline-none focus:ring-2 focus:ring-primary"
+                  value={selectedClubId}
+                  onChange={(e) => handleClubChange(e.target.value)}
+                >
+                  <option value="">Select a club...</option>
+                  {clubs.map((club) => (
+                    <option key={club.id} value={club.id}>
+                      {club.name}
+                    </option>
+                  ))}
+                </select>
+              </div>
+            )}
+
+            {/* Club Selector (when club is selected, show it as a dropdown to change) */}
+            {selectedClubId && (
+              <div className="flex flex-col gap-4">
+                <label className="text-white text-sm font-medium">Selected Club</label>
+                <select
+                  className="w-full max-w-md rounded-lg border border-border-dark bg-surface-dark text-white px-4 py-2.5 focus:outline-none focus:ring-2 focus:ring-primary"
+                  value={selectedClubId}
+                  onChange={(e) => handleClubChange(e.target.value)}
+                >
+                  <option value="">Select a different club...</option>
+                  {clubs.map((club) => (
+                    <option key={club.id} value={club.id}>
+                      {club.name}
+                    </option>
+                  ))}
+                </select>
+              </div>
+            )}
 
             {/* Stats Cards */}
             <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
@@ -212,7 +245,11 @@ const ManagerClubMembers = () => {
             </div>
 
             {/* Members Table */}
-            {isLoading ? (
+            {!selectedClubId ? (
+              <div className="flex items-center justify-center py-20 rounded-xl bg-surface-dark border border-border-dark">
+                <div className="text-text-secondary">Please select a club to view members</div>
+              </div>
+            ) : isLoading ? (
               <div className="flex items-center justify-center py-20">
                 <div className="text-text-secondary">Loading members...</div>
               </div>
