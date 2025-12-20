@@ -20,7 +20,7 @@ const Home = () => {
     }
   });
 
-  // Fetch upcoming events from API
+  // Fetch Running & Upcoming Events from API
   const { data: eventsData, isLoading: eventsLoading } = useQuery({
     queryKey: ['upcoming-events'],
     queryFn: async () => {
@@ -174,12 +174,12 @@ const Home = () => {
           </div>
         </section>
 
-        {/* Upcoming Events Section */}
+        {/* Running & Upcoming Events Section */}
         <section className="w-full px-4 sm:px-6 lg:px-8 py-10 flex justify-center bg-card-dark/20 border-y border-border-dark/50">
           <div className="w-full max-w-[1280px] flex flex-col gap-8">
             <div className="flex items-end justify-between">
               <div>
-                <h2 className="text-[32px] md:text-4xl font-bold leading-tight tracking-tight">Upcoming Events</h2>
+                <h2 className="text-[32px] md:text-4xl font-bold leading-tight tracking-tight">Running & Upcoming Events</h2>
                 <p className="text-text-secondary mt-2">Don't miss out on what's happening this week.</p>
               </div>
               <Link to="/events" className="hidden sm:flex items-center gap-1 text-primary font-medium hover:underline">
@@ -192,7 +192,7 @@ const Home = () => {
               </div>
             ) : upcomingEvents.length === 0 ? (
               <div className="text-center py-12">
-                <p className="text-text-secondary text-lg">No upcoming events at the moment.</p>
+                <p className="text-text-secondary text-lg">No Running & Upcoming Events at the moment.</p>
               </div>
             ) : (
               <div className="grid grid-cols-1 md:grid-cols-3 gap-6">

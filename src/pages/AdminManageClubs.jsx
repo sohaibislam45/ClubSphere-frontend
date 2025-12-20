@@ -127,11 +127,14 @@ const AdminManageClubs = () => {
       const response = await api.put(`/api/admin/clubs/${clubId}`, clubData);
       return response.data;
     },
-    onSuccess: () => {
+    onSuccess: (data, variables) => {
+      const { clubId } = variables;
       queryClient.invalidateQueries(['admin-clubs']);
       queryClient.invalidateQueries(['admin-clubs-stats']);
       queryClient.invalidateQueries(['featured-clubs']);
-      queryClient.invalidateQueries(['admin-club', selectedClubId]);
+      queryClient.invalidateQueries(['admin-club', clubId]);
+      queryClient.invalidateQueries(['club', clubId]); // Invalidate club details page cache
+      queryClient.invalidateQueries(['clubs']); // Invalidate clubs list cache
       setIsEditClubModalOpen(false);
       setSelectedClubId(null);
       Swal.fire({

@@ -9,32 +9,23 @@ import api from '../lib/api';
 const ClubDetails = () => {
   const { id } = useParams();
 
-  // Fetch club details - using mock data for now
+  // Fetch club details from API
   const { data: club, isLoading } = useQuery({
     queryKey: ['club', id],
     queryFn: async () => {
-      // TODO: Replace with actual API call
-      // const response = await api.get(`/clubs/${id}`);
-      // return response.data;
-      
-      // Mock data
-      return {
-        id: 1,
-        clubName: "Neon Hikers Club",
-        category: "Community",
-        location: "Seattle, WA",
-        description: "Welcome to the Neon Hikers Club! We are a community of night owls and outdoor enthusiasts who believe the trail doesn't end when the sun goes down. Based in the heart of the Pacific Northwest, we organize weekly evening hikes, full-moon adventures, and social mixers for hikers of all levels.\n\nWhether you're looking to break a sweat after work or just want to see the city lights from a new perspective, grab your headlamp and join us. Safety is our priority, so we always stick together and have experienced guides on every trek.",
-        membershipFee: 10,
-        memberCount: 45,
-        bannerImage: "https://lh3.googleusercontent.com/aida-public/AB6AXuB-y0Z6eEiodDmDGdS7MzvV43V33nCeANZSEFg8vyy9C7kSdfw8sLY7pvDYjKvBx_kFDgcmvMPCEKu64Td5MMg6PQ65lPk5yairJPtGXU9dxypstd_AjlNE1BbYfy-m4Ddu0N0_P7mgW7MRrKTf10HOJFvDlgRT-CQUBq5WVHOCYGoovb43m0QbxdtBcv81J8tlzA3W4Q95lFet28nl7g6-Hr96Z1-_7-OWzgJ4cvpK_j8UpGwKzpnJ5exIOkQuh_7u14WQko8_AQVk",
-        managerName: "Sarah Jenkins",
-        managerRole: "Lead Guide",
-        managerPhoto: "https://lh3.googleusercontent.com/aida-public/AB6AXuCKYioqvARpoWPCcg5jgYVebFCPQc6nPR_oHZhRcfqRgPWgcgt-A_y3PGDzejy46f1evxh1Qzd05KZRyZCXUk7_Ad46OdAvenprL-x8rlLbLeSQQAC1cVt-1YobWoLV61lqp7Zdgjb8Zj1FqofHuP_TdK4fuI_DPESvKp_f1zZZ15b9jnsUTlaO7VNqfkfEAC5HyAYeVSteWBeDHtgV01FlvFLcKbHbsL-8uhfG2oqjBPc7zPNE7LrfZxKtK9RvluErL_5IzSYWafsq",
-        meetingPoint: "Downtown Community Center, Seattle, WA",
-        tags: ["Outdoors", "Social", "Beginner Friendly", "Night Hikes"]
-      };
+      const response = await api.get(`/api/clubs/${id}`);
+      return response.data;
     },
   });
+
+  // Set document title - must be called before any early returns (Rules of Hooks)
+  useEffect(() => {
+    if (club) {
+      document.title = `${club.clubName} - ClubSphere`;
+    } else {
+      document.title = 'Club Details - ClubSphere';
+    }
+  }, [club]);
 
   if (isLoading) {
     return (
@@ -46,14 +37,6 @@ const ClubDetails = () => {
       </div>
     );
   }
-
-  useEffect(() => {
-    if (club) {
-      document.title = `${club.clubName} - ClubSphere`;
-    } else {
-      document.title = 'Club Details - ClubSphere';
-    }
-  }, [club]);
 
   if (!club) {
     return (
