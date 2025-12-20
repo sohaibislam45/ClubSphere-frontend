@@ -151,6 +151,35 @@ const AdminManageClubs = () => {
     }
   });
 
+  // Toggle club status mutation
+  const toggleStatusMutation = useMutation({
+    mutationFn: async ({ clubId, currentStatus }) => {
+      const newStatus = currentStatus === 'active' ? 'inactive' : 'active';
+      const response = await api.put(`/api/admin/clubs/${clubId}`, { status: newStatus });
+      return response.data;
+    },
+    onSuccess: (_, variables) => {
+      queryClient.invalidateQueries(['admin-clubs']);
+      queryClient.invalidateQueries(['admin-clubs-stats']);
+      queryClient.invalidateQueries(['featured-clubs']);
+      const newStatus = variables.currentStatus === 'active' ? 'inactive' : 'active';
+      Swal.fire({
+        icon: 'success',
+        title: 'Status Updated',
+        text: `Club status has been changed to ${newStatus}`,
+        timer: 2000,
+        showConfirmButton: false
+      });
+    },
+    onError: (error) => {
+      Swal.fire({
+        icon: 'error',
+        title: 'Error',
+        text: error.response?.data?.error || 'Failed to update club status'
+      });
+    }
+  });
+
   const getUserInitials = (name) => {
     if (!name) return 'U';
     const parts = name.trim().split(' ');
@@ -180,6 +209,14 @@ const AdminManageClubs = () => {
         border: 'border-primary/20',
         dot: 'bg-primary',
         label: 'Active'
+      };
+    } else if (status === 'inactive') {
+      return {
+        bg: 'bg-gray-500/10',
+        text: 'text-gray-400',
+        border: 'border-gray-500/20',
+        dot: 'bg-gray-400',
+        label: 'Inactive'
       };
     } else {
       return {
@@ -412,9 +449,35 @@ const AdminManageClubs = () => {
                             </td>
                             <td className="p-4 text-sm text-white font-medium">{club.fee}</td>
                             <td className="p-4">
-                              <span className={`inline-flex items-center gap-1.5 rounded-full ${statusBadge.bg} px-3 py-1 text-xs font-bold ${statusBadge.text} border ${statusBadge.border}`}>
-                                <span className={`size-1.5 rounded-full ${statusBadge.dot}`}></span> {statusBadge.label}
-                              </span>
+                              {(club.status === 'active' || club.status === 'inactive') ? (
+                                <button
+                                  onClick={() => {
+                                    Swal.fire({
+                                      title: `Change Status to ${club.status === 'active' ? 'Inactive' : 'Active'}?`,
+                                      text: `Are you sure you want to ${club.status === 'active' ? 'deactivate' : 'activate'} ${club.name}?`,
+                                      icon: 'question',
+                                      showCancelButton: true,
+                                      confirmButtonText: `Yes, make it ${club.status === 'active' ? 'inactive' : 'active'}`,
+                                      cancelButtonText: 'Cancel'
+                                    }).then((result) => {
+                                      if (result.isConfirmed) {
+                                        toggleStatusMutation.mutate({ 
+                                          clubId: club.id, 
+                                          currentStatus: club.status 
+                                        });
+                                      }
+                                    });
+                                  }}
+                                  className={`inline-flex items-center gap-1.5 rounded-full ${statusBadge.bg} px-3 py-1 text-xs font-bold ${statusBadge.text} border ${statusBadge.border} hover:opacity-80 transition-opacity cursor-pointer`}
+                                  title={`Click to change status to ${club.status === 'active' ? 'inactive' : 'active'}`}
+                                >
+                                  <span className={`size-1.5 rounded-full ${statusBadge.dot}`}></span> {statusBadge.label}
+                                </button>
+                              ) : (
+                                <span className={`inline-flex items-center gap-1.5 rounded-full ${statusBadge.bg} px-3 py-1 text-xs font-bold ${statusBadge.text} border ${statusBadge.border}`}>
+                                  <span className={`size-1.5 rounded-full ${statusBadge.dot}`}></span> {statusBadge.label}
+                                </span>
+                              )}
                             </td>
                             <td className="p-4 pr-6 text-right">
                               <div className="flex items-center justify-end gap-2">
