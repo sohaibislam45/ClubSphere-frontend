@@ -188,7 +188,6 @@ const MemberDashboard = () => {
                   )}
                   <div className="hidden md:flex flex-col items-start">
                     <span className="text-sm font-bold text-white leading-none group-hover:text-primary transition-colors">{user?.name || 'Member'}</span>
-                    <span className="text-xs text-gray-400 mt-1">Premium Member</span>
                   </div>
                   <span className={`material-symbols-outlined text-gray-400 group-hover:text-white transition-all hidden md:block ${dropdownOpen ? 'rotate-180' : ''}`}>expand_more</span>
                 </button>
