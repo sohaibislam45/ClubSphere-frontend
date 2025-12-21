@@ -14,15 +14,17 @@ const Events = () => {
   }, []);
   const [searchTerm, setSearchTerm] = useState('');
   const [selectedFilter, setSelectedFilter] = useState('all');
+  const [sortBy, setSortBy] = useState('oldest');
 
   // Fetch events from API
   const { data: events = [], isLoading } = useQuery({
-    queryKey: ['events', searchTerm, selectedFilter],
+    queryKey: ['events', searchTerm, selectedFilter, sortBy],
     queryFn: async () => {
       const response = await api.get('/api/events', { 
         params: { 
           search: searchTerm, 
-          filter: selectedFilter 
+          filter: selectedFilter,
+          sortBy: sortBy
         } 
       });
       return response.data;
@@ -61,43 +63,62 @@ const Events = () => {
               />
             </div>
             
-            {/* Filters */}
-            <div className="flex flex-wrap gap-2 overflow-x-auto pb-2 lg:pb-0 hide-scrollbar">
-              <button
-                onClick={() => setSelectedFilter('all')}
-                className={`flex items-center gap-2 h-10 pl-4 pr-3 rounded-full text-sm font-semibold transition-colors ${
-                  selectedFilter === 'all'
-                    ? 'bg-slate-900 dark:bg-white text-white dark:text-surface-dark'
-                    : 'bg-white dark:bg-surface-dark-alt2 border border-slate-200 dark:border-border-dark text-slate-600 dark:text-slate-300 hover:border-primary dark:hover:border-primary hover:text-primary dark:hover:text-primary'
-                }`}
-              >
-                All Dates
-                <span className="material-symbols-outlined text-lg">expand_more</span>
-              </button>
-              <button
-                onClick={() => setSelectedFilter('category')}
-                className="flex items-center gap-2 h-10 pl-4 pr-3 rounded-full bg-white dark:bg-surface-dark border border-slate-200 dark:border-border-dark text-slate-600 dark:text-slate-300 text-sm font-medium hover:border-primary dark:hover:border-primary hover:text-primary dark:hover:text-primary transition-colors shadow-sm"
-              >
-                Category
-                <span className="material-symbols-outlined text-lg">expand_more</span>
-              </button>
-              <button
-                onClick={() => setSelectedFilter('price')}
-                className="flex items-center gap-2 h-10 pl-4 pr-3 rounded-full bg-white dark:bg-surface-dark border border-slate-200 dark:border-border-dark text-slate-600 dark:text-slate-300 text-sm font-medium hover:border-primary dark:hover:border-primary hover:text-primary dark:hover:text-primary transition-colors shadow-sm"
-              >
-                Price
-                <span className="material-symbols-outlined text-lg">expand_more</span>
-              </button>
-              <button
-                onClick={() => setSelectedFilter('free')}
-                className={`flex items-center gap-2 h-10 px-4 rounded-full text-sm font-medium transition-colors shadow-sm ${
-                  selectedFilter === 'free'
-                    ? 'bg-primary text-black'
-                    : 'bg-white dark:bg-surface-dark-alt2 border border-slate-200 dark:border-border-dark text-slate-600 dark:text-slate-300 hover:border-primary dark:hover:border-primary hover:text-primary dark:hover:text-primary'
-                }`}
-              >
-                Free Only
-              </button>
+            <div className="flex flex-wrap gap-4 items-center">
+              {/* Sort Dropdown */}
+              <div className="relative">
+                <select
+                  value={sortBy}
+                  onChange={(e) => setSortBy(e.target.value)}
+                  className="h-10 pl-4 pr-10 rounded-full bg-white dark:bg-surface-dark-alt2 border border-slate-200 dark:border-border-dark text-slate-900 dark:text-white text-sm font-medium focus:border-primary focus:ring-1 focus:ring-primary transition-all shadow-sm appearance-none cursor-pointer hover:border-primary dark:hover:border-primary"
+                >
+                  <option value="newest">Newest First</option>
+                  <option value="oldest">Oldest First</option>
+                  <option value="highest_fee">Highest Fee</option>
+                  <option value="lowest_fee">Lowest Fee</option>
+                </select>
+                <div className="absolute inset-y-0 right-0 flex items-center pr-3 pointer-events-none">
+                  <span className="material-symbols-outlined text-lg text-slate-400">expand_more</span>
+                </div>
+              </div>
+
+              {/* Filters */}
+              <div className="flex flex-wrap gap-2 overflow-x-auto pb-2 lg:pb-0 hide-scrollbar">
+                <button
+                  onClick={() => setSelectedFilter('all')}
+                  className={`flex items-center gap-2 h-10 pl-4 pr-3 rounded-full text-sm font-semibold transition-colors ${
+                    selectedFilter === 'all'
+                      ? 'bg-slate-900 dark:bg-white text-white dark:text-surface-dark'
+                      : 'bg-white dark:bg-surface-dark-alt2 border border-slate-200 dark:border-border-dark text-slate-600 dark:text-slate-300 hover:border-primary dark:hover:border-primary hover:text-primary dark:hover:text-primary'
+                  }`}
+                >
+                  All Dates
+                  <span className="material-symbols-outlined text-lg">expand_more</span>
+                </button>
+                <button
+                  onClick={() => setSelectedFilter('category')}
+                  className="flex items-center gap-2 h-10 pl-4 pr-3 rounded-full bg-white dark:bg-surface-dark border border-slate-200 dark:border-border-dark text-slate-600 dark:text-slate-300 text-sm font-medium hover:border-primary dark:hover:border-primary hover:text-primary dark:hover:text-primary transition-colors shadow-sm"
+                >
+                  Category
+                  <span className="material-symbols-outlined text-lg">expand_more</span>
+                </button>
+                <button
+                  onClick={() => setSelectedFilter('price')}
+                  className="flex items-center gap-2 h-10 pl-4 pr-3 rounded-full bg-white dark:bg-surface-dark border border-slate-200 dark:border-border-dark text-slate-600 dark:text-slate-300 text-sm font-medium hover:border-primary dark:hover:border-primary hover:text-primary dark:hover:text-primary transition-colors shadow-sm"
+                >
+                  Price
+                  <span className="material-symbols-outlined text-lg">expand_more</span>
+                </button>
+                <button
+                  onClick={() => setSelectedFilter('free')}
+                  className={`flex items-center gap-2 h-10 px-4 rounded-full text-sm font-medium transition-colors shadow-sm ${
+                    selectedFilter === 'free'
+                      ? 'bg-primary text-black'
+                      : 'bg-white dark:bg-surface-dark-alt2 border border-slate-200 dark:border-border-dark text-slate-600 dark:text-slate-300 hover:border-primary dark:hover:border-primary hover:text-primary dark:hover:text-primary'
+                  }`}
+                >
+                  Free Only
+                </button>
+              </div>
             </div>
           </div>
         </div>

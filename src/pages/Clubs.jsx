@@ -14,10 +14,11 @@ const Clubs = () => {
   }, []);
   const [searchTerm, setSearchTerm] = useState('');
   const [selectedCategory, setSelectedCategory] = useState('all');
+  const [sortBy, setSortBy] = useState('newest');
 
   // Fetch clubs from API
   const { data: clubs = [], isLoading } = useQuery({
-    queryKey: ['clubs', searchTerm, selectedCategory],
+    queryKey: ['clubs', searchTerm, selectedCategory, sortBy],
     queryFn: async () => {
       try {
         const params = {};
@@ -26,6 +27,9 @@ const Clubs = () => {
         }
         if (selectedCategory && selectedCategory !== 'all') {
           params.category = selectedCategory;
+        }
+        if (sortBy) {
+          params.sortBy = sortBy;
         }
         const response = await api.get('/api/clubs', { params });
         return response.data || [];
@@ -70,24 +74,43 @@ const Clubs = () => {
               />
             </div>
 
-            {/* Filters */}
-            <div className="flex flex-wrap gap-2 overflow-x-auto pb-2 lg:pb-0 hide-scrollbar">
-              {categories.map((category) => (
-                <button
-                  key={category}
-                  onClick={() => setSelectedCategory(category)}
-                  className={`flex items-center gap-2 h-10 pl-4 pr-3 rounded-full text-sm font-medium transition-colors ${
-                    selectedCategory === category
-                      ? 'bg-slate-900 dark:bg-white text-white dark:text-surface-dark'
-                      : 'bg-white dark:bg-surface-dark border border-slate-200 dark:border-border-dark text-slate-600 dark:text-slate-300 hover:border-primary dark:hover:border-primary hover:text-primary dark:hover:text-primary'
-                  }`}
+            <div className="flex flex-wrap gap-4 items-center">
+              {/* Sort Dropdown */}
+              <div className="relative">
+                <select
+                  value={sortBy}
+                  onChange={(e) => setSortBy(e.target.value)}
+                  className="h-10 pl-4 pr-10 rounded-full bg-white dark:bg-surface-dark border border-slate-200 dark:border-border-dark text-slate-900 dark:text-white text-sm font-medium focus:border-primary focus:ring-1 focus:ring-primary transition-all shadow-sm appearance-none cursor-pointer hover:border-primary dark:hover:border-primary"
                 >
-                  {category === 'all' ? 'All Categories' : category}
-                  {selectedCategory === category && (
-                    <span className="material-symbols-outlined text-lg">check</span>
-                  )}
-                </button>
-              ))}
+                  <option value="newest">Newest First</option>
+                  <option value="oldest">Oldest First</option>
+                  <option value="highest_fee">Highest Fee</option>
+                  <option value="lowest_fee">Lowest Fee</option>
+                </select>
+                <div className="absolute inset-y-0 right-0 flex items-center pr-3 pointer-events-none">
+                  <span className="material-symbols-outlined text-lg text-slate-400">expand_more</span>
+                </div>
+              </div>
+
+              {/* Filters */}
+              <div className="flex flex-wrap gap-2 overflow-x-auto pb-2 lg:pb-0 hide-scrollbar">
+                {categories.map((category) => (
+                  <button
+                    key={category}
+                    onClick={() => setSelectedCategory(category)}
+                    className={`flex items-center gap-2 h-10 pl-4 pr-3 rounded-full text-sm font-medium transition-colors ${
+                      selectedCategory === category
+                        ? 'bg-slate-900 dark:bg-white text-white dark:text-surface-dark'
+                        : 'bg-white dark:bg-surface-dark border border-slate-200 dark:border-border-dark text-slate-600 dark:text-slate-300 hover:border-primary dark:hover:border-primary hover:text-primary dark:hover:text-primary'
+                    }`}
+                  >
+                    {category === 'all' ? 'All Categories' : category}
+                    {selectedCategory === category && (
+                      <span className="material-symbols-outlined text-lg">check</span>
+                    )}
+                  </button>
+                ))}
+              </div>
             </div>
           </div>
         </div>
