@@ -5,6 +5,7 @@ import { useAuth } from '../context/AuthContext';
 import api from '../lib/api';
 import ManagerSidebar from '../components/layout/ManagerSidebar';
 import Loader from '../components/ui/Loader';
+import Swal from '../lib/sweetalertConfig';
 
 const ManagerClubMembers = () => {
   const { user, logout } = useAuth();
@@ -15,7 +16,9 @@ const ManagerClubMembers = () => {
   const [debouncedSearch, setDebouncedSearch] = useState('');
   const [statusFilter, setStatusFilter] = useState('All Members');
   const [actionMenuOpen, setActionMenuOpen] = useState(null);
+  const [menuPosition, setMenuPosition] = useState({ top: 0, right: 0 });
   const actionMenuRef = useRef(null);
+  const buttonRefs = useRef({});
   const queryClient = useQueryClient();
 
   useEffect(() => {
@@ -338,7 +341,7 @@ const ManagerClubMembers = () => {
                 <div className="text-red-400">Error loading members. Please try again.</div>
               </div>
             ) : (
-              <div className="w-full overflow-hidden rounded-xl border border-border-dark bg-surface-dark">
+              <div className="w-full rounded-xl border border-border-dark bg-surface-dark">
                 <div className="overflow-x-auto">
                   <table className="w-full text-left border-collapse">
                     <thead>
@@ -390,55 +393,26 @@ const ManagerClubMembers = () => {
                               {member.role}
                             </td>
                             <td className="px-6 py-4 whitespace-nowrap text-right">
-                              <div className="relative" ref={actionMenuOpen === member.id ? actionMenuRef : null}>
+                              <div className="relative inline-block">
                                 <button 
-                                  onClick={() => setActionMenuOpen(actionMenuOpen === member.id ? null : member.id)}
+                                  ref={(el) => buttonRefs.current[member.id] = el}
+                                  onClick={(e) => {
+                                    if (actionMenuOpen === member.id) {
+                                      setActionMenuOpen(null);
+                                    } else {
+                                      const button = e.currentTarget;
+                                      const rect = button.getBoundingClientRect();
+                                      setMenuPosition({
+                                        top: rect.bottom + window.scrollY + 8,
+                                        right: window.innerWidth - rect.right
+                                      });
+                                      setActionMenuOpen(member.id);
+                                    }
+                                  }}
                                   className="text-text-secondary hover:text-white p-2 rounded-lg hover:bg-white/5 transition-colors"
                                 >
                                   <span className="material-symbols-outlined text-[20px]">more_vert</span>
                                 </button>
-                                {actionMenuOpen === member.id && (
-                                  <div className="absolute right-0 mt-2 w-48 bg-surface-dark border border-border-dark rounded-xl shadow-lg z-50 overflow-hidden">
-                                    <div className="py-1">
-                                      <button
-                                        onClick={() => {
-                                          // View member details
-                                          alert(`Member Details:\n\nName: ${member.name}\nEmail: ${member.email}\nStatus: ${member.status}\nRole: ${member.role}\nJoin Date: ${member.joinDate}`);
-                                          setActionMenuOpen(null);
-                                        }}
-                                        className="w-full px-4 py-2 text-left text-sm text-white hover:bg-surface-highlight transition-colors flex items-center gap-2"
-                                      >
-                                        <span className="material-symbols-outlined text-lg">visibility</span>
-                                        <span>View Details</span>
-                                      </button>
-                                      <button
-                                        onClick={() => {
-                                          // Send message/email
-                                          window.location.href = `mailto:${member.email}`;
-                                          setActionMenuOpen(null);
-                                        }}
-                                        className="w-full px-4 py-2 text-left text-sm text-white hover:bg-surface-highlight transition-colors flex items-center gap-2"
-                                      >
-                                        <span className="material-symbols-outlined text-lg">email</span>
-                                        <span>Send Email</span>
-                                      </button>
-                                      <div className="border-t border-border-dark my-1"></div>
-                                      <button
-                                        onClick={() => {
-                                          if (window.confirm(`Are you sure you want to remove ${member.name} from this club?`)) {
-                                            // TODO: Implement remove member API call
-                                            alert('Remove member functionality will be implemented soon.');
-                                            setActionMenuOpen(null);
-                                          }
-                                        }}
-                                        className="w-full px-4 py-2 text-left text-sm text-red-400 hover:bg-red-500/10 transition-colors flex items-center gap-2"
-                                      >
-                                        <span className="material-symbols-outlined text-lg">person_remove</span>
-                                        <span>Remove Member</span>
-                                      </button>
-                                    </div>
-                                  </div>
-                                )}
                               </div>
                             </td>
                           </tr>
@@ -511,6 +485,162 @@ const ManagerClubMembers = () => {
                   </div>
                 )}
               </div>
+            )}
+
+            {/* Action Menu Popup - Rendered outside table to avoid overflow clipping */}
+            {actionMenuOpen && members.find(m => m.id === actionMenuOpen) && (
+              <>
+                {/* Backdrop */}
+                <div 
+                  className="fixed inset-0 z-[9998]" 
+                  onClick={() => setActionMenuOpen(null)}
+                />
+                {/* Popup */}
+                <div 
+                  ref={actionMenuRef}
+                  className="fixed w-48 bg-surface-dark border border-border-dark rounded-xl shadow-2xl z-[9999] overflow-hidden"
+                  style={{
+                    top: `${menuPosition.top}px`,
+                    right: `${menuPosition.right}px`
+                  }}
+                >
+                  <div className="py-1">
+                    {(() => {
+                      const member = members.find(m => m.id === actionMenuOpen);
+                      if (!member) return null;
+                      return (
+                        <>
+                          <button
+                            onClick={() => {
+                              setActionMenuOpen(null);
+                              Swal.fire({
+                                title: 'Member Details',
+                                html: `
+                                  <div style="text-align: left; color: #e2e8f0;">
+                                    <div style="margin-bottom: 1rem;">
+                                      <div style="display: flex; align-items: center; gap: 0.5rem; margin-bottom: 0.5rem;">
+                                        ${member.photoURL ? 
+                                          `<img src="${member.photoURL}" alt="${member.name}" style="width: 48px; height: 48px; border-radius: 50%; object-fit: cover;" referrerPolicy="no-referrer" />` :
+                                          `<div style="width: 48px; height: 48px; border-radius: 50%; background: #38e07b20; display: flex; align-items: center; justify-content: center; color: #38e07b; font-weight: bold; font-size: 1.25rem;">${member.name?.charAt(0)?.toUpperCase() || 'U'}</div>`
+                                        }
+                                        <div>
+                                          <div style="font-weight: bold; font-size: 1.125rem; color: #ffffff; margin-bottom: 0.25rem;">${member.name || 'N/A'}</div>
+                                          <div style="font-size: 0.875rem; color: #9eb7a8;">${member.email || 'N/A'}</div>
+                                        </div>
+                                      </div>
+                                    </div>
+                                    <div style="border-top: 1px solid #29382f; padding-top: 1rem; margin-top: 1rem;">
+                                      <div style="display: grid; gap: 0.75rem;">
+                                        <div>
+                                          <div style="font-size: 0.75rem; color: #9eb7a8; margin-bottom: 0.25rem; text-transform: uppercase; letter-spacing: 0.05em;">Status</div>
+                                          <div style="font-size: 0.875rem; color: #e2e8f0;">${member.status ? member.status.charAt(0).toUpperCase() + member.status.slice(1) : 'N/A'}</div>
+                                        </div>
+                                        <div>
+                                          <div style="font-size: 0.75rem; color: #9eb7a8; margin-bottom: 0.25rem; text-transform: uppercase; letter-spacing: 0.05em;">Role</div>
+                                          <div style="font-size: 0.875rem; color: #e2e8f0;">${member.role ? member.role.charAt(0).toUpperCase() + member.role.slice(1) : 'N/A'}</div>
+                                        </div>
+                                        <div>
+                                          <div style="font-size: 0.75rem; color: #9eb7a8; margin-bottom: 0.25rem; text-transform: uppercase; letter-spacing: 0.05em;">Join Date</div>
+                                          <div style="font-size: 0.875rem; color: #e2e8f0;">${member.joinDate || 'N/A'}</div>
+                                        </div>
+                                        ${member.memberId ? `
+                                        <div>
+                                          <div style="font-size: 0.75rem; color: #9eb7a8; margin-bottom: 0.25rem; text-transform: uppercase; letter-spacing: 0.05em;">Member ID</div>
+                                          <div style="font-size: 0.875rem; color: #e2e8f0; font-family: monospace;">${member.memberId}</div>
+                                        </div>
+                                        ` : ''}
+                                      </div>
+                                    </div>
+                                  </div>
+                                `,
+                                width: '500px',
+                                padding: '2rem',
+                                confirmButtonText: 'Close',
+                                confirmButtonColor: '#38e07b',
+                                customClass: {
+                                  popup: 'swal2-popup-dark',
+                                  title: 'swal2-title-dark',
+                                  htmlContainer: 'swal2-html-container-dark'
+                                }
+                              });
+                            }}
+                            className="w-full px-4 py-2 text-left text-sm text-white hover:bg-surface-highlight transition-colors flex items-center gap-2"
+                          >
+                            <span className="material-symbols-outlined text-lg">visibility</span>
+                            <span>View Details</span>
+                          </button>
+                          <button
+                            onClick={() => {
+                              window.location.href = `mailto:${member.email}`;
+                              setActionMenuOpen(null);
+                            }}
+                            className="w-full px-4 py-2 text-left text-sm text-white hover:bg-surface-highlight transition-colors flex items-center gap-2"
+                          >
+                            <span className="material-symbols-outlined text-lg">email</span>
+                            <span>Send Email</span>
+                          </button>
+                          <div className="border-t border-border-dark my-1"></div>
+                          <button
+                            onClick={() => {
+                              setActionMenuOpen(null);
+                              Swal.fire({
+                                title: 'Remove Member?',
+                                html: `
+                                  <div style="text-align: left; color: #e2e8f0;">
+                                    <p style="margin-bottom: 1rem;">Are you sure you want to remove <strong style="color: #ffffff;">${member.name}</strong> from this club?</p>
+                                    <div style="background: #29382f; border-radius: 0.5rem; padding: 1rem; margin-top: 1rem;">
+                                      <div style="font-size: 0.75rem; color: #9eb7a8; margin-bottom: 0.5rem; text-transform: uppercase; letter-spacing: 0.05em;">Member Information</div>
+                                      <div style="font-size: 0.875rem; color: #e2e8f0;">
+                                        <div style="margin-bottom: 0.25rem;"><strong>Name:</strong> ${member.name || 'N/A'}</div>
+                                        <div style="margin-bottom: 0.25rem;"><strong>Email:</strong> ${member.email || 'N/A'}</div>
+                                        <div><strong>Status:</strong> ${member.status ? member.status.charAt(0).toUpperCase() + member.status.slice(1) : 'N/A'}</div>
+                                      </div>
+                                    </div>
+                                    <p style="margin-top: 1rem; color: #fa5538; font-size: 0.875rem;">This action cannot be undone.</p>
+                                  </div>
+                                `,
+                                icon: 'warning',
+                                showCancelButton: true,
+                                confirmButtonText: 'Yes, Remove Member',
+                                cancelButtonText: 'Cancel',
+                                confirmButtonColor: '#ef4444',
+                                cancelButtonColor: '#29382f',
+                                reverseButtons: true,
+                                customClass: {
+                                  popup: 'swal2-popup-dark',
+                                  title: 'swal2-title-dark',
+                                  htmlContainer: 'swal2-html-container-dark',
+                                  confirmButton: 'swal2-confirm-danger'
+                                }
+                              }).then((result) => {
+                                if (result.isConfirmed) {
+                                  // TODO: Implement remove member API call
+                                  Swal.fire({
+                                    title: 'Feature Coming Soon',
+                                    text: 'Remove member functionality will be implemented soon.',
+                                    icon: 'info',
+                                    confirmButtonText: 'OK',
+                                    confirmButtonColor: '#38e07b',
+                                    customClass: {
+                                      popup: 'swal2-popup-dark',
+                                      title: 'swal2-title-dark',
+                                      htmlContainer: 'swal2-html-container-dark'
+                                    }
+                                  });
+                                }
+                              });
+                            }}
+                            className="w-full px-4 py-2 text-left text-sm text-red-400 hover:bg-red-500/10 transition-colors flex items-center gap-2"
+                          >
+                            <span className="material-symbols-outlined text-lg">person_remove</span>
+                            <span>Remove Member</span>
+                          </button>
+                        </>
+                      );
+                    })()}
+                  </div>
+                </div>
+              </>
             )}
           </div>
         </div>

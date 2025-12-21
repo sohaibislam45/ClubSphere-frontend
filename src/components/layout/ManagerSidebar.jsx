@@ -83,7 +83,7 @@ const ManagerSidebar = () => {
         <Link 
           to="/dashboard/club-manager/clubs" 
           className={`flex items-center gap-4 px-4 py-3 rounded-full font-medium transition-colors ${
-            isActive('/dashboard/club-manager/clubs')
+            location.pathname.startsWith('/dashboard/club-manager/clubs') && !location.pathname.includes('/members')
               ? 'bg-primary text-background-dark font-semibold'
               : 'text-slate-600 dark:text-slate-300 hover:bg-black/5 dark:hover:bg-white/5'
           }`}
@@ -94,7 +94,7 @@ const ManagerSidebar = () => {
         <Link 
           to="/dashboard/club-manager/events" 
           className={`flex items-center gap-4 px-4 py-3 rounded-full font-medium transition-colors ${
-            isActive('/dashboard/club-manager/events')
+            location.pathname.startsWith('/dashboard/club-manager/events') && !location.pathname.includes('/registrations')
               ? 'bg-primary text-background-dark font-semibold'
               : 'text-slate-600 dark:text-slate-300 hover:bg-black/5 dark:hover:bg-white/5'
           }`}
@@ -105,7 +105,7 @@ const ManagerSidebar = () => {
         <Link 
           to="/dashboard/club-manager/members" 
           className={`flex items-center gap-4 px-4 py-3 rounded-full font-medium transition-colors ${
-            location.pathname.includes('/members') || location.pathname === '/dashboard/club-manager/members'
+            location.pathname.includes('/members')
               ? 'bg-primary text-background-dark font-semibold'
               : 'text-slate-600 dark:text-slate-300 hover:bg-black/5 dark:hover:bg-white/5'
           }`}

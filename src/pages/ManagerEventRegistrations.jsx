@@ -5,6 +5,7 @@ import { useAuth } from '../context/AuthContext';
 import api from '../lib/api';
 import ManagerSidebar from '../components/layout/ManagerSidebar';
 import Loader from '../components/ui/Loader';
+import Swal from '../lib/sweetalertConfig';
 
 const ManagerEventRegistrations = () => {
   const { user, logout } = useAuth();
@@ -20,7 +21,9 @@ const ManagerEventRegistrations = () => {
   const [statusFilter, setStatusFilter] = useState('all');
   const [page, setPage] = useState(1);
   const [actionMenuOpen, setActionMenuOpen] = useState(null);
+  const [menuPosition, setMenuPosition] = useState({ top: 0, right: 0 });
   const actionMenuRef = useRef(null);
+  const buttonRefs = useRef({});
   const limit = 10;
 
   // Fetch events for selector
@@ -126,7 +129,18 @@ const ManagerEventRegistrations = () => {
 
   const handleExport = () => {
     if (!selectedEventId || !registrations.length) {
-      alert('No registrations to export. Please select an event with registrations.');
+      Swal.fire({
+        title: 'No Data to Export',
+        text: 'Please select an event with registrations.',
+        icon: 'info',
+        confirmButtonText: 'OK',
+        confirmButtonColor: '#38e07b',
+        customClass: {
+          popup: 'swal2-popup-dark',
+          title: 'swal2-title-dark',
+          htmlContainer: 'swal2-html-container-dark'
+        }
+      });
       return;
     }
 
@@ -401,69 +415,26 @@ const ManagerEventRegistrations = () => {
                                     {registration.registrationDate}
                                   </td>
                                   <td className="px-6 py-4 whitespace-nowrap text-right">
-                                    <div className="relative" ref={actionMenuOpen === registration.id ? actionMenuRef : null}>
+                                    <div className="relative inline-block">
                                       <button 
-                                        onClick={() => setActionMenuOpen(actionMenuOpen === registration.id ? null : registration.id)}
+                                        ref={(el) => buttonRefs.current[registration.id] = el}
+                                        onClick={(e) => {
+                                          if (actionMenuOpen === registration.id) {
+                                            setActionMenuOpen(null);
+                                          } else {
+                                            const button = e.currentTarget;
+                                            const rect = button.getBoundingClientRect();
+                                            setMenuPosition({
+                                              top: rect.bottom + window.scrollY + 8,
+                                              right: window.innerWidth - rect.right
+                                            });
+                                            setActionMenuOpen(registration.id);
+                                          }
+                                        }}
                                         className="text-slate-400 hover:text-primary transition-colors p-2 rounded-lg hover:bg-slate-100 dark:hover:bg-[#282e39]"
                                       >
                                         <span className="material-symbols-outlined text-[20px]">more_vert</span>
                                       </button>
-                                      {actionMenuOpen === registration.id && (
-                                        <div className="absolute right-0 mt-2 w-48 bg-white dark:bg-[#1c1f27] border border-slate-200 dark:border-[#3b4354] rounded-xl shadow-lg z-50 overflow-hidden">
-                                          <div className="py-1">
-                                            <button
-                                              onClick={() => {
-                                                alert(`Registration Details:\n\nName: ${registration.name}\nEmail: ${registration.email}\nPhone: ${registration.phone}\nStatus: ${registration.status}\nPayment Status: ${registration.paymentStatus}\nRegistration Date: ${registration.registrationDate}`);
-                                                setActionMenuOpen(null);
-                                              }}
-                                              className="w-full px-4 py-2 text-left text-sm text-slate-900 dark:text-white hover:bg-slate-50 dark:hover:bg-[#282e39] transition-colors flex items-center gap-2"
-                                            >
-                                              <span className="material-symbols-outlined text-lg">visibility</span>
-                                              <span>View Details</span>
-                                            </button>
-                                            <button
-                                              onClick={() => {
-                                                window.location.href = `mailto:${registration.email}`;
-                                                setActionMenuOpen(null);
-                                              }}
-                                              className="w-full px-4 py-2 text-left text-sm text-slate-900 dark:text-white hover:bg-slate-50 dark:hover:bg-[#282e39] transition-colors flex items-center gap-2"
-                                            >
-                                              <span className="material-symbols-outlined text-lg">email</span>
-                                              <span>Send Email</span>
-                                            </button>
-                                            {registration.phone && registration.phone !== '--' && (
-                                              <button
-                                                onClick={() => {
-                                                  window.location.href = `tel:${registration.phone}`;
-                                                  setActionMenuOpen(null);
-                                                }}
-                                                className="w-full px-4 py-2 text-left text-sm text-slate-900 dark:text-white hover:bg-slate-50 dark:hover:bg-[#282e39] transition-colors flex items-center gap-2"
-                                              >
-                                                <span className="material-symbols-outlined text-lg">phone</span>
-                                                <span>Call</span>
-                                              </button>
-                                            )}
-                                            {registration.status === 'registered' && (
-                                              <>
-                                                <div className="border-t border-slate-200 dark:border-[#3b4354] my-1"></div>
-                                                <button
-                                                  onClick={() => {
-                                                    if (window.confirm(`Are you sure you want to cancel ${registration.name}'s registration?`)) {
-                                                      // TODO: Implement cancel registration API call
-                                                      alert('Cancel registration functionality will be implemented soon.');
-                                                      setActionMenuOpen(null);
-                                                    }
-                                                  }}
-                                                  className="w-full px-4 py-2 text-left text-sm text-red-500 hover:bg-red-50 dark:hover:bg-red-500/10 transition-colors flex items-center gap-2"
-                                                >
-                                                  <span className="material-symbols-outlined text-lg">cancel</span>
-                                                  <span>Cancel Registration</span>
-                                                </button>
-                                              </>
-                                            )}
-                                          </div>
-                                        </div>
-                                      )}
                                     </div>
                                   </td>
                                 </tr>
@@ -532,6 +503,183 @@ const ManagerEventRegistrations = () => {
                     </>
                   )}
                 </div>
+              )}
+
+              {/* Action Menu Popup - Rendered outside table to avoid overflow clipping */}
+              {actionMenuOpen && registrations.find(r => r.id === actionMenuOpen) && (
+                <>
+                  {/* Backdrop */}
+                  <div 
+                    className="fixed inset-0 z-[9998]" 
+                    onClick={() => setActionMenuOpen(null)}
+                  />
+                  {/* Popup */}
+                  <div 
+                    ref={actionMenuRef}
+                    className="fixed w-48 bg-white dark:bg-[#1c1f27] border border-slate-200 dark:border-[#3b4354] rounded-xl shadow-2xl z-[9999] overflow-hidden"
+                    style={{
+                      top: `${menuPosition.top}px`,
+                      right: `${menuPosition.right}px`
+                    }}
+                  >
+                    <div className="py-1">
+                      {(() => {
+                        const registration = registrations.find(r => r.id === actionMenuOpen);
+                        if (!registration) return null;
+                        return (
+                          <>
+                            <button
+                              onClick={() => {
+                                setActionMenuOpen(null);
+                                Swal.fire({
+                                  title: 'Registration Details',
+                                  html: `
+                                    <div style="text-align: left; color: #e2e8f0;">
+                                      <div style="margin-bottom: 1rem;">
+                                        <div style="display: flex; align-items: center; gap: 0.5rem; margin-bottom: 0.5rem;">
+                                          ${registration.photoURL ? 
+                                            `<img src="${registration.photoURL}" alt="${registration.name}" style="width: 48px; height: 48px; border-radius: 50%; object-fit: cover;" referrerPolicy="no-referrer" />` :
+                                            `<div style="width: 48px; height: 48px; border-radius: 50%; background: #38e07b20; display: flex; align-items: center; justify-content: center; color: #38e07b; font-weight: bold; font-size: 1.25rem;">${registration.name?.charAt(0)?.toUpperCase() || 'U'}</div>`
+                                          }
+                                          <div>
+                                            <div style="font-weight: bold; font-size: 1.125rem; color: #ffffff; margin-bottom: 0.25rem;">${registration.name || 'N/A'}</div>
+                                            <div style="font-size: 0.875rem; color: #9eb7a8;">${registration.email || 'N/A'}</div>
+                                          </div>
+                                        </div>
+                                      </div>
+                                      <div style="border-top: 1px solid #29382f; padding-top: 1rem; margin-top: 1rem;">
+                                        <div style="display: grid; gap: 0.75rem;">
+                                          <div>
+                                            <div style="font-size: 0.75rem; color: #9eb7a8; margin-bottom: 0.25rem; text-transform: uppercase; letter-spacing: 0.05em;">Phone</div>
+                                            <div style="font-size: 0.875rem; color: #e2e8f0;">${registration.phone && registration.phone !== '--' ? registration.phone : 'N/A'}</div>
+                                          </div>
+                                          <div>
+                                            <div style="font-size: 0.75rem; color: #9eb7a8; margin-bottom: 0.25rem; text-transform: uppercase; letter-spacing: 0.05em;">Status</div>
+                                            <div style="font-size: 0.875rem; color: #e2e8f0;">${registration.status ? registration.status.charAt(0).toUpperCase() + registration.status.slice(1) : 'N/A'}</div>
+                                          </div>
+                                          <div>
+                                            <div style="font-size: 0.75rem; color: #9eb7a8; margin-bottom: 0.25rem; text-transform: uppercase; letter-spacing: 0.05em;">Payment Status</div>
+                                            <div style="font-size: 0.875rem; color: #e2e8f0;">${registration.paymentStatus ? registration.paymentStatus.charAt(0).toUpperCase() + registration.paymentStatus.slice(1) : 'N/A'}</div>
+                                          </div>
+                                          <div>
+                                            <div style="font-size: 0.75rem; color: #9eb7a8; margin-bottom: 0.25rem; text-transform: uppercase; letter-spacing: 0.05em;">Registration Date</div>
+                                            <div style="font-size: 0.875rem; color: #e2e8f0;">${registration.registrationDate || 'N/A'}</div>
+                                          </div>
+                                          ${registration.memberId ? `
+                                          <div>
+                                            <div style="font-size: 0.75rem; color: #9eb7a8; margin-bottom: 0.25rem; text-transform: uppercase; letter-spacing: 0.05em;">Member ID</div>
+                                            <div style="font-size: 0.875rem; color: #e2e8f0; font-family: monospace;">${registration.memberId}</div>
+                                          </div>
+                                          ` : ''}
+                                        </div>
+                                      </div>
+                                    </div>
+                                  `,
+                                  width: '500px',
+                                  padding: '2rem',
+                                  confirmButtonText: 'Close',
+                                  confirmButtonColor: '#38e07b',
+                                  customClass: {
+                                    popup: 'swal2-popup-dark',
+                                    title: 'swal2-title-dark',
+                                    htmlContainer: 'swal2-html-container-dark'
+                                  }
+                                });
+                              }}
+                              className="w-full px-4 py-2 text-left text-sm text-slate-900 dark:text-white hover:bg-slate-50 dark:hover:bg-[#282e39] transition-colors flex items-center gap-2"
+                            >
+                              <span className="material-symbols-outlined text-lg">visibility</span>
+                              <span>View Details</span>
+                            </button>
+                            <button
+                              onClick={() => {
+                                window.location.href = `mailto:${registration.email}`;
+                                setActionMenuOpen(null);
+                              }}
+                              className="w-full px-4 py-2 text-left text-sm text-slate-900 dark:text-white hover:bg-slate-50 dark:hover:bg-[#282e39] transition-colors flex items-center gap-2"
+                            >
+                              <span className="material-symbols-outlined text-lg">email</span>
+                              <span>Send Email</span>
+                            </button>
+                            {registration.phone && registration.phone !== '--' && (
+                              <button
+                                onClick={() => {
+                                  window.location.href = `tel:${registration.phone}`;
+                                  setActionMenuOpen(null);
+                                }}
+                                className="w-full px-4 py-2 text-left text-sm text-slate-900 dark:text-white hover:bg-slate-50 dark:hover:bg-[#282e39] transition-colors flex items-center gap-2"
+                              >
+                                <span className="material-symbols-outlined text-lg">phone</span>
+                                <span>Call</span>
+                              </button>
+                            )}
+                            {registration.status === 'registered' && (
+                              <>
+                                <div className="border-t border-slate-200 dark:border-[#3b4354] my-1"></div>
+                                <button
+                                  onClick={() => {
+                                    setActionMenuOpen(null);
+                                    Swal.fire({
+                                      title: 'Cancel Registration?',
+                                      html: `
+                                        <div style="text-align: left; color: #e2e8f0;">
+                                          <p style="margin-bottom: 1rem;">Are you sure you want to cancel <strong style="color: #ffffff;">${registration.name}</strong>'s registration for this event?</p>
+                                          <div style="background: #29382f; border-radius: 0.5rem; padding: 1rem; margin-top: 1rem;">
+                                            <div style="font-size: 0.75rem; color: #9eb7a8; margin-bottom: 0.5rem; text-transform: uppercase; letter-spacing: 0.05em;">Registration Information</div>
+                                            <div style="font-size: 0.875rem; color: #e2e8f0;">
+                                              <div style="margin-bottom: 0.25rem;"><strong>Name:</strong> ${registration.name || 'N/A'}</div>
+                                              <div style="margin-bottom: 0.25rem;"><strong>Email:</strong> ${registration.email || 'N/A'}</div>
+                                              <div style="margin-bottom: 0.25rem;"><strong>Status:</strong> ${registration.status ? registration.status.charAt(0).toUpperCase() + registration.status.slice(1) : 'N/A'}</div>
+                                              <div><strong>Payment Status:</strong> ${registration.paymentStatus ? registration.paymentStatus.charAt(0).toUpperCase() + registration.paymentStatus.slice(1) : 'N/A'}</div>
+                                            </div>
+                                          </div>
+                                          <p style="margin-top: 1rem; color: #fa5538; font-size: 0.875rem;">This action cannot be undone.</p>
+                                        </div>
+                                      `,
+                                      icon: 'warning',
+                                      showCancelButton: true,
+                                      confirmButtonText: 'Yes, Cancel Registration',
+                                      cancelButtonText: 'Keep Registration',
+                                      confirmButtonColor: '#ef4444',
+                                      cancelButtonColor: '#29382f',
+                                      reverseButtons: true,
+                                      customClass: {
+                                        popup: 'swal2-popup-dark',
+                                        title: 'swal2-title-dark',
+                                        htmlContainer: 'swal2-html-container-dark',
+                                        confirmButton: 'swal2-confirm-danger'
+                                      }
+                                    }).then((result) => {
+                                      if (result.isConfirmed) {
+                                        // TODO: Implement cancel registration API call
+                                        Swal.fire({
+                                          title: 'Feature Coming Soon',
+                                          text: 'Cancel registration functionality will be implemented soon.',
+                                          icon: 'info',
+                                          confirmButtonText: 'OK',
+                                          confirmButtonColor: '#38e07b',
+                                          customClass: {
+                                            popup: 'swal2-popup-dark',
+                                            title: 'swal2-title-dark',
+                                            htmlContainer: 'swal2-html-container-dark'
+                                          }
+                                        });
+                                      }
+                                    });
+                                  }}
+                                  className="w-full px-4 py-2 text-left text-sm text-red-500 hover:bg-red-50 dark:hover:bg-red-500/10 transition-colors flex items-center gap-2"
+                                >
+                                  <span className="material-symbols-outlined text-lg">cancel</span>
+                                  <span>Cancel Registration</span>
+                                </button>
+                              </>
+                            )}
+                          </>
+                        );
+                      })()}
+                    </div>
+                  </div>
+                </>
               )}
             </div>
           )}

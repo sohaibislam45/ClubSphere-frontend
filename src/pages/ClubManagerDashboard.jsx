@@ -10,6 +10,7 @@ const ClubManagerDashboard = () => {
   const { user, logout } = useAuth();
   const navigate = useNavigate();
   const [dropdownOpen, setDropdownOpen] = useState(false);
+  const [activityModalOpen, setActivityModalOpen] = useState(false);
   const dropdownRef = useRef(null);
 
   useEffect(() => {
@@ -575,12 +576,12 @@ const ClubManagerDashboard = () => {
                     )}
                   </div>
                   {activityData?.activity && activityData.activity.length > 6 && (
-                    <Link 
-                      to="/dashboard/club-manager/events"
+                    <button 
+                      onClick={() => setActivityModalOpen(true)}
                       className="w-full mt-8 py-3 rounded-full border border-white/10 text-sm font-bold text-slate-400 hover:text-white hover:bg-white/5 transition-colors flex items-center justify-center"
                     >
                       View All Activities ({activityData.activity.length})
-                    </Link>
+                    </button>
                   )}
                   {(!activityData?.activity || activityData.activity.length <= 6) && (
                     <Link 
@@ -597,6 +598,90 @@ const ClubManagerDashboard = () => {
           )}
         </div>
       </main>
+
+      {/* Activity Modal */}
+      {activityModalOpen && (
+        <div 
+          className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/50 backdrop-blur-sm"
+          onClick={() => setActivityModalOpen(false)}
+        >
+          <div 
+            className="bg-white dark:bg-surface-dark rounded-2xl shadow-2xl w-full max-w-2xl max-h-[80vh] flex flex-col"
+            onClick={(e) => e.stopPropagation()}
+          >
+            {/* Modal Header */}
+            <div className="flex items-center justify-between p-6 border-b border-white/10">
+              <h2 className="text-2xl font-bold text-slate-900 dark:text-white">All Activities</h2>
+              <button
+                onClick={() => setActivityModalOpen(false)}
+                className="size-8 rounded-full bg-white dark:bg-surface-highlight text-slate-600 dark:text-slate-300 hover:bg-gray-100 dark:hover:bg-white/10 flex items-center justify-center transition-colors"
+              >
+                <span className="material-symbols-outlined text-lg">close</span>
+              </button>
+            </div>
+
+            {/* Modal Content */}
+            <div className="flex-1 overflow-y-auto p-6">
+              {activityData?.activity && activityData.activity.length > 0 ? (
+                <div className="relative pl-4 border-l border-white/10 space-y-6">
+                  {activityData.activity.map((activity, index) => (
+                    <div key={`${activity.type}-${index}-${activity.timestamp?.getTime() || index}`} className="relative">
+                      <div className={`absolute -left-[21px] top-1 size-3 rounded-full border-2 border-surface-dark ${
+                        index === 0 ? 'bg-primary' : 'bg-slate-600'
+                      }`}></div>
+                      <div className="flex flex-col gap-1">
+                        <p className="text-sm text-slate-300">
+                          {activity.type === 'registration' && (
+                            <>
+                              <span className="font-medium text-white">{activity.userName}</span>
+                              {' '}registered for{' '}
+                              <span className="font-medium text-white">{activity.eventName}</span>
+                            </>
+                          )}
+                          {activity.type === 'membership' && (
+                            <>
+                              <span className="font-medium text-white">{activity.userName}</span>
+                              {' '}joined{' '}
+                              <span className="font-medium text-white">{activity.clubName}</span>
+                            </>
+                          )}
+                          {activity.type === 'event' && (
+                            <>
+                              New event{' '}
+                              <span className="font-medium text-white">{activity.eventName}</span>
+                              {' '}created
+                              {activity.clubName && (
+                                <> in <span className="font-medium text-white">{activity.clubName}</span></>
+                              )}
+                            </>
+                          )}
+                        </p>
+                        <span className="text-xs text-slate-500">
+                          {activity.date || formatDate(activity.timestamp)}
+                        </span>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              ) : (
+                <div className="text-sm text-slate-500 text-center py-8">
+                  No activities found
+                </div>
+              )}
+            </div>
+
+            {/* Modal Footer */}
+            <div className="p-6 border-t border-white/10">
+              <button
+                onClick={() => setActivityModalOpen(false)}
+                className="w-full py-3 rounded-full bg-primary hover:bg-primary-hover text-background-dark font-bold text-sm transition-colors"
+              >
+                Close
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 };
