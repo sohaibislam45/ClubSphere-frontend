@@ -6,6 +6,7 @@ import Navbar from '../components/layout/Navbar';
 import Footer from '../components/layout/Footer';
 import api from '../lib/api';
 import Loader from '../components/ui/Loader';
+import Swal from '../lib/sweetalertConfig';
 
 const Home = () => {
   const navigate = useNavigate();
@@ -243,7 +244,26 @@ const Home = () => {
                       <button 
                         onClick={(e) => {
                           e.stopPropagation();
-                          navigate(`/events/${event.id}`);
+                          Swal.fire({
+                            icon: 'info',
+                            title: 'Join Club Required',
+                            text: 'If you want to reserve event, then you have to join club first',
+                            confirmButtonText: 'Go to Club',
+                            showCancelButton: true,
+                            cancelButtonText: 'Cancel'
+                          }).then((result) => {
+                            if (result.isConfirmed) {
+                              if (event.clubId) {
+                                navigate(`/clubs/${event.clubId}`);
+                              } else {
+                                Swal.fire({
+                                  icon: 'error',
+                                  title: 'Error',
+                                  text: 'Club information not available. Please try again later.',
+                                });
+                              }
+                            }
+                          });
                         }}
                         className="mt-4 w-full py-2.5 rounded-lg bg-[#29382f] text-white font-bold text-sm hover:bg-primary hover:text-background-dark transition-colors"
                       >

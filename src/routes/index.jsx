@@ -5,6 +5,9 @@ import ClubDetails from '../pages/ClubDetails';
 import Events from '../pages/Events';
 import EventDetails from '../pages/EventDetails';
 import EventCheckout from '../pages/EventCheckout';
+import ClubCheckout from '../pages/ClubCheckout';
+import ClubPaymentSuccess from '../pages/ClubPaymentSuccess';
+import ClubPaymentCancel from '../pages/ClubPaymentCancel';
 import PaymentSuccess from '../pages/PaymentSuccess';
 import PaymentCancel from '../pages/PaymentCancel';
 import Login from '../pages/Login';
@@ -34,6 +37,14 @@ const AppRoutes = () => {
       <Route path="/" element={<Home />} />
       <Route path="/clubs" element={<Clubs />} />
       <Route path="/clubs/:id" element={<ClubDetails />} />
+      <Route 
+        path="/clubs/:id/checkout" 
+        element={
+          <PrivateRoute>
+            <ClubCheckout />
+          </PrivateRoute>
+        } 
+      />
       <Route path="/events" element={<Events />} />
       <Route path="/events/:id" element={<EventDetails />} />
       <Route 
@@ -46,6 +57,8 @@ const AppRoutes = () => {
       />
       <Route path="/payment/success" element={<PaymentSuccess />} />
       <Route path="/payment/cancel" element={<PaymentCancel />} />
+      <Route path="/payment/club/success" element={<ClubPaymentSuccess />} />
+      <Route path="/payment/club/cancel" element={<ClubPaymentCancel />} />
       <Route path="/login" element={<Login />} />
       <Route path="/register" element={<Register />} />
       <Route 

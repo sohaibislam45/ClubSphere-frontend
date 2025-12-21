@@ -12,7 +12,7 @@ import Swal from '../lib/sweetalertConfig';
 // Initialize Stripe (using publishable key from environment variable)
 const stripePromise = loadStripe(import.meta.env.VITE_STRIPE_PUBLISHABLE_KEY || 'pk_test_51SgdYyRL1cjj2uXLHqiGAoCLVWljzojO3MJX8YUo7pEadJJEQnQpHYmokTsYrXt2xdVoYLGfgAfJDrQjynljf3Ao00NTD7EOWq');
 
-const CheckoutForm = ({ event, clientSecret, paymentIntentId, onSuccess, onCancel }) => {
+const CheckoutForm = ({ club, clientSecret, paymentIntentId, onSuccess, onCancel }) => {
   const stripe = useStripe();
   const elements = useElements();
   const { user } = useAuth();
@@ -59,21 +59,21 @@ const CheckoutForm = ({ event, clientSecret, paymentIntentId, onSuccess, onCance
       } else if (paymentIntent && paymentIntent.status === 'succeeded') {
         // Payment succeeded, confirm with backend
         try {
-          const response = await api.post('/api/payments/confirm', {
+          const response = await api.post('/api/payments/club/confirm', {
             paymentIntentId,
-            eventId: event.id
+            clubId: club.id
           });
 
           if (response.data.success) {
             // Redirect to success page
-            onSuccess(response.data.registrationId);
+            onSuccess(response.data.membershipId);
           }
         } catch (error) {
           console.error('Confirm payment error:', error);
           Swal.fire({
             icon: 'error',
-            title: 'Registration Failed',
-            text: error.response?.data?.error || 'Failed to complete registration. Please contact support.',
+            title: 'Membership Failed',
+            text: error.response?.data?.error || 'Failed to complete membership. Please contact support.',
           });
         }
       }
@@ -107,18 +107,8 @@ const CheckoutForm = ({ event, clientSecret, paymentIntentId, onSuccess, onCance
     hidePostalCode: true,
   };
 
-  const serviceFee = event.eventFee * 0.1 >= 1.50 ? event.eventFee * 0.1 : 1.50;
-  const total = event.eventFee + serviceFee;
-
-  const eventDate = new Date(event.eventDate);
-  const formattedDate = eventDate.toLocaleDateString('en-US', { 
-    month: 'short', 
-    day: 'numeric' 
-  });
-  const formattedTime = eventDate.toLocaleTimeString('en-US', { 
-    hour: 'numeric', 
-    minute: '2-digit' 
-  });
+  const serviceFee = club.membershipFee * 0.1 >= 1.50 ? club.membershipFee * 0.1 : 1.50;
+  const total = club.membershipFee + serviceFee;
 
   return (
     <form onSubmit={handleSubmit} className="space-y-6">
@@ -148,7 +138,7 @@ const CheckoutForm = ({ event, clientSecret, paymentIntentId, onSuccess, onCance
               className="rounded border-slate-300 bg-background-light dark:bg-surface-dark-lighter text-primary focus:ring-primary/50"
             />
             <label className="text-sm text-slate-500 dark:text-slate-400">
-              Keep me updated on future events from {event.clubName || 'this club'}
+              Keep me updated on club activities and events
             </label>
           </div>
         </div>
@@ -300,7 +290,7 @@ const CheckoutForm = ({ event, clientSecret, paymentIntentId, onSuccess, onCance
   );
 };
 
-const EventCheckout = () => {
+const ClubCheckout = () => {
   const { id } = useParams();
   const navigate = useNavigate();
   const { user } = useAuth();
@@ -308,28 +298,28 @@ const EventCheckout = () => {
   const [paymentIntentId, setPaymentIntentId] = useState(null);
   const [isCreatingIntent, setIsCreatingIntent] = useState(false);
 
-  // Fetch event details
-  const { data: event, isLoading: eventLoading } = useQuery({
-    queryKey: ['event', id],
+  // Fetch club details
+  const { data: club, isLoading: clubLoading } = useQuery({
+    queryKey: ['club', id],
     queryFn: async () => {
-      const response = await api.get(`/api/events/${id}`);
+      const response = await api.get(`/api/clubs/${id}`);
       return response.data;
     },
     enabled: !!id,
   });
 
-  // Create payment intent when event is loaded
+  // Create payment intent when club is loaded
   useEffect(() => {
-    if (event && event.isPaid && event.eventFee > 0 && !clientSecret) {
+    if (club && club.membershipFee > 0 && !clientSecret) {
       createPaymentIntent();
     }
-  }, [event]);
+  }, [club]);
 
   const createPaymentIntent = async () => {
     setIsCreatingIntent(true);
     try {
-      const response = await api.post('/api/payments/create-intent', {
-        eventId: id
+      const response = await api.post('/api/payments/club/create-intent', {
+        clubId: id
       });
       setClientSecret(response.data.clientSecret);
       setPaymentIntentId(response.data.paymentIntentId);
@@ -340,30 +330,30 @@ const EventCheckout = () => {
         title: 'Error',
         text: error.response?.data?.error || 'Failed to initialize payment. Please try again.',
       }).then(() => {
-        navigate(`/events/${id}`);
+        navigate(`/clubs/${id}`);
       });
     } finally {
       setIsCreatingIntent(false);
     }
   };
 
-  const handleSuccess = (registrationId) => {
-    navigate(`/payment/success?eventId=${id}&registrationId=${registrationId}`);
+  const handleSuccess = (membershipId) => {
+    navigate(`/payment/club/success?clubId=${id}&membershipId=${membershipId}`);
   };
 
   const handleCancel = () => {
-    navigate(`/payment/cancel?eventId=${id}`);
+    navigate(`/payment/club/cancel?clubId=${id}`);
   };
 
   useEffect(() => {
-    if (event) {
-      document.title = `Payment - ${event.title} - ClubSphere`;
+    if (club) {
+      document.title = `Payment - ${club.clubName} - ClubSphere`;
     } else {
       document.title = 'Payment - ClubSphere';
     }
-  }, [event]);
+  }, [club]);
 
-  if (eventLoading || isCreatingIntent) {
+  if (clubLoading || isCreatingIntent) {
     return (
       <div className="flex flex-col min-h-screen bg-background-light dark:bg-background-dark text-slate-900 dark:text-white font-display">
         <Navbar />
@@ -374,57 +364,47 @@ const EventCheckout = () => {
     );
   }
 
-  if (!event) {
+  if (!club) {
     return (
       <div className="flex flex-col min-h-screen bg-background-light dark:bg-background-dark text-slate-900 dark:text-white font-display">
         <Navbar />
         <div className="flex-1 flex items-center justify-center">
           <div className="text-center">
-            <p className="text-text-secondary mb-4">Event not found</p>
-            <Link to="/events" className="text-primary hover:underline">Browse Events</Link>
+            <p className="text-text-secondary mb-4">Club not found</p>
+            <Link to="/clubs" className="text-primary hover:underline">Browse Clubs</Link>
           </div>
         </div>
       </div>
     );
   }
 
-  if (!event.isPaid || event.eventFee <= 0) {
+  if (!club.membershipFee || club.membershipFee <= 0) {
     return (
       <div className="flex flex-col min-h-screen bg-background-light dark:bg-background-dark text-slate-900 dark:text-white font-display">
         <Navbar />
         <div className="flex-1 flex items-center justify-center">
           <div className="text-center">
-            <p className="text-text-secondary mb-4">This event is free. Please use the RSVP button on the event page.</p>
-            <Link to={`/events/${id}`} className="text-primary hover:underline">Back to Event</Link>
+            <p className="text-text-secondary mb-4">This club is free. Please use the Join Club button on the club page.</p>
+            <Link to={`/clubs/${id}`} className="text-primary hover:underline">Back to Club</Link>
           </div>
         </div>
       </div>
     );
   }
 
-  const serviceFee = event.eventFee * 0.1 >= 1.50 ? event.eventFee * 0.1 : 1.50;
-  const total = event.eventFee + serviceFee;
-
-  const eventDate = new Date(event.eventDate);
-  const formattedDate = eventDate.toLocaleDateString('en-US', { 
-    month: 'short', 
-    day: 'numeric' 
-  });
-  const formattedTime = eventDate.toLocaleTimeString('en-US', { 
-    hour: 'numeric', 
-    minute: '2-digit' 
-  });
+  const serviceFee = club.membershipFee * 0.1 >= 1.50 ? club.membershipFee * 0.1 : 1.50;
+  const total = club.membershipFee + serviceFee;
 
   return (
     <div className="relative flex min-h-screen w-full flex-col overflow-x-hidden bg-background-light dark:bg-background-dark text-slate-900 dark:text-white font-display antialiased">
       <Navbar />
       <main className="layout-container flex grow flex-col w-full max-w-[1280px] mx-auto p-4 md:p-8 lg:p-10">
         <Link
-          to={`/events/${id}`}
+          to={`/clubs/${id}`}
           className="inline-flex items-center gap-2 text-slate-500 hover:text-primary transition-colors mb-6 text-sm font-medium w-fit"
         >
           <span className="material-symbols-outlined text-[18px]">arrow_back</span>
-          Back to Event Details
+          Back to Club Details
         </Link>
 
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 lg:gap-12 items-start">
@@ -434,7 +414,7 @@ const EventCheckout = () => {
             {clientSecret && (
               <Elements stripe={stripePromise} options={{ clientSecret }}>
                 <CheckoutForm
-                  event={event}
+                  club={club}
                   clientSecret={clientSecret}
                   paymentIntentId={paymentIntentId}
                   onSuccess={handleSuccess}
@@ -454,21 +434,21 @@ const EventCheckout = () => {
                   <div className="flex gap-4 p-4 rounded-2xl bg-background-light dark:bg-surface-dark-lighter border border-black/5 dark:border-white/5">
                     <div
                       className="w-20 h-20 shrink-0 rounded-xl bg-cover bg-center"
-                      style={{ backgroundImage: `url("${event.image || 'https://via.placeholder.com/80'}")` }}
+                      style={{ backgroundImage: `url("${club.bannerImage || club.image || 'https://via.placeholder.com/80'}")` }}
                     ></div>
                     <div className="flex flex-col justify-center gap-1">
-                      <h4 className="font-bold text-slate-900 dark:text-white leading-tight">{event.title}</h4>
-                      <p className="text-xs text-slate-500 dark:text-slate-400">{formattedDate} • {formattedTime}</p>
-                      <p className="text-xs text-slate-500 dark:text-slate-400">{event.location}</p>
+                      <h4 className="font-bold text-slate-900 dark:text-white leading-tight">{club.clubName}</h4>
+                      <p className="text-xs text-slate-500 dark:text-slate-400">{club.category}</p>
+                      <p className="text-xs text-slate-500 dark:text-slate-400">{club.location}</p>
                     </div>
                   </div>
                   <div className="space-y-4">
                     <div className="flex justify-between items-center text-sm">
                       <div className="flex flex-col">
-                        <span className="text-slate-900 dark:text-white font-medium">General Admission</span>
-                        <span className="text-slate-500 dark:text-slate-400 text-xs">Tier 1 Ticket x 1</span>
+                        <span className="text-slate-900 dark:text-white font-medium">Monthly Membership</span>
+                        <span className="text-slate-500 dark:text-slate-400 text-xs">Membership fee x 1</span>
                       </div>
-                      <span className="text-slate-900 dark:text-white font-medium">৳{event.eventFee.toFixed(2)}</span>
+                      <span className="text-slate-900 dark:text-white font-medium">৳{club.membershipFee.toFixed(2)}</span>
                     </div>
                     <div className="flex justify-between items-center text-sm">
                       <div className="flex flex-col">
@@ -485,6 +465,11 @@ const EventCheckout = () => {
                         <span className="text-2xl font-bold text-primary">৳{total.toFixed(2)}</span>
                       </div>
                     </div>
+                    <div className="bg-primary/10 rounded-xl p-3 mt-4">
+                      <p className="text-xs text-slate-600 dark:text-slate-300">
+                        <span className="font-bold">14-day free trial</span> included. Cancel anytime.
+                      </p>
+                    </div>
                   </div>
                 </div>
               </div>
@@ -494,7 +479,7 @@ const EventCheckout = () => {
                   <div className="text-sm">
                     <p className="font-bold text-slate-900 dark:text-white mb-1">Need help?</p>
                     <p className="text-slate-600 dark:text-slate-300 leading-relaxed">
-                      If you have any questions about your registration, please contact the event organizer directly.
+                      If you have any questions about membership, please contact the club organizer directly.
                     </p>
                     <a className="text-primary font-bold mt-2 inline-block hover:underline" href="#">
                       Contact Organizer
@@ -510,5 +495,5 @@ const EventCheckout = () => {
   );
 };
 
-export default EventCheckout;
+export default ClubCheckout;
 

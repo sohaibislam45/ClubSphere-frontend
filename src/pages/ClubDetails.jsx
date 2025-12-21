@@ -1,13 +1,18 @@
-import { useEffect } from 'react';
-import { useParams } from 'react-router-dom';
+import { useEffect, useState } from 'react';
+import { useParams, useNavigate } from 'react-router-dom';
 import { useQuery } from '@tanstack/react-query';
 import Navbar from '../components/layout/Navbar';
 import Footer from '../components/layout/Footer';
 import Loader from '../components/ui/Loader';
 import api from '../lib/api';
+import { useAuth } from '../context/AuthContext';
+import Swal from '../lib/sweetalertConfig';
 
 const ClubDetails = () => {
   const { id } = useParams();
+  const navigate = useNavigate();
+  const { isAuthenticated } = useAuth();
+  const [isJoining, setIsJoining] = useState(false);
 
   // Fetch club details from API
   const { data: club, isLoading } = useQuery({
@@ -29,6 +34,61 @@ const ClubDetails = () => {
   });
 
   const upcomingEvents = eventsData?.events || [];
+
+  const handleJoinClick = async () => {
+    // Check if user is authenticated
+    if (!isAuthenticated()) {
+      Swal.fire({
+        icon: 'info',
+        title: 'Login Required',
+        text: 'Please login to join this club.',
+        showCancelButton: true,
+        confirmButtonText: 'Login',
+        cancelButtonText: 'Cancel'
+      }).then((result) => {
+        if (result.isConfirmed) {
+          navigate('/login', { state: { returnTo: `/clubs/${id}` } });
+        }
+      });
+      return;
+    }
+
+    // If club has membership fee, navigate to checkout
+    if (club.membershipFee > 0) {
+      navigate(`/clubs/${id}/checkout`);
+      return;
+    }
+
+    // If club is free, register directly
+    setIsJoining(true);
+    try {
+      const response = await api.post('/api/payments/club/register-free', {
+        clubId: id
+      });
+
+      if (response.data.success) {
+        Swal.fire({
+          icon: 'success',
+          title: 'Welcome to the Club!',
+          text: 'You have successfully joined this club.',
+          timer: 3000,
+          showConfirmButton: false
+        }).then(() => {
+          // Refresh club data to update member count
+          window.location.reload();
+        });
+      }
+    } catch (error) {
+      console.error('Join club error:', error);
+      Swal.fire({
+        icon: 'error',
+        title: 'Join Failed',
+        text: error.response?.data?.error || 'Failed to join this club. Please try again.',
+      });
+    } finally {
+      setIsJoining(false);
+    }
+  };
 
   // Set document title - must be called before any early returns (Rules of Hooks)
   useEffect(() => {
@@ -224,8 +284,12 @@ const ClubDetails = () => {
                     <span className="material-symbols-outlined text-primary text-2xl">verified</span>
                   </div>
                 </div>
-                <button className="w-full bg-primary text-black font-bold text-lg py-4 rounded-xl hover:bg-primary/90 hover:scale-[1.02] active:scale-[0.98] transition-all shadow-[0_0_20px_-5px_rgba(56,224,123,0.4)] mb-4">
-                  Join Club
+                <button 
+                  onClick={handleJoinClick}
+                  disabled={isJoining}
+                  className="w-full bg-primary text-black font-bold text-lg py-4 rounded-xl hover:bg-primary/90 hover:scale-[1.02] active:scale-[0.98] transition-all shadow-[0_0_20px_-5px_rgba(56,224,123,0.4)] mb-4 disabled:opacity-50 disabled:cursor-not-allowed"
+                >
+                  {isJoining ? 'Processing...' : 'Join Club'}
                 </button>
                 <p className="text-center text-xs text-slate-400 dark:text-[#6b7d72] mb-6">Cancel anytime. 14-day free trial included.</p>
                 <hr className="border-slate-200 dark:border-[#29382f] mb-6" />
