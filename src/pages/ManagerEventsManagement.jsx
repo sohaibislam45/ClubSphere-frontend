@@ -22,6 +22,9 @@ const ManagerEventsManagement = () => {
   const [showDeleteModal, setShowDeleteModal] = useState(false);
   const [selectedEventId, setSelectedEventId] = useState(null);
   const [editingEvent, setEditingEvent] = useState(null);
+  const [selectedImage, setSelectedImage] = useState(null);
+  const [imagePreview, setImagePreview] = useState(null);
+  const [isUploadingImage, setIsUploadingImage] = useState(false);
   const [formData, setFormData] = useState({
     name: '',
     description: '',
@@ -36,6 +39,48 @@ const ManagerEventsManagement = () => {
   });
 
   const queryClient = useQueryClient();
+
+  // Upload image to ImgBB
+  const uploadImageToImgBB = async (file) => {
+    if (!import.meta.env.VITE_IMGBB_API_KEY) {
+      console.warn('ImgBB API key is not configured. Skipping image upload.');
+      return null;
+    }
+
+    const formData = new FormData();
+    formData.append('image', file);
+    formData.append('key', import.meta.env.VITE_IMGBB_API_KEY);
+
+    try {
+      const response = await fetch('https://api.imgbb.com/1/upload', {
+        method: 'POST',
+        body: formData
+      });
+
+      const data = await response.json();
+      if (data.success) {
+        return data.data.url;
+      }
+      throw new Error('Failed to get image URL from ImgBB');
+    } catch (error) {
+      console.error('Image upload failed:', error);
+      throw error;
+    }
+  };
+
+  // Handle image file selection
+  const handleImageSelect = (e) => {
+    const file = e.target.files[0];
+    if (file) {
+      setSelectedImage(file);
+      // Create preview
+      const reader = new FileReader();
+      reader.onloadend = () => {
+        setImagePreview(reader.result);
+      };
+      reader.readAsDataURL(file);
+    }
+  };
 
   // Fetch events
   const { data: eventsData, isLoading } = useQuery({
@@ -82,6 +127,8 @@ const ManagerEventsManagement = () => {
         image: '',
         clubId: clubIdFromQuery || ''
       });
+      setSelectedImage(null);
+      setImagePreview(null);
     }
   });
 
@@ -107,6 +154,8 @@ const ManagerEventsManagement = () => {
         image: '',
         clubId: clubIdFromQuery || ''
       });
+      setSelectedImage(null);
+      setImagePreview(null);
     }
   });
 
@@ -153,10 +202,29 @@ const ManagerEventsManagement = () => {
     return `${hour12}:${minutes || '00'} ${period}`;
   };
 
-  const handleCreateEvent = (e) => {
+  const handleCreateEvent = async (e) => {
     e.preventDefault();
+    
+    let imageURL = formData.image || null;
+    
+    // Upload image if a file is selected
+    if (selectedImage && import.meta.env.VITE_IMGBB_API_KEY) {
+      setIsUploadingImage(true);
+      try {
+        imageURL = await uploadImageToImgBB(selectedImage);
+      } catch (error) {
+        console.warn('Image upload failed, continuing without image:', error);
+        alert('Image upload failed. Please try again or continue without image.');
+        setIsUploadingImage(false);
+        return;
+      } finally {
+        setIsUploadingImage(false);
+      }
+    }
+    
     const eventData = {
       ...formData,
+      image: imageURL,
       time: convertTo12Hour(formData.time), // Convert to 12-hour format for backend
       price: formData.isPaid ? parseFloat(formData.price) : 0,
       maxAttendees: parseInt(formData.maxAttendees) || 0
@@ -198,6 +266,8 @@ const ManagerEventsManagement = () => {
     }
     
     setEditingEvent(event);
+    setSelectedImage(null);
+    setImagePreview(event.image || null);
     setFormData({
       name: event.name || '',
       description: event.description || '',
@@ -213,12 +283,30 @@ const ManagerEventsManagement = () => {
     setShowEditModal(true);
   };
 
-  const handleUpdateEvent = (e) => {
+  const handleUpdateEvent = async (e) => {
     e.preventDefault();
     if (!editingEvent) return;
     
+    let imageURL = formData.image || null;
+    
+    // Upload image if a new file is selected
+    if (selectedImage && import.meta.env.VITE_IMGBB_API_KEY) {
+      setIsUploadingImage(true);
+      try {
+        imageURL = await uploadImageToImgBB(selectedImage);
+      } catch (error) {
+        console.warn('Image upload failed, continuing without image:', error);
+        alert('Image upload failed. Please try again or continue without image.');
+        setIsUploadingImage(false);
+        return;
+      } finally {
+        setIsUploadingImage(false);
+      }
+    }
+    
     const eventData = {
       ...formData,
+      image: imageURL,
       time: convertTo12Hour(formData.time), // Convert to 12-hour format for backend
       price: formData.isPaid ? parseFloat(formData.price) : 0,
       maxAttendees: parseInt(formData.maxAttendees) || 0
@@ -527,29 +615,43 @@ const ManagerEventsManagement = () => {
                     onChange={(e) => setFormData({ ...formData, description: e.target.value })}
                   ></textarea>
                 </div>
-                {/* Image URL */}
+                {/* Image Upload */}
                 <div className="space-y-2">
-                  <label className="text-sm font-medium text-[#9eb7a8]">Event Image URL</label>
+                  <label className="text-sm font-medium text-[#9eb7a8]">Event Image</label>
                   <div className="relative">
-                    <span className="material-symbols-outlined absolute left-3 top-3 text-[#5c6b62] text-lg">image</span>
                     <input
-                      className="w-full bg-[#122017] border border-[#29382f] rounded-xl pl-10 pr-4 py-3 text-white placeholder-[#5c6b62] focus:ring-1 focus:ring-primary focus:border-primary transition-all"
-                      placeholder="https://example.com/image.jpg"
-                      type="url"
-                      value={formData.image}
-                      onChange={(e) => setFormData({ ...formData, image: e.target.value })}
+                      type="file"
+                      accept="image/*"
+                      onChange={handleImageSelect}
+                      className="hidden"
+                      id="event-image-upload-edit"
                     />
+                    <label
+                      htmlFor="event-image-upload-edit"
+                      className="flex items-center justify-center gap-2 w-full bg-[#122017] border border-[#29382f] rounded-xl px-4 py-3 text-white hover:bg-[#1a2a1f] hover:border-primary/50 transition-all cursor-pointer"
+                    >
+                      <span className="material-symbols-outlined">image</span>
+                      <span className="text-sm">
+                        {selectedImage ? selectedImage.name : imagePreview ? 'Change Image' : 'Choose Image File'}
+                      </span>
+                    </label>
                   </div>
-                  {formData.image && (
+                  {(imagePreview || selectedImage) && (
                     <div className="mt-2 rounded-xl overflow-hidden border border-[#29382f]">
                       <img 
-                        src={formData.image} 
+                        src={imagePreview || (selectedImage ? URL.createObjectURL(selectedImage) : '')} 
                         alt="Event preview" 
                         className="w-full h-32 object-cover"
                         onError={(e) => {
                           e.target.style.display = 'none';
                         }}
                       />
+                    </div>
+                  )}
+                  {isUploadingImage && (
+                    <div className="flex items-center gap-2 text-primary text-sm">
+                      <div className="w-4 h-4 border-2 border-primary border-t-transparent rounded-full animate-spin"></div>
+                      <span>Uploading image...</span>
                     </div>
                   )}
                 </div>
@@ -738,29 +840,43 @@ const ManagerEventsManagement = () => {
                     onChange={(e) => setFormData({ ...formData, description: e.target.value })}
                   ></textarea>
                 </div>
-                {/* Image URL */}
+                {/* Image Upload */}
                 <div className="space-y-2">
-                  <label className="text-sm font-medium text-[#9eb7a8]">Event Image URL</label>
+                  <label className="text-sm font-medium text-[#9eb7a8]">Event Image</label>
                   <div className="relative">
-                    <span className="material-symbols-outlined absolute left-3 top-3 text-[#5c6b62] text-lg">image</span>
                     <input
-                      className="w-full bg-[#122017] border border-[#29382f] rounded-xl pl-10 pr-4 py-3 text-white placeholder-[#5c6b62] focus:ring-1 focus:ring-primary focus:border-primary transition-all"
-                      placeholder="https://example.com/image.jpg"
-                      type="url"
-                      value={formData.image}
-                      onChange={(e) => setFormData({ ...formData, image: e.target.value })}
+                      type="file"
+                      accept="image/*"
+                      onChange={handleImageSelect}
+                      className="hidden"
+                      id="event-image-upload-edit"
                     />
+                    <label
+                      htmlFor="event-image-upload-edit"
+                      className="flex items-center justify-center gap-2 w-full bg-[#122017] border border-[#29382f] rounded-xl px-4 py-3 text-white hover:bg-[#1a2a1f] hover:border-primary/50 transition-all cursor-pointer"
+                    >
+                      <span className="material-symbols-outlined">image</span>
+                      <span className="text-sm">
+                        {selectedImage ? selectedImage.name : imagePreview ? 'Change Image' : 'Choose Image File'}
+                      </span>
+                    </label>
                   </div>
-                  {formData.image && (
+                  {(imagePreview || selectedImage) && (
                     <div className="mt-2 rounded-xl overflow-hidden border border-[#29382f]">
                       <img 
-                        src={formData.image} 
+                        src={imagePreview || (selectedImage ? URL.createObjectURL(selectedImage) : '')} 
                         alt="Event preview" 
                         className="w-full h-32 object-cover"
                         onError={(e) => {
                           e.target.style.display = 'none';
                         }}
                       />
+                    </div>
+                  )}
+                  {isUploadingImage && (
+                    <div className="flex items-center gap-2 text-primary text-sm">
+                      <div className="w-4 h-4 border-2 border-primary border-t-transparent rounded-full animate-spin"></div>
+                      <span>Uploading image...</span>
                     </div>
                   )}
                 </div>
@@ -863,6 +979,8 @@ const ManagerEventsManagement = () => {
                     onClick={() => {
                       setShowEditModal(false);
                       setEditingEvent(null);
+                      setSelectedImage(null);
+                      setImagePreview(null);
                     }}
                     className="flex-1 px-4 py-3 rounded-xl border border-[#29382f] text-white font-bold hover:bg-[#29382f] transition-colors"
                   >
@@ -870,13 +988,13 @@ const ManagerEventsManagement = () => {
                   </button>
                   <button
                     type="submit"
-                    disabled={updateMutation.isLoading}
+                    disabled={updateMutation.isLoading || isUploadingImage}
                     className="flex-1 px-4 py-3 rounded-xl bg-primary text-[#0a2012] font-bold shadow-lg shadow-primary/20 hover:bg-primary/90 transition-colors disabled:opacity-50 flex items-center justify-center gap-2"
                   >
-                    {updateMutation.isLoading && (
+                    {(updateMutation.isLoading || isUploadingImage) && (
                       <div className="w-5 h-5 border-2 border-[#0a2012] border-t-transparent rounded-full animate-spin"></div>
                     )}
-                    {updateMutation.isLoading ? 'Saving...' : 'Update Event'}
+                    {isUploadingImage ? 'Uploading...' : updateMutation.isLoading ? 'Saving...' : 'Update Event'}
                   </button>
                 </div>
               </form>
