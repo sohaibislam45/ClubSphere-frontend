@@ -983,9 +983,7 @@ const AddClubModal = ({ isOpen, onClose, onSubmit, isLoading }) => {
               >
                 {isLoading || isUploadingImage ? (
                   <>
-                    <div className="flex items-center justify-center">
-                      <div className="w-5 h-5 border-2 border-black border-t-transparent rounded-full animate-spin"></div>
-                    </div>
+                    <div className="w-5 h-5 border-2 border-black border-t-transparent rounded-full animate-spin"></div>
                     <span>{isUploadingImage ? 'Uploading...' : 'Creating...'}</span>
                   </>
                 ) : (
@@ -1504,9 +1502,7 @@ const EditClubModal = ({ isOpen, onClose, clubId, onSubmit, isLoading }) => {
                 >
                   {isLoading || isUploadingImage ? (
                     <>
-                      <div className="flex items-center justify-center">
-                        <div className="w-5 h-5 border-2 border-black border-t-transparent rounded-full animate-spin"></div>
-                      </div>
+                      <div className="w-5 h-5 border-2 border-black border-t-transparent rounded-full animate-spin"></div>
                       <span>{isUploadingImage ? 'Uploading...' : 'Updating...'}</span>
                     </>
                   ) : (

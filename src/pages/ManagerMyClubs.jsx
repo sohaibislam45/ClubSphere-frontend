@@ -675,8 +675,11 @@ const ManagerMyClubs = () => {
                 <button
                   type="submit"
                   disabled={createClubMutation.isLoading || isUploadingImage}
-                  className="flex-1 px-6 py-3 rounded-lg bg-primary text-background-dark hover:bg-primary-hover transition-colors font-bold disabled:opacity-50 disabled:cursor-not-allowed"
+                  className="flex-1 px-6 py-3 rounded-lg bg-primary text-background-dark hover:bg-primary-hover transition-colors font-bold disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2"
                 >
+                  {(createClubMutation.isLoading || isUploadingImage) && (
+                    <div className="w-5 h-5 border-2 border-background-dark border-t-transparent rounded-full animate-spin"></div>
+                  )}
                   {isUploadingImage ? 'Uploading...' : createClubMutation.isLoading ? 'Creating...' : 'Create Club'}
                 </button>
               </div>
@@ -841,8 +844,11 @@ const ManagerMyClubs = () => {
                 <button
                   type="submit"
                   disabled={updateClubMutation.isLoading || isUploadingImage}
-                  className="flex-1 px-6 py-3 rounded-lg bg-primary text-background-dark hover:bg-primary-hover transition-colors font-bold disabled:opacity-50 disabled:cursor-not-allowed"
+                  className="flex-1 px-6 py-3 rounded-lg bg-primary text-background-dark hover:bg-primary-hover transition-colors font-bold disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2"
                 >
+                  {(updateClubMutation.isLoading || isUploadingImage) && (
+                    <div className="w-5 h-5 border-2 border-background-dark border-t-transparent rounded-full animate-spin"></div>
+                  )}
                   {isUploadingImage ? 'Uploading...' : updateClubMutation.isLoading ? 'Updating...' : 'Update Club'}
                 </button>
               </div>

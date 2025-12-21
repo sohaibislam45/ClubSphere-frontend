@@ -9,31 +9,24 @@ import api from '../lib/api';
 const EventDetails = () => {
   const { id } = useParams();
 
-  // Fetch event details - using mock data for now
-  const { data: event, isLoading } = useQuery({
+  // Fetch event details from API
+  const { data: event, isLoading, error } = useQuery({
     queryKey: ['event', id],
     queryFn: async () => {
-      // TODO: Replace with actual API call
-      // const response = await api.get(`/events/${id}`);
-      // return response.data;
-      
-      // Mock data
-      return {
-        id: 1,
-        title: "Neon Night Run",
-        description: "Join us for an exhilarating night run through Central Park! We'll be running with neon gear and headlamps, creating an amazing visual experience. All fitness levels welcome.",
-        eventDate: "2024-10-24T19:00:00",
-        location: "Central Park, New York, NY",
-        eventFee: 0,
-        isPaid: false,
-        maxAttendees: 100,
-        currentAttendees: 45,
-        clubName: "City Runners",
-        clubId: 1,
-        image: "https://lh3.googleusercontent.com/aida-public/AB6AXuAwhj2rEWhnFgzxlCMRBfgO0TYn8VE2XvZ4aSyaKZTm-mJiw6rqHQGYtVXkRo8iR_1mlfkH0lJ84kUdO68Gt6MbFxToEZOCmVWGdU-NhGr7MxdOx5mq2yJ_ph4th0DTQKc_WMzSUj96-wz4-OM3W0QWAQnqZQ0QZcOawHCXAMkNHP5S2f26rAJoAg3L_NldttCOysJ-SRQNgF7jC4opJf0oE4bgrmKQjBVVkp9gGvp_PrQJQLvxd5zOwd2ut8b0sqfiBxJs_fZSthBD"
-      };
+      const response = await api.get(`/api/events/${id}`);
+      return response.data;
     },
+    enabled: !!id, // Only fetch if id exists
   });
+
+  // Set document title - must be called before any conditional returns
+  useEffect(() => {
+    if (event) {
+      document.title = `${event.title} - ClubSphere`;
+    } else {
+      document.title = 'Event Details - ClubSphere';
+    }
+  }, [event]);
 
   if (isLoading) {
     return (
@@ -46,20 +39,14 @@ const EventDetails = () => {
     );
   }
 
-  useEffect(() => {
-    if (event) {
-      document.title = `${event.title} - ClubSphere`;
-    } else {
-      document.title = 'Event Details - ClubSphere';
-    }
-  }, [event]);
-
-  if (!event) {
+  if (error || !event) {
     return (
       <div className="flex flex-col min-h-screen bg-background-light dark:bg-background-dark-alt text-slate-900 dark:text-white font-display">
         <Navbar />
         <div className="flex-1 flex items-center justify-center">
-          <div className="text-text-secondary">Event not found</div>
+          <div className="text-text-secondary">
+            {error ? 'Error loading event details' : 'Event not found'}
+          </div>
         </div>
       </div>
     );

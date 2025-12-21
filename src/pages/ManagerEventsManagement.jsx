@@ -517,8 +517,11 @@ const ManagerEventsManagement = () => {
                   <button
                     type="submit"
                     disabled={createMutation.isLoading}
-                    className="flex-1 px-4 py-3 rounded-xl bg-primary text-[#0a2012] font-bold shadow-lg shadow-primary/20 hover:bg-primary/90 transition-colors disabled:opacity-50"
+                    className="flex-1 px-4 py-3 rounded-xl bg-primary text-[#0a2012] font-bold shadow-lg shadow-primary/20 hover:bg-primary/90 transition-colors disabled:opacity-50 flex items-center justify-center gap-2"
                   >
+                    {createMutation.isLoading && (
+                      <div className="w-5 h-5 border-2 border-[#0a2012] border-t-transparent rounded-full animate-spin"></div>
+                    )}
                     {createMutation.isLoading ? 'Saving...' : 'Save Event'}
                   </button>
                 </div>
@@ -547,8 +550,11 @@ const ManagerEventsManagement = () => {
                 <button
                   onClick={handleDeleteEvent}
                   disabled={deleteMutation.isLoading}
-                  className="flex-1 py-3 rounded-xl bg-red-500 text-white font-medium hover:bg-red-600 transition-colors disabled:opacity-50"
+                  className="flex-1 py-3 rounded-xl bg-red-500 text-white font-medium hover:bg-red-600 transition-colors disabled:opacity-50 flex items-center justify-center gap-2"
                 >
+                  {deleteMutation.isLoading && (
+                    <div className="w-5 h-5 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
+                  )}
                   {deleteMutation.isLoading ? 'Deleting...' : 'Delete'}
                 </button>
               </div>
