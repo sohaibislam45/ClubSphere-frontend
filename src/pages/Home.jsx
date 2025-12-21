@@ -1,6 +1,6 @@
 import { useEffect } from 'react';
 import { motion } from 'framer-motion';
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import { useQuery } from '@tanstack/react-query';
 import Navbar from '../components/layout/Navbar';
 import Footer from '../components/layout/Footer';
@@ -8,6 +8,8 @@ import api from '../lib/api';
 import Loader from '../components/ui/Loader';
 
 const Home = () => {
+  const navigate = useNavigate();
+  
   useEffect(() => {
     document.title = 'Home - ClubSphere | Discover Local Communities';
   }, []);
@@ -139,7 +141,8 @@ const Home = () => {
                     initial={{ opacity: 0, y: 20 }}
                     animate={{ opacity: 1, y: 0 }}
                     transition={{ duration: 0.5, delay: 0.6 + index * 0.1 }}
-                    className="group flex flex-col bg-card-dark border border-border-dark rounded-2xl overflow-hidden hover:border-primary/50 transition-all duration-300"
+                    onClick={() => navigate(`/clubs/${club.id}`)}
+                    className="group flex flex-col bg-card-dark border border-border-dark rounded-2xl overflow-hidden hover:border-primary/50 transition-all duration-300 cursor-pointer"
                   >
                     <div className="relative w-full h-48 overflow-hidden">
                       <div 
@@ -162,7 +165,13 @@ const Home = () => {
                         <div className="flex items-center gap-1.5 text-xs font-medium text-text-secondary">
                           <span className="material-symbols-outlined text-base">group</span> {club.members}
                         </div>
-                        <button className="text-sm font-bold text-white hover:text-primary transition-colors flex items-center gap-1">
+                        <button 
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            navigate(`/clubs/${club.id}`);
+                          }}
+                          className="text-sm font-bold text-white hover:text-primary transition-colors flex items-center gap-1"
+                        >
                           Join Club <span className="material-symbols-outlined text-sm">chevron_right</span>
                         </button>
                       </div>
@@ -202,7 +211,8 @@ const Home = () => {
                     initial={{ opacity: 0, y: 20 }}
                     animate={{ opacity: 1, y: 0 }}
                     transition={{ duration: 0.5, delay: 0.8 + index * 0.1 }}
-                    className="flex flex-col bg-card-dark border border-border-dark rounded-2xl overflow-hidden group hover:border-primary/50 transition-all duration-300"
+                    onClick={() => navigate(`/events/${event.id}`)}
+                    className="flex flex-col bg-card-dark border border-border-dark rounded-2xl overflow-hidden group hover:border-primary/50 transition-all duration-300 cursor-pointer"
                   >
                     <div className="relative h-48 w-full overflow-hidden">
                       <div 
@@ -230,7 +240,13 @@ const Home = () => {
                           <span>{event.location || 'Location TBA'}</span>
                         </div>
                       </div>
-                      <button className="mt-4 w-full py-2.5 rounded-lg bg-[#29382f] text-white font-bold text-sm hover:bg-primary hover:text-background-dark transition-colors">
+                      <button 
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          navigate(`/events/${event.id}`);
+                        }}
+                        className="mt-4 w-full py-2.5 rounded-lg bg-[#29382f] text-white font-bold text-sm hover:bg-primary hover:text-background-dark transition-colors"
+                      >
                         RSVP Now
                       </button>
                     </div>
