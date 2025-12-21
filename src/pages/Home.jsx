@@ -1,4 +1,4 @@
-import { useEffect } from 'react';
+import { useEffect, useMemo } from 'react';
 import { motion } from 'framer-motion';
 import { Link, useNavigate } from 'react-router-dom';
 import { useQuery } from '@tanstack/react-query';
@@ -7,13 +7,16 @@ import Footer from '../components/layout/Footer';
 import api from '../lib/api';
 import Loader from '../components/ui/Loader';
 import Swal from '../lib/sweetalertConfig';
+import { useAuth } from '../context/AuthContext';
 
 const Home = () => {
   const navigate = useNavigate();
+  const { isAuthenticated } = useAuth();
   
   useEffect(() => {
     document.title = 'Home - ClubSphere | Discover Local Communities';
   }, []);
+
   // Fetch featured clubs from API
   const { data: clubsData, isLoading: clubsLoading } = useQuery({
     queryKey: ['featured-clubs'],
@@ -22,6 +25,24 @@ const Home = () => {
       return response.data;
     }
   });
+
+  // Fetch user's club memberships (only if authenticated)
+  const { data: membershipsData } = useQuery({
+    queryKey: ['my-clubs'],
+    queryFn: async () => {
+      const response = await api.get('/api/memberships/my-clubs');
+      return response.data;
+    },
+    enabled: isAuthenticated() && !!localStorage.getItem('token'),
+    staleTime: 0,
+    refetchOnMount: true,
+  });
+
+  // Create a Set of club IDs the user is a member of for quick lookup
+  const joinedClubIds = useMemo(() => {
+    if (!membershipsData?.clubIds) return new Set();
+    return new Set(membershipsData.clubIds);
+  }, [membershipsData]);
 
   // Fetch Running & Upcoming Events from API
   const { data: eventsData, isLoading: eventsLoading } = useQuery({
@@ -171,9 +192,15 @@ const Home = () => {
                             e.stopPropagation();
                             navigate(`/clubs/${club.id}`);
                           }}
-                          className="text-sm font-bold text-white hover:text-primary transition-colors flex items-center gap-1"
+                          className={`text-sm font-bold transition-colors flex items-center gap-1 ${
+                            joinedClubIds.has(club.id)
+                              ? 'text-slate-400 dark:text-slate-500 cursor-default'
+                              : 'text-white hover:text-primary'
+                          }`}
+                          disabled={joinedClubIds.has(club.id)}
                         >
-                          Join Club <span className="material-symbols-outlined text-sm">chevron_right</span>
+                          {joinedClubIds.has(club.id) ? 'Joined' : 'Join Club'} 
+                          {!joinedClubIds.has(club.id) && <span className="material-symbols-outlined text-sm">chevron_right</span>}
                         </button>
                       </div>
                     </div>
@@ -244,6 +271,60 @@ const Home = () => {
                       <button 
                         onClick={(e) => {
                           e.stopPropagation();
+                          
+                          // Check if user is authenticated
+                          const isAuth = isAuthenticated() && !!localStorage.getItem('token');
+                          
+                          // If event has no clubId, allow RSVP (standalone event)
+                          if (!event.clubId) {
+                            if (isAuth) {
+                              navigate(`/events/${event.id}`);
+                            } else {
+                              Swal.fire({
+                                icon: 'info',
+                                title: 'Login Required',
+                                text: 'Please login to RSVP for this event.',
+                                confirmButtonText: 'Login',
+                                showCancelButton: true,
+                                cancelButtonText: 'Cancel'
+                              }).then((result) => {
+                                if (result.isConfirmed) {
+                                  navigate('/login', { state: { returnTo: `/events/${event.id}` } });
+                                }
+                              });
+                            }
+                            return;
+                          }
+                          
+                          // Check if user is a member of the event's club
+                          // Try both string and ObjectId formats
+                          const clubIdStr = event.clubId?.toString();
+                          const isMemberOfClub = clubIdStr && joinedClubIds.has(clubIdStr);
+                          
+                          // If user is authenticated and is a member, navigate to event details
+                          if (isAuth && isMemberOfClub) {
+                            navigate(`/events/${event.id}`);
+                            return;
+                          }
+                          
+                          // If user is not authenticated, prompt to login
+                          if (!isAuth) {
+                            Swal.fire({
+                              icon: 'info',
+                              title: 'Login Required',
+                              text: 'Please login to RSVP for this event.',
+                              confirmButtonText: 'Login',
+                              showCancelButton: true,
+                              cancelButtonText: 'Cancel'
+                            }).then((result) => {
+                              if (result.isConfirmed) {
+                                navigate('/login', { state: { returnTo: `/events/${event.id}` } });
+                              }
+                            });
+                            return;
+                          }
+                          
+                          // If user is authenticated but not a member, show join club modal
                           Swal.fire({
                             icon: 'info',
                             title: 'Join Club Required',
