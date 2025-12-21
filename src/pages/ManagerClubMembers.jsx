@@ -1,6 +1,6 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { Link, useParams, useNavigate } from 'react-router-dom';
-import { useQuery } from '@tanstack/react-query';
+import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { useAuth } from '../context/AuthContext';
 import api from '../lib/api';
 import ManagerSidebar from '../components/layout/ManagerSidebar';
@@ -12,7 +12,11 @@ const ManagerClubMembers = () => {
   const navigate = useNavigate();
   const [selectedClubId, setSelectedClubId] = useState(clubIdFromParams || '');
   const [search, setSearch] = useState('');
+  const [debouncedSearch, setDebouncedSearch] = useState('');
   const [statusFilter, setStatusFilter] = useState('All Members');
+  const [actionMenuOpen, setActionMenuOpen] = useState(null);
+  const actionMenuRef = useRef(null);
+  const queryClient = useQueryClient();
 
   useEffect(() => {
     document.title = 'Club Members - Club Manager - ClubSphere';
@@ -38,6 +42,33 @@ const ManagerClubMembers = () => {
     }
   }, [clubIdFromParams]);
 
+  // Debounce search input
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      setDebouncedSearch(search);
+      setPage(1); // Reset to first page when search changes
+    }, 300);
+
+    return () => clearTimeout(timer);
+  }, [search]);
+
+  // Close action menu when clicking outside
+  useEffect(() => {
+    const handleClickOutside = (event) => {
+      if (actionMenuRef.current && !actionMenuRef.current.contains(event.target)) {
+        setActionMenuOpen(null);
+      }
+    };
+
+    if (actionMenuOpen !== null) {
+      document.addEventListener('mousedown', handleClickOutside);
+    }
+
+    return () => {
+      document.removeEventListener('mousedown', handleClickOutside);
+    };
+  }, [actionMenuOpen]);
+
   const handleClubChange = (newClubId) => {
     setSelectedClubId(newClubId);
     setPage(1);
@@ -50,11 +81,19 @@ const ManagerClubMembers = () => {
 
   // Fetch club members
   const { data: membersData, isLoading, error } = useQuery({
-    queryKey: ['clubMembers', selectedClubId, search, statusFilter, page],
+    queryKey: ['clubMembers', selectedClubId, debouncedSearch, statusFilter, page],
     queryFn: async () => {
       const params = new URLSearchParams();
-      if (search) params.append('search', search);
-      if (statusFilter && statusFilter !== 'All Members') params.append('status', statusFilter);
+      if (debouncedSearch) params.append('search', debouncedSearch);
+      if (statusFilter && statusFilter !== 'All Members') {
+        // Map frontend filter names to backend status values
+        const statusMap = {
+          'Active': 'active',
+          'Expired': 'expired',
+          'Pending': 'pending'
+        };
+        params.append('status', statusMap[statusFilter] || statusFilter.toLowerCase());
+      }
       params.append('page', page.toString());
       params.append('limit', limit.toString());
       const response = await api.get(`/api/manager/clubs/${selectedClubId}/members?${params.toString()}`);
@@ -67,7 +106,7 @@ const ManagerClubMembers = () => {
   const stats = membersData?.stats || { totalMembers: 0, activeMembers: 0, pendingRenewals: 0 };
   const pagination = membersData?.pagination || { page: 1, totalPages: 1, total: 0 };
 
-  const statusFilters = ['All Members', 'Active', 'Expired', 'Pending Payment'];
+  const statusFilters = ['All Members', 'Active', 'Expired', 'Pending'];
 
   const getStatusBadge = (status) => {
     const statusLower = status?.toLowerCase() || 'active';
@@ -97,8 +136,37 @@ const ManagerClubMembers = () => {
   };
 
   const handleExportCSV = () => {
-    // TODO: Implement CSV export
-    console.log('Export CSV');
+    if (!selectedClubId || !members.length) {
+      alert('No members to export. Please select a club with members.');
+      return;
+    }
+
+    // Create CSV content
+    const headers = ['Name', 'Email', 'Status', 'Join Date', 'Role', 'Member ID'];
+    const rows = members.map(member => [
+      member.name || '',
+      member.email || '',
+      member.status || 'active',
+      member.joinDate || '',
+      member.role || 'member',
+      member.memberId || ''
+    ]);
+
+    const csvContent = [
+      headers.join(','),
+      ...rows.map(row => row.map(cell => `"${cell}"`).join(','))
+    ].join('\n');
+
+    // Create blob and download
+    const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+    const link = document.createElement('a');
+    const url = URL.createObjectURL(blob);
+    link.setAttribute('href', url);
+    link.setAttribute('download', `club-members-${selectedClubId}-${new Date().toISOString().split('T')[0]}.csv`);
+    link.style.visibility = 'hidden';
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
   };
 
   return (
@@ -226,7 +294,14 @@ const ManagerClubMembers = () => {
                     <span className="material-symbols-outlined text-[20px]">tune</span>
                   </button>
                 </div>
-                <button className="flex items-center justify-center gap-2 rounded-lg h-10 px-4 bg-primary text-surface-dark text-sm font-bold hover:bg-primary/90 transition-colors">
+                <button 
+                  onClick={() => {
+                    // Note: Adding members is typically done through the club join flow
+                    // This button could open a modal to invite members by email
+                    alert('Member invitation feature coming soon. Members can join clubs through the public club pages.');
+                  }}
+                  className="flex items-center justify-center gap-2 rounded-lg h-10 px-4 bg-primary text-surface-dark text-sm font-bold hover:bg-primary/90 transition-colors"
+                >
                   <span className="material-symbols-outlined text-[20px] icon-filled">add</span>
                   <span>Add Member</span>
                 </button>
@@ -315,9 +390,56 @@ const ManagerClubMembers = () => {
                               {member.role}
                             </td>
                             <td className="px-6 py-4 whitespace-nowrap text-right">
-                              <button className="text-text-secondary hover:text-white p-2 rounded-lg hover:bg-white/5 transition-colors">
-                                <span className="material-symbols-outlined text-[20px]">more_vert</span>
-                              </button>
+                              <div className="relative" ref={actionMenuOpen === member.id ? actionMenuRef : null}>
+                                <button 
+                                  onClick={() => setActionMenuOpen(actionMenuOpen === member.id ? null : member.id)}
+                                  className="text-text-secondary hover:text-white p-2 rounded-lg hover:bg-white/5 transition-colors"
+                                >
+                                  <span className="material-symbols-outlined text-[20px]">more_vert</span>
+                                </button>
+                                {actionMenuOpen === member.id && (
+                                  <div className="absolute right-0 mt-2 w-48 bg-surface-dark border border-border-dark rounded-xl shadow-lg z-50 overflow-hidden">
+                                    <div className="py-1">
+                                      <button
+                                        onClick={() => {
+                                          // View member details
+                                          alert(`Member Details:\n\nName: ${member.name}\nEmail: ${member.email}\nStatus: ${member.status}\nRole: ${member.role}\nJoin Date: ${member.joinDate}`);
+                                          setActionMenuOpen(null);
+                                        }}
+                                        className="w-full px-4 py-2 text-left text-sm text-white hover:bg-surface-highlight transition-colors flex items-center gap-2"
+                                      >
+                                        <span className="material-symbols-outlined text-lg">visibility</span>
+                                        <span>View Details</span>
+                                      </button>
+                                      <button
+                                        onClick={() => {
+                                          // Send message/email
+                                          window.location.href = `mailto:${member.email}`;
+                                          setActionMenuOpen(null);
+                                        }}
+                                        className="w-full px-4 py-2 text-left text-sm text-white hover:bg-surface-highlight transition-colors flex items-center gap-2"
+                                      >
+                                        <span className="material-symbols-outlined text-lg">email</span>
+                                        <span>Send Email</span>
+                                      </button>
+                                      <div className="border-t border-border-dark my-1"></div>
+                                      <button
+                                        onClick={() => {
+                                          if (window.confirm(`Are you sure you want to remove ${member.name} from this club?`)) {
+                                            // TODO: Implement remove member API call
+                                            alert('Remove member functionality will be implemented soon.');
+                                            setActionMenuOpen(null);
+                                          }
+                                        }}
+                                        className="w-full px-4 py-2 text-left text-sm text-red-400 hover:bg-red-500/10 transition-colors flex items-center gap-2"
+                                      >
+                                        <span className="material-symbols-outlined text-lg">person_remove</span>
+                                        <span>Remove Member</span>
+                                      </button>
+                                    </div>
+                                  </div>
+                                )}
+                              </div>
                             </td>
                           </tr>
                         ))
@@ -346,9 +468,22 @@ const ManagerClubMembers = () => {
                             <span className="sr-only">Previous</span>
                             <span className="material-symbols-outlined text-[20px]">chevron_left</span>
                           </button>
-                          {[...Array(Math.min(5, pagination.totalPages))].map((_, i) => {
-                            const pageNum = i + 1;
-                            return (
+                          {(() => {
+                            const maxPages = 5;
+                            let startPage = Math.max(1, page - Math.floor(maxPages / 2));
+                            let endPage = Math.min(pagination.totalPages, startPage + maxPages - 1);
+                            
+                            // Adjust start if we're near the end
+                            if (endPage - startPage < maxPages - 1) {
+                              startPage = Math.max(1, endPage - maxPages + 1);
+                            }
+                            
+                            const pages = [];
+                            for (let i = startPage; i <= endPage; i++) {
+                              pages.push(i);
+                            }
+                            
+                            return pages.map((pageNum) => (
                               <button
                                 key={pageNum}
                                 onClick={() => setPage(pageNum)}
@@ -360,8 +495,8 @@ const ManagerClubMembers = () => {
                               >
                                 {pageNum}
                               </button>
-                            );
-                          })}
+                            ));
+                          })()}
                           <button
                             onClick={() => setPage(Math.min(pagination.totalPages, page + 1))}
                             disabled={page === pagination.totalPages}
