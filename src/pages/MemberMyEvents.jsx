@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react';
-import { useQuery } from '@tanstack/react-query';
+import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
+import { useNavigate, Link } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 import MemberSidebar from '../components/layout/MemberSidebar';
 import Loader from '../components/ui/Loader';
@@ -8,6 +9,8 @@ import Swal from '../lib/sweetalertConfig';
 
 const MemberMyEvents = () => {
   const { user } = useAuth();
+  const navigate = useNavigate();
+  const queryClient = useQueryClient();
 
   useEffect(() => {
     document.title = 'My Events - ClubSphere';
@@ -51,6 +54,63 @@ const MemberMyEvents = () => {
     return date.toLocaleTimeString('en-US', { hour: 'numeric', minute: '2-digit' });
   };
 
+  // Cancel registration mutation
+  const cancelRegistrationMutation = useMutation({
+    mutationFn: async (registrationId) => {
+      const response = await api.delete(`/api/member/events/${registrationId}/cancel`);
+      return response.data;
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries(['myEvents']);
+      Swal.fire({
+        icon: 'success',
+        title: 'Success!',
+        text: 'Registration cancelled successfully',
+        timer: 2000,
+        showConfirmButton: false
+      });
+    },
+    onError: (error) => {
+      Swal.fire({
+        icon: 'error',
+        title: 'Error',
+        text: error.response?.data?.error || 'Failed to cancel registration'
+      });
+    }
+  });
+
+  const handleCancelRegistration = async (event, registrationId) => {
+    event.stopPropagation();
+    const result = await Swal.fire({
+      icon: 'warning',
+      title: 'Cancel Registration?',
+      text: 'Are you sure you want to cancel your registration? This action cannot be undone.',
+      showCancelButton: true,
+      confirmButtonText: 'Yes, Cancel',
+      cancelButtonText: 'No, Keep It',
+      confirmButtonColor: '#ef4444'
+    });
+
+    if (result.isConfirmed) {
+      cancelRegistrationMutation.mutate(registrationId);
+    }
+  };
+
+  const handleViewTicket = (event, eventId) => {
+    event.stopPropagation();
+    navigate(`/events/${eventId}`);
+  };
+
+  const handleViewDetails = (event, eventId) => {
+    event.stopPropagation();
+    navigate(`/events/${eventId}`);
+  };
+
+  const handleManageWaitlist = (event, eventId) => {
+    event.stopPropagation();
+    navigate(`/events/${eventId}`);
+  };
+
   return (
     <div className="bg-background-light dark:bg-background-dark text-slate-900 dark:text-white font-display antialiased overflow-hidden h-screen flex">
       <MemberSidebar />
@@ -69,10 +129,13 @@ const MemberMyEvents = () => {
                   Track your upcoming schedule, manage registrations, and view your event history.
                 </p>
               </div>
-              <button className="flex items-center gap-2 bg-primary hover:bg-primary/90 text-background-dark px-6 py-3 rounded-full font-bold transition-transform active:scale-95 shadow-lg shadow-primary/20">
+              <Link 
+                to="/dashboard/member/discover"
+                className="flex items-center gap-2 bg-primary hover:bg-primary/90 text-background-dark px-6 py-3 rounded-full font-bold transition-transform active:scale-95 shadow-lg shadow-primary/20"
+              >
                 <span className="material-symbols-outlined">explore</span>
                 Browse Events
-              </button>
+              </Link>
             </div>
 
             {/* Controls: Search & Tabs */}
@@ -174,7 +237,12 @@ const MemberMyEvents = () => {
                 </div>
                 <h3 className="text-xl font-bold text-white">No {activeTab} events</h3>
                 <p className="text-gray-400 mt-2 mb-6">You haven't registered for any {activeTab} events yet.</p>
-                <button className="text-primary font-bold hover:underline">Explore Local Clubs</button>
+                <Link 
+                  to="/dashboard/member/discover"
+                  className="text-primary font-bold hover:underline"
+                >
+                  Explore Local Clubs
+                </Link>
               </div>
             ) : (
               <div className="rounded-2xl border border-white/10 bg-surface-dark overflow-hidden shadow-xl z-10 relative">
@@ -191,7 +259,11 @@ const MemberMyEvents = () => {
                     </thead>
                     <tbody className="divide-y divide-white/5">
                       {events.map((event) => (
-                        <tr key={event.id} className="group hover:bg-white/5 transition-colors">
+                        <tr 
+                          key={event.id} 
+                          className="group hover:bg-white/5 transition-colors cursor-pointer"
+                          onClick={() => navigate(`/events/${event.eventId || event.id}`)}
+                        >
                           <td className="px-6 py-4">
                             <div className="flex items-center gap-4">
                               <div
@@ -215,7 +287,7 @@ const MemberMyEvents = () => {
                           <td className="px-6 py-4">
                             <div className="flex items-center gap-2 text-gray-300 text-sm">
                               <span className="material-symbols-outlined text-base text-gray-500">
-                                {event.location.includes('Trail') || event.location.includes('Park') ? 'landscape' : 'location_on'}
+                                {event.location?.includes('Trail') || event.location?.includes('Park') ? 'landscape' : 'location_on'}
                               </span>
                               {event.location}
                             </div>
@@ -227,19 +299,32 @@ const MemberMyEvents = () => {
                           </td>
                           <td className="px-6 py-4 text-right">
                             {event.status === 'cancelled' ? (
-                              <button className="text-white hover:text-red-400 text-sm font-semibold transition-colors">
+                              <button 
+                                onClick={(e) => handleViewDetails(e, event.eventId || event.id)}
+                                className="text-white hover:text-red-400 text-sm font-semibold transition-colors"
+                              >
                                 View Details
                               </button>
                             ) : event.statusColor === 'blue' ? (
-                              <button className="text-white hover:text-red-400 text-sm font-semibold transition-colors">
-                                Cancel Request
+                              <button 
+                                onClick={(e) => handleCancelRegistration(e, event.id)}
+                                className="text-white hover:text-red-400 text-sm font-semibold transition-colors"
+                                disabled={cancelRegistrationMutation.isLoading}
+                              >
+                                {cancelRegistrationMutation.isLoading ? 'Cancelling...' : 'Cancel Request'}
                               </button>
                             ) : event.status === 'waitlisted' ? (
-                              <button className="text-white hover:text-primary text-sm font-semibold transition-colors">
+                              <button 
+                                onClick={(e) => handleManageWaitlist(e, event.eventId || event.id)}
+                                className="text-white hover:text-primary text-sm font-semibold transition-colors"
+                              >
                                 Manage
                               </button>
                             ) : (
-                              <button className="text-white hover:text-primary text-sm font-semibold transition-colors">
+                              <button 
+                                onClick={(e) => handleViewTicket(e, event.eventId || event.id)}
+                                className="text-white hover:text-primary text-sm font-semibold transition-colors"
+                              >
                                 View Ticket
                               </button>
                             )}
