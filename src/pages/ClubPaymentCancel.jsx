@@ -49,8 +49,8 @@ const ClubPaymentCancel = () => {
     );
   }
 
-  const serviceFee = club.membershipFee * 0.1 >= 1.50 ? club.membershipFee * 0.1 : 1.50;
-  const total = club.membershipFee + serviceFee;
+  const serviceFee = 0;
+  const total = club.membershipFee;
 
   return (
     <div className="flex flex-col min-h-screen bg-background-light dark:bg-background-dark text-slate-900 dark:text-white font-display">
@@ -97,10 +97,6 @@ const ClubPaymentCancel = () => {
               <div className="flex justify-between items-center text-sm">
                 <span className="text-slate-600 dark:text-slate-400">Monthly Membership</span>
                 <span className="font-medium text-slate-900 dark:text-white">৳{club.membershipFee.toFixed(2)}</span>
-              </div>
-              <div className="flex justify-between items-center text-sm">
-                <span className="text-slate-600 dark:text-slate-400">Service Fee</span>
-                <span className="font-medium text-slate-900 dark:text-white">৳{serviceFee.toFixed(2)}</span>
               </div>
               <div className="border-t border-dashed border-slate-300 dark:border-slate-600 my-3"></div>
               <div className="flex justify-between items-center">

@@ -20,7 +20,6 @@ const CheckoutForm = ({ event, clientSecret, paymentIntentId, onSuccess, onCance
   const [email, setEmail] = useState(user?.email || '');
   const [nameOnCard, setNameOnCard] = useState(user?.name || '');
   const [keepUpdated, setKeepUpdated] = useState(true);
-  const [paymentMethod, setPaymentMethod] = useState('card');
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -98,6 +97,7 @@ const CheckoutForm = ({ event, clientSecret, paymentIntentId, onSuccess, onCance
           color: '#9eb7a8',
         },
         fontFamily: 'Noto Sans, sans-serif',
+        backgroundColor: 'transparent',
       },
       invalid: {
         color: '#fa755a',
@@ -107,8 +107,8 @@ const CheckoutForm = ({ event, clientSecret, paymentIntentId, onSuccess, onCance
     hidePostalCode: true,
   };
 
-  const serviceFee = event.eventFee * 0.1 >= 1.50 ? event.eventFee * 0.1 : 1.50;
-  const total = event.eventFee + serviceFee;
+  const serviceFee = 0;
+  const total = event.eventFee;
 
   const eventDate = new Date(event.eventDate);
   const formattedDate = eventDate.toLocaleDateString('en-US', { 
@@ -136,7 +136,7 @@ const CheckoutForm = ({ event, clientSecret, paymentIntentId, onSuccess, onCance
               value={email}
               onChange={(e) => setEmail(e.target.value)}
               required
-              className="form-input w-full rounded-xl border-slate-200 dark:border-white/10 bg-background-light dark:bg-surface-dark-lighter p-3 text-slate-900 dark:text-white placeholder:text-slate-400 focus:ring-0 focus:border-primary transition-colors"
+              className="w-full rounded-xl border border-slate-200 dark:border-white/10 bg-white dark:bg-[#29382f] p-3 text-slate-900 dark:text-white placeholder:text-slate-400 dark:placeholder:text-slate-500 focus:ring-2 focus:ring-primary/50 focus:border-primary transition-colors"
               placeholder="you@example.com"
             />
           </div>
@@ -145,7 +145,7 @@ const CheckoutForm = ({ event, clientSecret, paymentIntentId, onSuccess, onCance
               type="checkbox"
               checked={keepUpdated}
               onChange={(e) => setKeepUpdated(e.target.checked)}
-              className="rounded border-slate-300 bg-background-light dark:bg-surface-dark-lighter text-primary focus:ring-primary/50"
+              className="rounded border-slate-300 dark:border-slate-600 bg-white dark:bg-[#29382f] text-primary focus:ring-primary/50"
             />
             <label className="text-sm text-slate-500 dark:text-slate-400">
               Keep me updated on future events from {event.clubName || 'this club'}
@@ -161,105 +161,73 @@ const CheckoutForm = ({ event, clientSecret, paymentIntentId, onSuccess, onCance
           Payment Details
         </h3>
         
-        {/* Payment Method Selection */}
-        <div className="flex gap-4 mb-8 overflow-x-auto pb-2 scrollbar-hide">
-          <label className="cursor-pointer">
-            <input
-              type="radio"
-              name="payment-type"
-              value="card"
-              checked={paymentMethod === 'card'}
-              onChange={() => setPaymentMethod('card')}
-              className="peer sr-only"
-            />
-            <div className="flex items-center gap-2 px-4 py-3 rounded-xl border border-primary bg-primary/10 text-primary transition-all peer-checked:ring-2 peer-checked:ring-primary peer-checked:ring-offset-2 peer-checked:ring-offset-surface-dark">
-              <span className="material-symbols-outlined">credit_card</span>
-              <span className="font-medium whitespace-nowrap">Card</span>
-            </div>
-          </label>
-          <label className="cursor-pointer">
-            <input
-              type="radio"
-              name="payment-type"
-              value="googlepay"
-              checked={paymentMethod === 'googlepay'}
-              onChange={() => setPaymentMethod('googlepay')}
-              className="peer sr-only"
-            />
-            <div className="flex items-center gap-2 px-4 py-3 rounded-xl border border-slate-200 dark:border-white/10 hover:bg-background-light dark:hover:bg-surface-dark-lighter text-slate-600 dark:text-slate-400 transition-all peer-checked:border-primary peer-checked:text-primary">
-              <span className="material-symbols-outlined">account_balance_wallet</span>
-              <span className="font-medium whitespace-nowrap">Google Pay</span>
-            </div>
-          </label>
+        {/* Payment Method - Card Only */}
+        <div className="mb-8">
+          <div className="flex items-center gap-2 px-4 py-3 rounded-xl border border-primary bg-primary/10 text-primary">
+            <span className="material-symbols-outlined">credit_card</span>
+            <span className="font-medium">Card Payment</span>
+          </div>
         </div>
 
-        {paymentMethod === 'card' && (
-          <div className="space-y-6">
+        <div className="space-y-6">
+          <div className="flex flex-col gap-2">
+            <label className="text-sm font-medium text-slate-700 dark:text-slate-300">Name on Card</label>
+            <input
+              type="text"
+              value={nameOnCard}
+              onChange={(e) => setNameOnCard(e.target.value)}
+              required
+              className="w-full rounded-xl border border-slate-200 dark:border-white/10 bg-white dark:bg-[#29382f] p-3 text-slate-900 dark:text-white placeholder:text-slate-400 dark:placeholder:text-slate-500 focus:ring-2 focus:ring-primary/50 focus:border-primary transition-colors"
+              placeholder="Alex Runner"
+            />
+          </div>
+          <div className="flex flex-col gap-2">
+            <label className="text-sm font-medium text-slate-700 dark:text-slate-300">Card Information</label>
+            <div className="relative rounded-xl border border-slate-200 dark:border-white/10 bg-white dark:bg-[#29382f] p-3">
+              <div className="absolute inset-y-0 left-3 flex items-center pointer-events-none text-slate-400 dark:text-slate-500 z-10">
+                <span className="material-symbols-outlined">credit_card</span>
+              </div>
+              <div className="pl-10 pr-20">
+                <CardElement options={cardElementOptions} />
+              </div>
+              <div className="absolute inset-y-0 right-3 flex items-center pointer-events-none gap-1 z-10">
+                <div className="h-4 w-6 bg-slate-300 dark:bg-slate-600 rounded"></div>
+                <div className="h-4 w-6 bg-slate-300 dark:bg-slate-600 rounded"></div>
+              </div>
+            </div>
+          </div>
+          <div className="grid grid-cols-2 gap-6">
             <div className="flex flex-col gap-2">
-              <label className="text-sm font-medium text-slate-700 dark:text-slate-300">Name on Card</label>
+              <label className="text-sm font-medium text-slate-700 dark:text-slate-300">Expiration</label>
               <input
                 type="text"
-                value={nameOnCard}
-                onChange={(e) => setNameOnCard(e.target.value)}
-                required
-                className="form-input w-full rounded-xl border-slate-200 dark:border-white/10 bg-background-light dark:bg-surface-dark-lighter p-3 text-slate-900 dark:text-white placeholder:text-slate-400 focus:ring-0 focus:border-primary transition-colors"
-                placeholder="Alex Runner"
+                className="w-full rounded-xl border border-slate-200 dark:border-white/10 bg-white dark:bg-[#29382f] p-3 text-slate-900 dark:text-white placeholder:text-slate-400 dark:placeholder:text-slate-500 focus:ring-2 focus:ring-primary/50 focus:border-primary transition-colors"
+                placeholder="MM / YY"
+                disabled
               />
             </div>
             <div className="flex flex-col gap-2">
-              <label className="text-sm font-medium text-slate-700 dark:text-slate-300">Card Information</label>
-              <div className="relative">
-                <div className="absolute inset-y-0 left-3 flex items-center pointer-events-none text-slate-400">
-                  <span className="material-symbols-outlined">credit_card</span>
-                </div>
-                <div className="pl-10 pr-20">
-                  <CardElement options={cardElementOptions} />
-                </div>
-                <div className="absolute inset-y-0 right-3 flex items-center pointer-events-none gap-1">
-                  <div className="h-4 w-6 bg-slate-300 dark:bg-slate-600 rounded"></div>
-                  <div className="h-4 w-6 bg-slate-300 dark:bg-slate-600 rounded"></div>
-                </div>
-              </div>
-            </div>
-            <div className="grid grid-cols-2 gap-6">
-              <div className="flex flex-col gap-2">
-                <label className="text-sm font-medium text-slate-700 dark:text-slate-300">Expiration</label>
-                <input
-                  type="text"
-                  className="form-input w-full rounded-xl border-slate-200 dark:border-white/10 bg-background-light dark:bg-surface-dark-lighter p-3 text-slate-900 dark:text-white placeholder:text-slate-400 focus:ring-0 focus:border-primary transition-colors"
-                  placeholder="MM / YY"
-                  disabled
-                />
-              </div>
-              <div className="flex flex-col gap-2">
-                <label className="text-sm font-medium text-slate-700 dark:text-slate-300 flex justify-between">
-                  CVC
-                  <span className="material-symbols-outlined text-slate-400 text-[16px] cursor-help" title="3-digit security code on back of card">help</span>
-                </label>
-                <input
-                  type="text"
-                  className="form-input w-full rounded-xl border-slate-200 dark:border-white/10 bg-background-light dark:bg-surface-dark-lighter p-3 text-slate-900 dark:text-white placeholder:text-slate-400 focus:ring-0 focus:border-primary transition-colors"
-                  placeholder="123"
-                  disabled
-                />
-              </div>
-            </div>
-            <div className="flex flex-col gap-2">
-              <label className="text-sm font-medium text-slate-700 dark:text-slate-300">Billing ZIP / Postal Code</label>
+              <label className="text-sm font-medium text-slate-700 dark:text-slate-300 flex justify-between">
+                CVC
+                <span className="material-symbols-outlined text-slate-400 text-[16px] cursor-help" title="3-digit security code on back of card">help</span>
+              </label>
               <input
                 type="text"
-                className="form-input w-full rounded-xl border-slate-200 dark:border-white/10 bg-background-light dark:bg-surface-dark-lighter p-3 text-slate-900 dark:text-white placeholder:text-slate-400 focus:ring-0 focus:border-primary transition-colors"
-                placeholder="10001"
+                className="w-full rounded-xl border border-slate-200 dark:border-white/10 bg-white dark:bg-[#29382f] p-3 text-slate-900 dark:text-white placeholder:text-slate-400 dark:placeholder:text-slate-500 focus:ring-2 focus:ring-primary/50 focus:border-primary transition-colors"
+                placeholder="123"
+                disabled
               />
             </div>
           </div>
-        )}
-
-        {paymentMethod === 'googlepay' && (
-          <div className="text-center py-8 text-slate-500 dark:text-slate-400">
-            Google Pay is coming soon. Please use card payment for now.
+          <div className="flex flex-col gap-2">
+            <label className="text-sm font-medium text-slate-700 dark:text-slate-300">Billing ZIP / Postal Code</label>
+            <input
+              type="text"
+              className="w-full rounded-xl border border-slate-200 dark:border-white/10 bg-white dark:bg-[#29382f] p-3 text-slate-900 dark:text-white placeholder:text-slate-400 dark:placeholder:text-slate-500 focus:ring-2 focus:ring-primary/50 focus:border-primary transition-colors"
+              placeholder="10001"
+            />
           </div>
-        )}
+        </div>
 
         <div className="mt-8 pt-6 border-t border-black/5 dark:border-white/5">
           <button
@@ -402,8 +370,8 @@ const EventCheckout = () => {
     );
   }
 
-  const serviceFee = event.eventFee * 0.1 >= 1.50 ? event.eventFee * 0.1 : 1.50;
-  const total = event.eventFee + serviceFee;
+  const serviceFee = 0;
+  const total = event.eventFee;
 
   const eventDate = new Date(event.eventDate);
   const formattedDate = eventDate.toLocaleDateString('en-US', { 
@@ -469,13 +437,6 @@ const EventCheckout = () => {
                         <span className="text-slate-500 dark:text-slate-400 text-xs">Tier 1 Ticket x 1</span>
                       </div>
                       <span className="text-slate-900 dark:text-white font-medium">৳{event.eventFee.toFixed(2)}</span>
-                    </div>
-                    <div className="flex justify-between items-center text-sm">
-                      <div className="flex flex-col">
-                        <span className="text-slate-900 dark:text-white font-medium">Service Fee</span>
-                        <span className="text-slate-500 dark:text-slate-400 text-xs">Processing & handling</span>
-                      </div>
-                      <span className="text-slate-900 dark:text-white font-medium">৳{serviceFee.toFixed(2)}</span>
                     </div>
                     <div className="border-t border-dashed border-slate-300 dark:border-slate-600 my-2"></div>
                     <div className="flex justify-between items-center">
