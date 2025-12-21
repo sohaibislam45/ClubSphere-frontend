@@ -31,6 +31,7 @@ const ManagerEventsManagement = () => {
     maxAttendees: '',
     price: '',
     isPaid: false,
+    image: '',
     clubId: clubIdFromQuery || ''
   });
 
@@ -78,6 +79,7 @@ const ManagerEventsManagement = () => {
         maxAttendees: '',
         price: '',
         isPaid: false,
+        image: '',
         clubId: clubIdFromQuery || ''
       });
     }
@@ -102,6 +104,7 @@ const ManagerEventsManagement = () => {
         maxAttendees: '',
         price: '',
         isPaid: false,
+        image: '',
         clubId: clubIdFromQuery || ''
       });
     }
@@ -204,6 +207,7 @@ const ManagerEventsManagement = () => {
       maxAttendees: event.maxAttendees || '',
       price: event.price ? (event.price / 100).toFixed(2) : '', // Convert cents to dollars
       isPaid: event.price > 0,
+      image: event.image || '',
       clubId: event.clubId || clubIdFromQuery || ''
     });
     setShowEditModal(true);
@@ -523,6 +527,32 @@ const ManagerEventsManagement = () => {
                     onChange={(e) => setFormData({ ...formData, description: e.target.value })}
                   ></textarea>
                 </div>
+                {/* Image URL */}
+                <div className="space-y-2">
+                  <label className="text-sm font-medium text-[#9eb7a8]">Event Image URL</label>
+                  <div className="relative">
+                    <span className="material-symbols-outlined absolute left-3 top-3 text-[#5c6b62] text-lg">image</span>
+                    <input
+                      className="w-full bg-[#122017] border border-[#29382f] rounded-xl pl-10 pr-4 py-3 text-white placeholder-[#5c6b62] focus:ring-1 focus:ring-primary focus:border-primary transition-all"
+                      placeholder="https://example.com/image.jpg"
+                      type="url"
+                      value={formData.image}
+                      onChange={(e) => setFormData({ ...formData, image: e.target.value })}
+                    />
+                  </div>
+                  {formData.image && (
+                    <div className="mt-2 rounded-xl overflow-hidden border border-[#29382f]">
+                      <img 
+                        src={formData.image} 
+                        alt="Event preview" 
+                        className="w-full h-32 object-cover"
+                        onError={(e) => {
+                          e.target.style.display = 'none';
+                        }}
+                      />
+                    </div>
+                  )}
+                </div>
                 {/* Date & Time */}
                 <div className="grid grid-cols-2 gap-4">
                   <div className="space-y-2">
@@ -707,6 +737,32 @@ const ManagerEventsManagement = () => {
                     value={formData.description}
                     onChange={(e) => setFormData({ ...formData, description: e.target.value })}
                   ></textarea>
+                </div>
+                {/* Image URL */}
+                <div className="space-y-2">
+                  <label className="text-sm font-medium text-[#9eb7a8]">Event Image URL</label>
+                  <div className="relative">
+                    <span className="material-symbols-outlined absolute left-3 top-3 text-[#5c6b62] text-lg">image</span>
+                    <input
+                      className="w-full bg-[#122017] border border-[#29382f] rounded-xl pl-10 pr-4 py-3 text-white placeholder-[#5c6b62] focus:ring-1 focus:ring-primary focus:border-primary transition-all"
+                      placeholder="https://example.com/image.jpg"
+                      type="url"
+                      value={formData.image}
+                      onChange={(e) => setFormData({ ...formData, image: e.target.value })}
+                    />
+                  </div>
+                  {formData.image && (
+                    <div className="mt-2 rounded-xl overflow-hidden border border-[#29382f]">
+                      <img 
+                        src={formData.image} 
+                        alt="Event preview" 
+                        className="w-full h-32 object-cover"
+                        onError={(e) => {
+                          e.target.style.display = 'none';
+                        }}
+                      />
+                    </div>
+                  )}
                 </div>
                 {/* Date & Time */}
                 <div className="grid grid-cols-2 gap-4">
