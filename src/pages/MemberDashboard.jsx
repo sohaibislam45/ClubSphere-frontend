@@ -1,11 +1,15 @@
 import { useState, useRef, useEffect } from 'react';
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
+import { useQuery } from '@tanstack/react-query';
 import { useAuth } from '../context/AuthContext';
 import MemberSidebar from '../components/layout/MemberSidebar';
+import Loader from '../components/ui/Loader';
+import api from '../lib/api';
 import Swal from '../lib/sweetalertConfig';
 
 const MemberDashboard = () => {
   const { user, logout } = useAuth();
+  const navigate = useNavigate();
   const [dropdownOpen, setDropdownOpen] = useState(false);
   const dropdownRef = useRef(null);
 
@@ -30,74 +34,90 @@ const MemberDashboard = () => {
     };
   }, [dropdownOpen]);
 
-
-  const events = [
-    {
-      id: 1,
-      category: 'Tech Talk',
-      title: 'Intro to React Native',
-      host: 'Dev Society',
-      time: '14:00 PM',
-      date: 'TODAY',
-      image: 'https://lh3.googleusercontent.com/aida-public/AB6AXuCfZiskjbGrJ4URbsZoYaUQ4ynLWOIzZLf0Vmkr3XVKCVXKA4J2pwMWAFzPRf1ZVJFB7-Kh2mSeYbCQCmfyRIwJXMnAZHiiepHOmK00a_LhHpNpeWHkc5giVd1vuCRCsJrpMMK7yfhHUzmZisOXkCMOFiIn4JVz6USkENPJfikH0EdLvUDZ3YLaAOkWKvvcgiosy7aonQu9Y2tWqczEzTOB7KBou-Fn9onOtotSugQzTFRLb-PvWsIWh_HtyEoQmjfw7Bn93DaWQzpk',
-      attendees: 12
-    },
-    {
-      id: 2,
-      category: 'Wellness',
-      title: 'Saturday Morning Yoga',
-      host: 'Zen Circle',
-      time: '09:00 AM',
-      date: 'TOMORROW',
-      location: 'Central Park, West Lawn',
-      image: 'https://lh3.googleusercontent.com/aida-public/AB6AXuDSjzLcxCBFlja2svcUnsNlAu-ATSUZXwk7fLvq2F5qtFyAPGvEQcPItONXlhepBzrVjqU6I7s40Wtm6TntXlKC4co6lPslx9WZOHAxuV-A0E2dZ5MwfYVGAh_aN4cwO5CJ-Xvxmeywn-TOPBOtAA3yM6AF9uQi8iqY6ENOR6PaoMHQrDySm_ZIBoEfXjkOEysQdNwM4nQR9zOoGCUON5GNroXbhYqR2B_JZITOu7YbEFL4t4rit5PzXbuQWpKqkMfqUEI4BvO4aXKs'
+  // Fetch clubs
+  const { data: clubsData, isLoading: clubsLoading } = useQuery({
+    queryKey: ['memberClubs'],
+    queryFn: async () => {
+      const response = await api.get('/api/member/clubs');
+      return response.data;
     }
-  ];
+  });
 
-  const clubs = [
-    {
-      id: 1,
-      name: 'Dev Society',
-      joinedDate: 'Member since 2022',
-      image: 'https://lh3.googleusercontent.com/aida-public/AB6AXuBpnRaEOzVcurvwzs4P1cqN86Spt6VnC1LsMqKE1kwPJwYzc2vXdAYSRiVMMkDB-0NZohODpsKyRpItRtZmTzUfiuCl1QF3SIHRKc7COHbIap8lUrY5b0mEyWhH9BTACTX5SiMWXiyv8_Wu1Mz_bQwgY6-NhXFjhUnrYI9t3UHBH4y1FZSrTPpzUhDnhed4K2NdKODrvFAw40yfqEtNNjZ5Cc9vmdIL5WcwKaboysKis9jhTZ5r0yhOKNWHh7QGJlwuxbs_k2gZ_uSM',
-      status: 'Active'
-    },
-    {
-      id: 2,
-      name: 'Zen Circle',
-      joinedDate: 'Member since 2023',
-      image: 'https://lh3.googleusercontent.com/aida-public/AB6AXuB00wpinIBQXsPyuCfhP0EZBMpKS42Ep3Rug1Z73gQ8SU7UiwF26y4WbRWpK_XQ6TL-LQi3YgxfvNIRSJOfwM2K9J_BoHGfBqS1ycFOnzxh6oQahaHs3NIa5UcrQdWtnTKMMTjyQ-L5fRcpJExP7pKSYDwsdPAFIHDGNjQtL89Hl3KlYIoKXOcj-0LTUUR_lOtSTzJz9dFi1qP-cjLcEXVbv64lOZqcXP3E1-PaQAXL4V4azWgFzTb0FC_w34D0xgwDi-jtE9nUihtd',
-      status: 'Active'
-    },
-    {
-      id: 3,
-      name: 'City Runners',
-      joinedDate: 'Approval Pending',
-      image: 'https://lh3.googleusercontent.com/aida-public/AB6AXuC9ay6LWNPzNoplv9e7BNj8nvzQQpAiNmxy0YP5bzYMyXqHkxsIMDBFhHr4x0OufIcSnRqy-VNlB98ghv-0uHo9O8KonLwxE5t_zJiuwcQQIkoZrJI-gGRp-vgQ7UxR8jRzsRn5pdBZH7l_Vu3crqfNGAbLGuzdnZkDvntCyC6XhL08uPAWc9uAkLcxd5Us8YbexLQWAp88KJwIPyXI-kB1hO6cMIgSWUqHkApsITE-1deo2tn8Xx6KF4URMinTWYniX2jalbRbsKeY',
-      status: 'Pending'
+  // Fetch registered events (my-joining tab)
+  const { data: registeredEventsData, isLoading: registeredEventsLoading } = useQuery({
+    queryKey: ['memberRegisteredEvents'],
+    queryFn: async () => {
+      const response = await api.get('/api/member/events?tab=my-joining');
+      return response.data;
     }
-  ];
+  });
 
-  const payments = [
-    {
-      id: 1,
-      description: 'Annual Membership',
-      icon: 'card_membership',
-      club: 'Dev Society',
-      date: 'Oct 25, 2023',
-      amount: '৳50.00',
-      status: 'Paid'
-    },
-    {
-      id: 2,
-      description: 'Event Ticket: Annual Gala',
-      icon: 'confirmation_number',
-      club: 'Zen Circle',
-      date: 'Oct 12, 2023',
-      amount: '৳25.00',
-      status: 'Paid'
+  // Fetch all upcoming events
+  const { data: upcomingEventsData, isLoading: upcomingEventsLoading } = useQuery({
+    queryKey: ['memberUpcomingEvents'],
+    queryFn: async () => {
+      const response = await api.get('/api/member/events?tab=upcoming');
+      return response.data;
     }
-  ];
+  });
+
+  // Fetch past events for attended count
+  const { data: pastEventsData } = useQuery({
+    queryKey: ['memberPastEvents'],
+    queryFn: async () => {
+      const response = await api.get('/api/member/events?tab=joined');
+      return response.data;
+    }
+  });
+
+  // Fetch payments
+  const { data: paymentsData, isLoading: paymentsLoading } = useQuery({
+    queryKey: ['memberPayments'],
+    queryFn: async () => {
+      const response = await api.get('/api/member/payments');
+      return response.data;
+    }
+  });
+
+  const clubs = clubsData?.clubs || [];
+  const registeredEvents = registeredEventsData?.events || [];
+  const upcomingEvents = upcomingEventsData?.events || [];
+  const pastEvents = pastEventsData?.events || [];
+  const payments = paymentsData?.transactions || [];
+
+  // Calculate statistics
+  const stats = {
+    totalClubs: clubs.length,
+    eventsRegistered: registeredEvents.length,
+    eventsAttended: pastEvents.length,
+    nextPayment: payments.length > 0 ? payments[0] : null
+  };
+
+  // Format date for display
+  const formatEventDate = (dateString) => {
+    if (!dateString) return '';
+    const date = new Date(dateString);
+    const today = new Date();
+    const tomorrow = new Date(today);
+    tomorrow.setDate(tomorrow.getDate() + 1);
+    
+    const eventDate = new Date(date.getFullYear(), date.getMonth(), date.getDate());
+    const todayDate = new Date(today.getFullYear(), today.getMonth(), today.getDate());
+    const tomorrowDate = new Date(tomorrow.getFullYear(), tomorrow.getMonth(), tomorrow.getDate());
+    
+    if (eventDate.getTime() === todayDate.getTime()) {
+      return 'TODAY';
+    } else if (eventDate.getTime() === tomorrowDate.getTime()) {
+      return 'TOMORROW';
+    } else {
+      const days = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
+      const months = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
+      return `${days[date.getDay()]}, ${months[date.getMonth()]} ${date.getDate()}`;
+    }
+  };
+
+  // Get upcoming events to display (up to 3)
+  const displayEvents = upcomingEvents.slice(0, 3);
 
   return (
     <div className="bg-background-light dark:bg-background-dark text-slate-900 dark:text-white font-display overflow-hidden h-screen flex">
@@ -206,7 +226,10 @@ const MemberDashboard = () => {
                   Welcome back, <span className="text-primary">{user?.name?.split(' ')[0] || 'Member'}!</span>
                 </h1>
                 <p className="text-gray-400 text-lg max-w-2xl">
-                  You have 3 upcoming events this week. Ready to explore what's new in your area?
+                  {registeredEvents.length > 0 
+                    ? `You have ${registeredEvents.length} registered event${registeredEvents.length > 1 ? 's' : ''} coming up. Ready to explore what's new in your area?`
+                    : 'Ready to explore what\'s new in your area?'
+                  }
                 </p>
               </div>
               <Link
@@ -228,7 +251,11 @@ const MemberDashboard = () => {
                   <span className="text-primary text-sm font-bold bg-primary/10 px-2 py-1 rounded-md">+1 this month</span>
                 </div>
                 <h3 className="text-gray-400 text-sm font-medium">Total Clubs Joined</h3>
-                <p className="text-3xl font-bold text-white">3</p>
+                {clubsLoading ? (
+                  <Loader />
+                ) : (
+                  <p className="text-3xl font-bold text-white">{stats.totalClubs}</p>
+                )}
               </div>
               <div className="bg-surface-dark p-6 rounded-2xl border border-white/5 flex flex-col gap-1">
                 <div className="flex justify-between items-start mb-2">
@@ -238,7 +265,11 @@ const MemberDashboard = () => {
                   <span className="text-primary text-sm font-bold bg-primary/10 px-2 py-1 rounded-md">+2 this week</span>
                 </div>
                 <h3 className="text-gray-400 text-sm font-medium">Events Registered</h3>
-                <p className="text-3xl font-bold text-white">5</p>
+                {registeredEventsLoading ? (
+                  <Loader />
+                ) : (
+                  <p className="text-3xl font-bold text-white">{stats.eventsRegistered}</p>
+                )}
               </div>
               <div className="bg-surface-dark p-6 rounded-2xl border border-white/5 flex flex-col gap-1">
                 <div className="flex justify-between items-start mb-2">
@@ -247,7 +278,7 @@ const MemberDashboard = () => {
                   </div>
                 </div>
                 <h3 className="text-gray-400 text-sm font-medium">Events Attended</h3>
-                <p className="text-3xl font-bold text-white">12</p>
+                <p className="text-3xl font-bold text-white">{stats.eventsAttended}</p>
               </div>
               <div className="bg-surface-dark p-6 rounded-2xl border border-white/5 flex flex-col gap-1">
                 <div className="flex justify-between items-start mb-2">
@@ -256,7 +287,13 @@ const MemberDashboard = () => {
                   </div>
                 </div>
                 <h3 className="text-gray-400 text-sm font-medium">Next Payment</h3>
-                <p className="text-xl font-bold text-white mt-auto">Nov 25</p>
+                {paymentsLoading ? (
+                  <Loader />
+                ) : stats.nextPayment ? (
+                  <p className="text-xl font-bold text-white mt-auto">{stats.nextPayment.date.split(',')[0]}</p>
+                ) : (
+                  <p className="text-lg font-medium text-gray-400 mt-auto">No upcoming</p>
+                )}
               </div>
             </section>
 
@@ -273,50 +310,85 @@ const MemberDashboard = () => {
                     View Calendar
                   </Link>
                 </div>
-                {events.map((event) => (
-                  <div key={event.id} className="bg-surface-dark hover:bg-surface-dark-hover border border-white/5 hover:border-primary/30 rounded-2xl p-4 flex flex-col sm:flex-row gap-6 transition-all group cursor-pointer">
-                    <div 
-                      className="w-full sm:w-48 h-32 shrink-0 rounded-xl bg-cover bg-center relative overflow-hidden"
-                      style={{ backgroundImage: `url("${event.image}")` }}
+                {upcomingEventsLoading ? (
+                  <div className="flex items-center justify-center py-20">
+                    <Loader />
+                  </div>
+                ) : displayEvents.length === 0 ? (
+                  <div className="bg-surface-dark border border-white/5 rounded-2xl p-12 text-center">
+                    <span className="material-symbols-outlined text-6xl text-gray-600 mb-4 block">event_busy</span>
+                    <h3 className="text-xl font-bold text-white mb-2">No upcoming events</h3>
+                    <p className="text-gray-400 mb-6">Check out the upcoming tab to see all available events.</p>
+                    <Link
+                      to="/dashboard/member/events"
+                      className="inline-flex items-center gap-2 bg-primary hover:bg-primary/90 text-background-dark font-bold py-2 px-4 rounded-full transition-all"
                     >
-                      <div className={`absolute top-2 left-2 backdrop-blur-sm text-white text-xs font-bold px-2 py-1 rounded-md border border-white/10 ${
-                        event.date === 'TODAY' ? 'bg-background-dark/80' : 'bg-white/20'
-                      }`}>
-                        {event.date}
-                      </div>
-                    </div>
-                    <div className="flex flex-col justify-between flex-1 py-1">
-                      <div>
-                        <div className="flex justify-between items-start">
-                          <p className={`text-xs font-bold uppercase tracking-wider mb-1 ${
-                            event.category === 'Tech Talk' ? 'text-primary' : 'text-blue-400'
-                          }`}>{event.category}</p>
-                          {event.time && (
-                            <span className="text-gray-400 text-xs flex items-center gap-1">
-                              <span className="material-symbols-outlined text-[16px]">schedule</span> {event.time}
-                            </span>
+                      Browse Events
+                    </Link>
+                  </div>
+                ) : (
+                  displayEvents.map((event) => {
+                    const eventDate = formatEventDate(event.date || event.eventDate);
+                    const isRegistered = event.status === 'registered' || event.statusLabel === 'Registered';
+                    
+                    return (
+                      <div 
+                        key={event.id || event.eventId} 
+                        onClick={() => navigate(`/events/${event.eventId || event.id}`)}
+                        className="bg-surface-dark hover:bg-surface-dark-hover border border-white/5 hover:border-primary/30 rounded-2xl p-4 flex flex-col sm:flex-row gap-6 transition-all group cursor-pointer"
+                      >
+                        <div 
+                          className="w-full sm:w-48 h-32 shrink-0 rounded-xl bg-cover bg-center relative overflow-hidden bg-gray-700"
+                          style={{ backgroundImage: event.image ? `url("${event.image}")` : 'none' }}
+                        >
+                          <div className={`absolute top-2 left-2 backdrop-blur-sm text-white text-xs font-bold px-2 py-1 rounded-md border border-white/10 ${
+                            eventDate === 'TODAY' ? 'bg-background-dark/80' : 'bg-white/20'
+                          }`}>
+                            {eventDate}
+                          </div>
+                          {isRegistered && (
+                            <div className="absolute top-2 right-2 backdrop-blur-sm bg-primary/90 text-background-dark text-xs font-bold px-2 py-1 rounded-md">
+                              Registered
+                            </div>
                           )}
                         </div>
-                        <h3 className="text-lg font-bold text-white mb-1 group-hover:text-primary transition-colors">{event.title}</h3>
-                        <p className="text-gray-400 text-sm">Hosted by <span className="text-white">{event.host}</span></p>
-                      </div>
-                      {event.attendees ? (
-                        <div className="flex items-center gap-2 mt-4 sm:mt-0">
-                          <div className="flex -space-x-2">
-                            <div className="w-6 h-6 rounded-full border border-background-dark bg-gray-500"></div>
-                            <div className="w-6 h-6 rounded-full border border-background-dark bg-gray-600"></div>
-                            <div className="w-6 h-6 rounded-full border border-background-dark bg-gray-700 text-[8px] flex items-center justify-center text-white font-bold">+{event.attendees}</div>
+                        <div className="flex flex-col justify-between flex-1 py-1">
+                          <div>
+                            <div className="flex justify-between items-start">
+                              <p className="text-xs font-bold uppercase tracking-wider mb-1 text-primary">{event.clubName || 'Event'}</p>
+                              {event.time && (
+                                <span className="text-gray-400 text-xs flex items-center gap-1">
+                                  <span className="material-symbols-outlined text-[16px]">schedule</span> {event.time}
+                                </span>
+                              )}
+                            </div>
+                            <h3 className="text-lg font-bold text-white mb-1 group-hover:text-primary transition-colors">{event.name || event.title}</h3>
+                            {event.clubName && (
+                              <p className="text-gray-400 text-sm">Hosted by <span className="text-white">{event.clubName}</span></p>
+                            )}
                           </div>
-                          <span className="text-xs text-gray-500">attending</span>
+                          {event.location ? (
+                            <div className="flex items-center gap-2 mt-4 sm:mt-0 text-gray-400 text-xs">
+                              <span className="material-symbols-outlined text-[16px]">location_on</span> {event.location}
+                            </div>
+                          ) : (
+                            <div className="mt-4 sm:mt-0">
+                              {event.statusLabel && (
+                                <span className={`inline-flex items-center px-2 py-1 rounded-full text-xs font-bold ${
+                                  event.statusColor === 'primary' ? 'bg-primary/20 text-primary' :
+                                  event.statusColor === 'yellow' ? 'bg-yellow-500/20 text-yellow-500' :
+                                  'bg-blue-500/20 text-blue-400'
+                                }`}>
+                                  {event.statusLabel}
+                                </span>
+                              )}
+                            </div>
+                          )}
                         </div>
-                      ) : (
-                        <div className="flex items-center gap-2 mt-4 sm:mt-0 text-gray-400 text-xs">
-                          <span className="material-symbols-outlined text-[16px]">location_on</span> {event.location}
-                        </div>
-                      )}
-                    </div>
-                  </div>
-                ))}
+                      </div>
+                    );
+                  })
+                )}
               </div>
 
               {/* My Clubs List */}
@@ -333,27 +405,55 @@ const MemberDashboard = () => {
                     <span className="material-symbols-outlined" style={{ fontSize: '20px' }}>add</span>
                   </Link>
                 </div>
-                <div className="bg-surface-dark rounded-2xl border border-white/5 overflow-hidden">
-                  {clubs.map((club, index) => (
-                    <div key={club.id} className={`p-4 flex items-center gap-4 hover:bg-white/5 transition-colors cursor-pointer ${
-                      index < clubs.length - 1 ? 'border-b border-white/5' : ''
-                    }`}>
-                      <div 
-                        className={`size-12 rounded-xl bg-cover bg-center ${club.status === 'Pending' ? 'grayscale opacity-70' : ''}`}
-                        style={{ backgroundImage: `url("${club.image}")` }}
-                      ></div>
-                      <div className="flex-1 min-w-0">
-                        <h4 className={`font-bold text-sm truncate ${club.status === 'Pending' ? 'text-gray-300' : 'text-white'}`}>{club.name}</h4>
-                        <p className={`text-xs truncate ${club.status === 'Pending' ? 'text-gray-500' : 'text-gray-400'}`}>{club.joinedDate}</p>
+                {clubsLoading ? (
+                  <div className="flex items-center justify-center py-20">
+                    <Loader />
+                  </div>
+                ) : (
+                  <div className="bg-surface-dark rounded-2xl border border-white/5 overflow-hidden">
+                    {clubs.length === 0 ? (
+                      <div className="p-12 text-center">
+                        <span className="material-symbols-outlined text-6xl text-gray-600 mb-4 block">groups</span>
+                        <h3 className="text-lg font-bold text-white mb-2">No clubs yet</h3>
+                        <p className="text-gray-400 mb-4">Start exploring and join your first club!</p>
+                        <Link
+                          to="/dashboard/member/discover"
+                          className="inline-flex items-center gap-2 bg-primary hover:bg-primary/90 text-background-dark font-bold py-2 px-4 rounded-full transition-all text-sm"
+                        >
+                          Discover Clubs
+                        </Link>
                       </div>
-                      <span className={`px-2 py-1 rounded-md text-xs font-bold border ${
-                        club.status === 'Active' 
-                          ? 'bg-green-500/10 text-green-500 border-green-500/20'
-                          : 'bg-yellow-500/10 text-yellow-500 border-yellow-500/20'
-                      }`}>{club.status}</span>
-                    </div>
-                  ))}
-                </div>
+                    ) : (
+                      clubs.slice(0, 5).map((club, index) => (
+                        <div 
+                          key={club.id || club.clubId} 
+                          onClick={() => navigate(`/clubs/${club.clubId || club.id}`)}
+                          className={`p-4 flex items-center gap-4 hover:bg-white/5 transition-colors cursor-pointer ${
+                            index < Math.min(clubs.length, 5) - 1 ? 'border-b border-white/5' : ''
+                          }`}
+                        >
+                          <div 
+                            className={`size-12 rounded-xl bg-cover bg-center bg-gray-700 ${club.status === 'pending' || club.statusLabel === 'Pending' ? 'grayscale opacity-70' : ''}`}
+                            style={{ backgroundImage: club.image ? `url("${club.image}")` : 'none' }}
+                          ></div>
+                          <div className="flex-1 min-w-0">
+                            <h4 className={`font-bold text-sm truncate ${club.status === 'pending' || club.statusLabel === 'Pending' ? 'text-gray-300' : 'text-white'}`}>{club.name}</h4>
+                            <p className={`text-xs truncate ${club.status === 'pending' || club.statusLabel === 'Pending' ? 'text-gray-500' : 'text-gray-400'}`}>
+                              {club.joinDate ? `Member since ${club.joinDate.split(',')[1]?.trim() || club.joinDate}` : 'Member'}
+                            </p>
+                          </div>
+                          <span className={`px-2 py-1 rounded-md text-xs font-bold border shrink-0 ${
+                            club.status === 'active' || club.statusLabel === 'Active'
+                              ? 'bg-green-500/10 text-green-500 border-green-500/20'
+                              : club.status === 'pending' || club.statusLabel === 'Pending'
+                              ? 'bg-yellow-500/10 text-yellow-500 border-yellow-500/20'
+                              : 'bg-gray-500/10 text-gray-500 border-gray-500/20'
+                          }`}>{club.statusLabel || club.status || 'Active'}</span>
+                        </div>
+                      ))
+                    )}
+                  </div>
+                )}
               </div>
             </div>
 
@@ -380,25 +480,57 @@ const MemberDashboard = () => {
                     </tr>
                   </thead>
                   <tbody className="text-white divide-y divide-white/5">
-                    {payments.map((payment) => (
-                      <tr key={payment.id} className="hover:bg-white/5 transition-colors">
-                        <td className="px-6 py-4 font-bold flex items-center gap-3">
-                          <div className="bg-white/10 p-2 rounded-lg">
-                            <span className="material-symbols-outlined text-sm">{payment.icon}</span>
-                          </div>
-                          {payment.description}
-                        </td>
-                        <td className="px-6 py-4 text-gray-300">{payment.club}</td>
-                        <td className="px-6 py-4 text-gray-400">{payment.date}</td>
-                        <td className="px-6 py-4 font-mono">{payment.amount}</td>
-                        <td className="px-6 py-4 text-right">
-                          <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-medium bg-green-500/10 text-green-400 border border-green-500/20">
-                            <span className="size-1.5 rounded-full bg-green-400"></span>
-                            {payment.status}
-                          </span>
+                    {paymentsLoading ? (
+                      <tr>
+                        <td colSpan="5" className="px-6 py-12 text-center">
+                          <Loader />
                         </td>
                       </tr>
-                    ))}
+                    ) : payments.length === 0 ? (
+                      <tr>
+                        <td colSpan="5" className="px-6 py-12 text-center">
+                          <span className="material-symbols-outlined text-6xl text-gray-600 mb-4 block">receipt_long</span>
+                          <p className="text-gray-400">No payment history</p>
+                        </td>
+                      </tr>
+                    ) : (
+                      payments.slice(0, 5).map((payment) => {
+                        const clubName = payment.description.includes(' - ') 
+                          ? payment.description.split(' - ')[1] 
+                          : payment.description.includes('Membership') || payment.description.includes('Event')
+                          ? payment.description.split(' ')[0] + ' ' + (payment.description.split(' ')[1] || '')
+                          : '';
+                        const descriptionOnly = payment.description.includes(' - ')
+                          ? payment.description.split(' - ')[0]
+                          : payment.description;
+
+                        return (
+                          <tr key={payment.id} className="hover:bg-white/5 transition-colors">
+                            <td className="px-6 py-4 font-bold flex items-center gap-3">
+                              <div className="bg-white/10 p-2 rounded-lg">
+                                <span className="material-symbols-outlined text-sm">{payment.icon || 'receipt_long'}</span>
+                              </div>
+                              {descriptionOnly}
+                            </td>
+                            <td className="px-6 py-4 text-gray-300">{clubName || '-'}</td>
+                            <td className="px-6 py-4 text-gray-400">{payment.date}</td>
+                            <td className="px-6 py-4 font-mono">৳{payment.amount}</td>
+                            <td className="px-6 py-4 text-right">
+                              <span className={`inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-medium border ${
+                                payment.status === 'success' || payment.status === 'Paid'
+                                  ? 'bg-green-500/10 text-green-400 border-green-500/20'
+                                  : payment.status === 'pending' || payment.status === 'Pending'
+                                  ? 'bg-yellow-500/10 text-yellow-400 border-yellow-500/20'
+                                  : 'bg-red-500/10 text-red-400 border-red-500/20'
+                              }`}>
+                                {payment.status === 'success' && <span className="size-1.5 rounded-full bg-green-400"></span>}
+                                {payment.statusLabel || payment.status}
+                              </span>
+                            </td>
+                          </tr>
+                        );
+                      })
+                    )}
                   </tbody>
                 </table>
               </div>
