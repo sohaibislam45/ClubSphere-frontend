@@ -135,16 +135,6 @@ const MemberSidebar = () => {
           </Link>
         </nav>
       </div>
-      <div className="mt-auto p-6">
-        <div className="p-4 rounded-xl bg-surface-dark border border-gray-800">
-          <p className="text-xs text-gray-400 mb-2">Upcoming Event</p>
-          <p className="text-sm font-bold text-white mb-1">Tech Mixer 2024</p>
-          <p className="text-xs text-primary mb-3">Tomorrow, 6:00 PM</p>
-          <button className="w-full py-2 bg-primary/20 hover:bg-primary/30 text-primary text-xs font-bold rounded-full transition-colors">
-            View Details
-          </button>
-        </div>
-      </div>
     </aside>
   );
 };

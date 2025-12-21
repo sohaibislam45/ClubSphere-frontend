@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
-import { useQuery } from '@tanstack/react-query';
-import { Link } from 'react-router-dom';
+import { useQuery, useQueryClient } from '@tanstack/react-query';
+import { Link, useNavigate } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 import MemberSidebar from '../components/layout/MemberSidebar';
 import Loader from '../components/ui/Loader';
@@ -8,10 +8,14 @@ import api from '../lib/api';
 import Swal from '../lib/sweetalertConfig';
 
 const MemberDiscover = () => {
-  const { user } = useAuth();
+  const { user, isAuthenticated } = useAuth();
+  const navigate = useNavigate();
+  const queryClient = useQueryClient();
   const [search, setSearch] = useState('');
   const [category, setCategory] = useState('');
   const [filter, setFilter] = useState('');
+  const [joiningClubId, setJoiningClubId] = useState(null);
+  const [rsvpingEventId, setRsvpingEventId] = useState(null);
 
   useEffect(() => {
     document.title = 'Discover Clubs - ClubSphere';
@@ -38,6 +42,126 @@ const MemberDiscover = () => {
       setFilter('');
     } else {
       setFilter(filterType);
+    }
+  };
+
+  const handleJoinClub = async (clubId, clubName) => {
+    if (!isAuthenticated()) {
+      Swal.fire({
+        icon: 'info',
+        title: 'Login Required',
+        text: 'Please login to join this club.',
+        showCancelButton: true,
+        confirmButtonText: 'Login',
+        cancelButtonText: 'Cancel'
+      }).then((result) => {
+        if (result.isConfirmed) {
+          navigate('/login', { state: { returnTo: '/dashboard/member/discover' } });
+        }
+      });
+      return;
+    }
+
+    setJoiningClubId(clubId);
+    try {
+      // Check if club has membership fee by fetching club details
+      const clubResponse = await api.get(`/api/clubs/${clubId}`);
+      const club = clubResponse.data;
+
+      // If club has membership fee, navigate to checkout
+      if (club.membershipFee > 0) {
+        navigate(`/clubs/${clubId}/checkout`);
+        return;
+      }
+
+      // If club is free, register directly
+      const response = await api.post('/api/payments/club/register-free', {
+        clubId: clubId
+      });
+
+      if (response.data.success) {
+        Swal.fire({
+          icon: 'success',
+          title: 'Welcome to the Club!',
+          text: `You have successfully joined ${clubName}.`,
+          timer: 3000,
+          showConfirmButton: false
+        });
+        
+        // Refetch discover data to update the UI
+        queryClient.invalidateQueries({ queryKey: ['discover'] });
+      }
+    } catch (error) {
+      console.error('Join club error:', error);
+      Swal.fire({
+        icon: 'error',
+        title: 'Join Failed',
+        text: error.response?.data?.error || 'Failed to join this club. Please try again.',
+      });
+    } finally {
+      setJoiningClubId(null);
+    }
+  };
+
+  const handleViewClub = (clubId) => {
+    navigate(`/clubs/${clubId}`);
+  };
+
+  const handleRSVP = async (eventId, eventName) => {
+    if (!isAuthenticated()) {
+      Swal.fire({
+        icon: 'info',
+        title: 'Login Required',
+        text: 'Please login to register for this event.',
+        showCancelButton: true,
+        confirmButtonText: 'Login',
+        cancelButtonText: 'Cancel'
+      }).then((result) => {
+        if (result.isConfirmed) {
+          navigate('/login', { state: { returnTo: '/dashboard/member/discover' } });
+        }
+      });
+      return;
+    }
+
+    setRsvpingEventId(eventId);
+    try {
+      // Check if event has fee by fetching event details
+      const eventResponse = await api.get(`/api/events/${eventId}`);
+      const event = eventResponse.data;
+
+      // If event has a fee, navigate to checkout
+      if (event.eventFee > 0) {
+        navigate(`/events/${eventId}/checkout`);
+        return;
+      }
+
+      // If event is free, register directly
+      const response = await api.post('/api/payments/register-free', {
+        eventId: eventId
+      });
+
+      if (response.data.success) {
+        Swal.fire({
+          icon: 'success',
+          title: 'Registration Successful!',
+          text: `You have successfully registered for ${eventName}.`,
+          timer: 3000,
+          showConfirmButton: false
+        });
+        
+        // Refetch discover data to update the UI
+        queryClient.invalidateQueries({ queryKey: ['discover'] });
+      }
+    } catch (error) {
+      console.error('RSVP error:', error);
+      Swal.fire({
+        icon: 'error',
+        title: 'Registration Failed',
+        text: error.response?.data?.error || 'Failed to register for this event. Please try again.',
+      });
+    } finally {
+      setRsvpingEventId(null);
     }
   };
 
@@ -99,7 +223,7 @@ const MemberDiscover = () => {
                 Near Me
               </button>
               <button
-                onClick={() => setCategory('Sports')}
+                onClick={() => setCategory(category === 'Sports' ? '' : 'Sports')}
                 className={`flex items-center gap-2 px-5 py-2.5 rounded-full font-medium text-sm transition-colors whitespace-nowrap ${
                   category === 'Sports'
                     ? 'bg-primary text-background-dark font-bold'
@@ -110,7 +234,7 @@ const MemberDiscover = () => {
                 Sports
               </button>
               <button
-                onClick={() => setCategory('Tech')}
+                onClick={() => setCategory(category === 'Tech' ? '' : 'Tech')}
                 className={`flex items-center gap-2 px-5 py-2.5 rounded-full font-medium text-sm transition-colors whitespace-nowrap ${
                   category === 'Tech'
                     ? 'bg-primary text-background-dark font-bold'
@@ -121,7 +245,7 @@ const MemberDiscover = () => {
                 Tech
               </button>
               <button
-                onClick={() => setCategory('Art & Design')}
+                onClick={() => setCategory(category === 'Art & Design' ? '' : 'Art & Design')}
                 className={`flex items-center gap-2 px-5 py-2.5 rounded-full font-medium text-sm transition-colors whitespace-nowrap ${
                   category === 'Art & Design'
                     ? 'bg-primary text-background-dark font-bold'
@@ -150,9 +274,13 @@ const MemberDiscover = () => {
         <section className="max-w-7xl mx-auto px-8 mb-10">
           <div className="flex items-center justify-between mb-4">
             <h2 className="text-2xl font-bold text-gray-900 dark:text-white">Top Picks for You</h2>
-            <a className="text-primary text-sm font-semibold hover:underline" href="#">View all</a>
+            <Link to="/clubs" className="text-primary text-sm font-semibold hover:underline">View all</Link>
           </div>
-          {error ? (
+          {isLoading ? (
+            <div className="flex justify-center py-10">
+              <Loader />
+            </div>
+          ) : error ? (
             <div className="text-center py-10">
               <p className="text-red-400 mb-4">Error loading clubs</p>
               <button 
@@ -162,6 +290,8 @@ const MemberDiscover = () => {
                 Try again
               </button>
             </div>
+          ) : topPicks.length === 0 ? (
+            <div className="text-center py-10 text-gray-400">No clubs found</div>
           ) : (
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
               {topPicks.map((club) => (
@@ -170,8 +300,9 @@ const MemberDiscover = () => {
                   className="group relative bg-white dark:bg-surface-dark rounded-2xl overflow-hidden shadow-sm hover:shadow-md transition-all duration-300 border border-transparent hover:border-primary/50"
                 >
                   <div
-                    className="h-48 w-full bg-cover bg-center relative"
+                    className="h-48 w-full bg-cover bg-center relative cursor-pointer"
                     style={{ backgroundImage: `url("${club.image || 'https://via.placeholder.com/400x200'}")` }}
+                    onClick={() => handleViewClub(club.id)}
                   >
                     <div className="absolute top-3 right-3 bg-black/60 backdrop-blur-sm px-3 py-1 rounded-full text-xs font-bold text-white flex items-center gap-1">
                       <span className="material-symbols-outlined text-[14px] text-primary">trending_up</span>
@@ -180,8 +311,11 @@ const MemberDiscover = () => {
                   </div>
                   <div className="p-5">
                     <div className="flex justify-between items-start mb-2">
-                      <div>
-                        <h3 className="text-xl font-bold text-gray-900 dark:text-white mb-1">{club.name}</h3>
+                      <div 
+                        className="flex-1 cursor-pointer"
+                        onClick={() => handleViewClub(club.id)}
+                      >
+                        <h3 className="text-xl font-bold text-gray-900 dark:text-white mb-1 hover:text-primary transition-colors">{club.name}</h3>
                         <p className="text-sm text-gray-500 dark:text-gray-400">{club.category}</p>
                       </div>
                       <div className="h-8 w-8 rounded-full bg-gray-100 dark:bg-gray-800 flex items-center justify-center text-gray-400 hover:text-primary hover:bg-primary/10 transition-colors cursor-pointer">
@@ -198,8 +332,12 @@ const MemberDiscover = () => {
                         {club.distance || club.location}
                       </div>
                     </div>
-                    <button className="mt-5 w-full py-3 bg-gray-100 dark:bg-surface-dark-alt2 hover:bg-primary hover:text-background-dark text-gray-900 dark:text-white font-bold rounded-xl transition-all duration-300">
-                      {club.isJoined ? 'View Club' : 'Join Club'}
+                    <button 
+                      onClick={() => club.isJoined ? handleViewClub(club.id) : handleJoinClub(club.id, club.name)}
+                      disabled={joiningClubId === club.id}
+                      className="mt-5 w-full py-3 bg-gray-100 dark:bg-surface-dark-alt2 hover:bg-primary hover:text-background-dark text-gray-900 dark:text-white font-bold rounded-xl transition-all duration-300 disabled:opacity-50 disabled:cursor-not-allowed"
+                    >
+                      {joiningClubId === club.id ? 'Joining...' : club.isJoined ? 'View Club' : 'Join Club'}
                     </button>
                   </div>
                 </div>
@@ -211,7 +349,11 @@ const MemberDiscover = () => {
         {/* Section 2: Happening This Week */}
         <section className="max-w-7xl mx-auto px-8 pb-12">
           <h2 className="text-2xl font-bold text-gray-900 dark:text-white mb-4">Happening This Week</h2>
-          {error ? (
+          {isLoading ? (
+            <div className="flex justify-center py-10">
+              <Loader />
+            </div>
+          ) : error ? (
             <div className="text-center py-10">
               <p className="text-red-400 mb-4">Error loading events</p>
               <button 
@@ -227,14 +369,16 @@ const MemberDiscover = () => {
                 <div className="p-10 text-center text-gray-400">No events this week</div>
               ) : (
                 events.map((event, index) => (
-                  <Link
+                  <div
                     key={event.id}
-                    to={`/events/${event.id}`}
                     className={`flex flex-col sm:flex-row gap-4 p-5 ${
                       index < events.length - 1 ? 'border-b border-gray-100 dark:border-gray-800' : ''
-                    } hover:bg-gray-50 dark:hover:bg-surface-dark-alt2 transition-colors group cursor-pointer`}
+                    } hover:bg-gray-50 dark:hover:bg-surface-dark-alt2 transition-colors group`}
                   >
-                    <div className="w-full sm:w-20 h-40 sm:h-20 flex-shrink-0 rounded-xl bg-gray-800 flex flex-col items-center justify-center text-center overflow-hidden relative">
+                    <Link
+                      to={`/events/${event.id}`}
+                      className="w-full sm:w-20 h-40 sm:h-20 flex-shrink-0 rounded-xl bg-gray-800 flex flex-col items-center justify-center text-center overflow-hidden relative cursor-pointer"
+                    >
                       {event.image && (
                         <div
                           className="absolute inset-0 bg-cover bg-center opacity-40 group-hover:scale-110 transition-transform duration-500"
@@ -243,26 +387,27 @@ const MemberDiscover = () => {
                       )}
                       <span className="relative z-10 text-xs font-bold text-primary uppercase">{event.month}</span>
                       <span className="relative z-10 text-2xl font-black text-white">{event.day}</span>
-                    </div>
+                    </Link>
                     <div className="flex-1 flex flex-col justify-center">
                       <div className="flex justify-between items-start">
-                        <div>
+                        <Link to={`/events/${event.id}`} className="flex-1">
                           <h4 className="text-lg font-bold text-gray-900 dark:text-white group-hover:text-primary transition-colors">
                             {event.name}
                           </h4>
                           <p className="text-sm text-gray-500 dark:text-gray-400 mt-1">
                             {event.clubName} • {event.time}
                           </p>
-                        </div>
+                        </Link>
                         <button 
                           onClick={(e) => {
                             e.preventDefault();
                             e.stopPropagation();
-                            // RSVP functionality can be added here
+                            handleRSVP(event.id, event.name);
                           }}
-                          className="px-4 py-2 bg-gray-100 dark:bg-gray-800 rounded-full text-sm font-semibold text-gray-900 dark:text-white hover:bg-primary hover:text-background-dark transition-colors"
+                          disabled={rsvpingEventId === event.id}
+                          className="px-4 py-2 bg-gray-100 dark:bg-gray-800 rounded-full text-sm font-semibold text-gray-900 dark:text-white hover:bg-primary hover:text-background-dark transition-colors disabled:opacity-50 disabled:cursor-not-allowed ml-4"
                         >
-                          RSVP
+                          {rsvpingEventId === event.id ? 'Registering...' : 'RSVP'}
                         </button>
                       </div>
                       <div className="flex items-center gap-2 mt-3">
@@ -271,7 +416,7 @@ const MemberDiscover = () => {
                         </span>
                       </div>
                     </div>
-                  </Link>
+                  </div>
                 ))
               )}
             </div>
