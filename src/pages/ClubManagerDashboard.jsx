@@ -37,19 +37,151 @@ const ClubManagerDashboard = () => {
   const clubs = clubsData?.clubs || [];
   const events = eventsData?.events || [];
 
-  // Combined loading state - show single loader if any query is loading
-  const isLoading = clubsLoading || eventsLoading;
+  // Format date helper (moved before use)
+  const formatDate = (dateString) => {
+    if (!dateString) return '';
+    const date = new Date(dateString);
+    const months = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
+    return `${months[date.getMonth()]} ${date.getDate()}, ${date.getFullYear()}`;
+  };
 
-  // Calculate stats
+  // Fetch recent activity (registrations and memberships)
+  const { data: activityData, isLoading: activityLoading } = useQuery({
+    queryKey: ['managerActivity', clubs.length, events.length],
+    queryFn: async () => {
+      const allActivity = [];
+
+      // Use already fetched events data - get recent events
+      const recentEvents = events
+        .filter(event => event.createdAt) // Only events with createdAt
+        .sort((a, b) => {
+          const timeA = a.createdAt ? new Date(a.createdAt).getTime() : 0;
+          const timeB = b.createdAt ? new Date(b.createdAt).getTime() : 0;
+          return timeB - timeA; // Most recent first
+        })
+        .slice(0, 3)
+        .map(event => {
+          const club = clubs.find(c => (c.id || c._id) === event.clubId || (c.id || c._id) === event.clubId?.toString());
+          const eventTimestamp = event.createdAt ? new Date(event.createdAt) : new Date(event.date || Date.now());
+          return {
+            type: 'event',
+            eventName: event.name,
+            clubName: club?.name || 'Unknown Club',
+            date: formatDate(event.date || event.createdAt),
+            timestamp: eventTimestamp
+          };
+        });
+      allActivity.push(...recentEvents);
+
+      // Fetch recent registrations for upcoming events only (limit to 3 most recent events)
+      const upcomingEventIds = events
+        .filter(event => {
+          if (!event.date) return false;
+          return new Date(event.date) >= new Date();
+        })
+        .sort((a, b) => new Date(a.date) - new Date(b.date))
+        .slice(0, 3)
+        .map(event => event.id || event._id);
+
+      for (const eventId of upcomingEventIds) {
+        try {
+          const regResponse = await api.get(`/api/manager/events/${eventId}/registrations?limit=5&page=1`);
+          const registrations = regResponse.data.registrations || [];
+          const event = events.find(e => (e.id || e._id) === eventId);
+          registrations.forEach(reg => {
+            // Parse formatted date string (e.g., "Jan 1, 2024") or use current time as fallback
+            let regTimestamp = new Date();
+            if (reg.registrationDate) {
+              // Try to parse formatted date string
+              const parsed = new Date(reg.registrationDate);
+              if (!isNaN(parsed.getTime())) {
+                regTimestamp = parsed;
+              }
+            }
+            allActivity.push({
+              type: 'registration',
+              eventName: event?.name || 'Unknown Event',
+              userName: reg.name,
+              date: reg.registrationDate,
+              timestamp: regTimestamp
+            });
+          });
+        } catch (error) {
+          // Skip if event doesn't exist or access denied
+          console.error(`Error fetching registrations for event ${eventId}:`, error);
+        }
+      }
+
+      // Fetch recent memberships for clubs (limit to 3 most recent clubs)
+      const recentClubIds = clubs
+        .sort((a, b) => new Date(b.createdAt || 0) - new Date(a.createdAt || 0))
+        .slice(0, 3)
+        .map(club => club.id || club._id);
+
+      for (const clubId of recentClubIds) {
+        try {
+          const membersResponse = await api.get(`/api/manager/clubs/${clubId}/members?limit=5&page=1`);
+          const members = membersResponse.data.members || [];
+          const club = clubs.find(c => (c.id || c._id) === clubId);
+          members.forEach(member => {
+            // Parse formatted date string (e.g., "Jan 1, 2024") or use current time as fallback
+            let memberTimestamp = new Date();
+            if (member.joinDate) {
+              // Try to parse formatted date string
+              const parsed = new Date(member.joinDate);
+              if (!isNaN(parsed.getTime())) {
+                memberTimestamp = parsed;
+              }
+            }
+            allActivity.push({
+              type: 'membership',
+              clubName: club?.name || 'Unknown Club',
+              userName: member.name,
+              date: member.joinDate,
+              timestamp: memberTimestamp
+            });
+          });
+        } catch (error) {
+          // Skip if club doesn't exist or access denied
+          console.error(`Error fetching members for club ${clubId}:`, error);
+        }
+      }
+
+      // Sort by timestamp (most recent first) and return all activities
+      // We'll display only top 6 in the UI, but keep all for "View All" functionality
+      const sortedActivity = allActivity.sort((a, b) => {
+        const timeA = a.timestamp instanceof Date && !isNaN(a.timestamp.getTime()) 
+          ? a.timestamp.getTime() 
+          : (a.timestamp ? new Date(a.timestamp).getTime() : 0);
+        const timeB = b.timestamp instanceof Date && !isNaN(b.timestamp.getTime()) 
+          ? b.timestamp.getTime() 
+          : (b.timestamp ? new Date(b.timestamp).getTime() : 0);
+        
+        // If timestamps are equal or invalid, maintain order (backend already sorts correctly)
+        if (timeA === timeB || (timeA === 0 && timeB === 0)) {
+          return 0;
+        }
+        
+        return timeB - timeA; // Descending order (most recent first)
+      });
+      
+      return { 
+        activity: sortedActivity
+      };
+    },
+    enabled: !clubsLoading && !eventsLoading && clubs.length > 0, // Only fetch after clubs and events are loaded
+    staleTime: 30000 // Cache for 30 seconds
+  });
+
+  // Combined loading state - show single loader if any query is loading
+  const isLoading = clubsLoading || eventsLoading || activityLoading;
+
+  // Calculate stats - use real revenue from API
   const stats = {
     totalClubs: clubs.length,
     totalMembers: clubs.reduce((sum, club) => sum + (club.memberCount || 0), 0),
     totalEvents: events.length,
-    revenue: events.reduce((sum, event) => {
-      // Revenue is stored in cents, convert to taka
-      const eventRevenue = (event.revenue || 0) / 100;
-      return sum + eventRevenue;
-    }, 0)
+    revenue: eventsData?.stats?.revenue || 0 // Use real revenue from API
   };
 
   // Get upcoming events (next 5)
@@ -62,14 +194,6 @@ const ClubManagerDashboard = () => {
     })
     .sort((a, b) => new Date(a.date) - new Date(b.date))
     .slice(0, 5);
-
-  // Format date helper
-  const formatDate = (dateString) => {
-    if (!dateString) return '';
-    const date = new Date(dateString);
-    const months = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
-    return `${months[date.getMonth()]} ${date.getDate()}, ${date.getFullYear()}`;
-  };
 
   // Get status badge
   const getStatusBadge = (event) => {
@@ -275,10 +399,12 @@ const ClubManagerDashboard = () => {
                   <div className="size-10 rounded-full bg-emerald-500/20 text-emerald-400 flex items-center justify-center">
                     <span className="material-symbols-outlined">payments</span>
                   </div>
-                  <div className="flex items-center gap-1 text-primary bg-primary/10 px-2 py-1 rounded-full text-xs font-bold">
-                    <span className="material-symbols-outlined text-xs">trending_up</span>
-                    <span>৳500</span>
-                  </div>
+                  {stats.revenue > 0 && (
+                    <div className="flex items-center gap-1 text-primary bg-primary/10 px-2 py-1 rounded-full text-xs font-bold">
+                      <span className="material-symbols-outlined text-xs">trending_up</span>
+                      <span>Active</span>
+                    </div>
+                  )}
                 </div>
                 <div>
                   <p className="text-slate-500 dark:text-slate-400 text-sm font-medium mb-1">Total Revenue</p>
@@ -402,37 +528,68 @@ const ClubManagerDashboard = () => {
                 <div className="bg-white dark:bg-surface-dark rounded-xl p-6 h-full shadow-sm">
                   <h3 className="text-lg font-bold text-slate-900 dark:text-white mb-6">Recent Activity</h3>
                   <div className="relative pl-4 border-l border-white/10 space-y-8">
-                    {upcomingEvents.length > 0 ? (
-                      upcomingEvents.slice(0, 5).map((event, index) => {
-                        const club = clubs.find(c => (c.id || c._id) === event.clubId || (c.id || c._id) === event.clubId?.toString());
-                        return (
-                          <div key={event.id || event._id} className="relative">
-                            <div className={`absolute -left-[21px] top-1 size-3 rounded-full border-2 border-surface-dark ${
-                              index === 0 ? 'bg-primary' : 'bg-slate-600'
-                            }`}></div>
-                            <div className="flex flex-col gap-1">
-                              <p className="text-sm text-slate-300">
-                                <span className="font-medium text-white">{event.name}</span>
-                                {' '}in{' '}
-                                <span className="font-medium text-white">{club?.name || 'Unknown Club'}</span>
-                              </p>
-                              <span className="text-xs text-slate-500">{formatDate(event.date)}</span>
-                            </div>
+                    {activityData?.activity && activityData.activity.length > 0 ? (
+                      activityData.activity.slice(0, 6).map((activity, index) => (
+                        <div key={`${activity.type}-${index}-${activity.timestamp?.getTime() || index}`} className="relative">
+                          <div className={`absolute -left-[21px] top-1 size-3 rounded-full border-2 border-surface-dark ${
+                            index === 0 ? 'bg-primary' : 'bg-slate-600'
+                          }`}></div>
+                          <div className="flex flex-col gap-1">
+                            <p className="text-sm text-slate-300">
+                              {activity.type === 'registration' && (
+                                <>
+                                  <span className="font-medium text-white">{activity.userName}</span>
+                                  {' '}registered for{' '}
+                                  <span className="font-medium text-white">{activity.eventName}</span>
+                                </>
+                              )}
+                              {activity.type === 'membership' && (
+                                <>
+                                  <span className="font-medium text-white">{activity.userName}</span>
+                                  {' '}joined{' '}
+                                  <span className="font-medium text-white">{activity.clubName}</span>
+                                </>
+                              )}
+                              {activity.type === 'event' && (
+                                <>
+                                  New event{' '}
+                                  <span className="font-medium text-white">{activity.eventName}</span>
+                                  {' '}created
+                                </>
+                              )}
+                            </p>
+                            <span className="text-xs text-slate-500">
+                              {activity.date || formatDate(activity.timestamp)}
+                            </span>
                           </div>
-                        );
-                      })
+                        </div>
+                      ))
+                    ) : activityLoading ? (
+                      <div className="text-sm text-slate-500 text-center py-4">
+                        Loading activity...
+                      </div>
                     ) : (
                       <div className="text-sm text-slate-500 text-center py-4">
                         No recent activity
                       </div>
                     )}
                   </div>
-                  <Link 
-                    to="/dashboard/club-manager/events"
-                    className="w-full mt-8 py-3 rounded-full border border-white/10 text-sm font-bold text-slate-400 hover:text-white hover:bg-white/5 transition-colors flex items-center justify-center"
-                  >
-                    View All Events
-                  </Link>
+                  {activityData?.activity && activityData.activity.length > 6 && (
+                    <Link 
+                      to="/dashboard/club-manager/events"
+                      className="w-full mt-8 py-3 rounded-full border border-white/10 text-sm font-bold text-slate-400 hover:text-white hover:bg-white/5 transition-colors flex items-center justify-center"
+                    >
+                      View All Activities ({activityData.activity.length})
+                    </Link>
+                  )}
+                  {(!activityData?.activity || activityData.activity.length <= 6) && (
+                    <Link 
+                      to="/dashboard/club-manager/events"
+                      className="w-full mt-8 py-3 rounded-full border border-white/10 text-sm font-bold text-slate-400 hover:text-white hover:bg-white/5 transition-colors flex items-center justify-center"
+                    >
+                      View All Events
+                    </Link>
+                  )}
                 </div>
               </div>
             </div>
