@@ -6,7 +6,7 @@
 
 **Connecting people through passions. The world's fastest growing community platform.**
 
-[🌐 Live Demo](https://clubsphere-c7f59.web.app/) • [📚 Documentation](#) • [🐛 Report Bug](#) • [💡 Request Feature](#)
+[🌐 Live Demo](https://clubsphere-c7f59.web.app/) 
 
 </div>
 
