@@ -1,13 +1,18 @@
-import { useEffect } from 'react';
-import { useParams } from 'react-router-dom';
+import { useEffect, useState } from 'react';
+import { useParams, useNavigate } from 'react-router-dom';
 import { useQuery } from '@tanstack/react-query';
 import Navbar from '../components/layout/Navbar';
 import Footer from '../components/layout/Footer';
 import Loader from '../components/ui/Loader';
 import api from '../lib/api';
+import { useAuth } from '../context/AuthContext';
+import Swal from '../lib/sweetalertConfig';
 
 const EventDetails = () => {
   const { id } = useParams();
+  const navigate = useNavigate();
+  const { isAuthenticated, user } = useAuth();
+  const [isRegistering, setIsRegistering] = useState(false);
 
   // Fetch event details from API
   const { data: event, isLoading, error } = useQuery({
@@ -63,6 +68,61 @@ const EventDetails = () => {
     hour: 'numeric', 
     minute: '2-digit' 
   });
+
+  const handleRegisterClick = async () => {
+    // Check if user is authenticated
+    if (!isAuthenticated()) {
+      Swal.fire({
+        icon: 'info',
+        title: 'Login Required',
+        text: 'Please login to register for this event.',
+        showCancelButton: true,
+        confirmButtonText: 'Login',
+        cancelButtonText: 'Cancel'
+      }).then((result) => {
+        if (result.isConfirmed) {
+          navigate('/login', { state: { returnTo: `/events/${id}` } });
+        }
+      });
+      return;
+    }
+
+    // If event is paid, navigate to checkout
+    if (event.isPaid && event.eventFee > 0) {
+      navigate(`/events/${id}/checkout`);
+      return;
+    }
+
+    // If event is free, register directly
+    setIsRegistering(true);
+    try {
+      const response = await api.post('/api/payments/register-free', {
+        eventId: id
+      });
+
+      if (response.data.success) {
+        Swal.fire({
+          icon: 'success',
+          title: 'Registration Successful!',
+          text: 'You have successfully registered for this event.',
+          timer: 3000,
+          showConfirmButton: false
+        }).then(() => {
+          // Refresh event data to update attendee count
+          window.location.reload();
+        });
+      }
+    } catch (error) {
+      console.error('Registration error:', error);
+      Swal.fire({
+        icon: 'error',
+        title: 'Registration Failed',
+        text: error.response?.data?.error || 'Failed to register for this event. Please try again.',
+      });
+    } finally {
+      setIsRegistering(false);
+    }
+  };
 
   return (
     <div className="flex flex-col min-h-screen bg-background-light dark:bg-background-dark-alt text-slate-900 dark:text-white font-display">
@@ -155,8 +215,12 @@ const EventDetails = () => {
                     </div>
                   </div>
                 </div>
-                <button className="w-full bg-primary text-black font-bold text-lg py-4 rounded-xl hover:bg-primary/90 hover:scale-[1.02] active:scale-[0.98] transition-all shadow-[0_0_20px_-5px_rgba(56,224,123,0.4)] mb-4">
-                  {event.isPaid ? 'Register Now' : 'RSVP'}
+                <button
+                  onClick={handleRegisterClick}
+                  disabled={isRegistering}
+                  className="w-full bg-primary text-black font-bold text-lg py-4 rounded-xl hover:bg-primary/90 hover:scale-[1.02] active:scale-[0.98] transition-all shadow-[0_0_20px_-5px_rgba(56,224,123,0.4)] mb-4 disabled:opacity-50 disabled:cursor-not-allowed"
+                >
+                  {isRegistering ? 'Processing...' : event.isPaid ? 'Register Now' : 'RSVP'}
                 </button>
                 <p className="text-center text-xs text-slate-400 dark:text-[#6b7d72] mb-6">
                   {event.maxAttendees && `${event.maxAttendees - event.currentAttendees} spots remaining`}

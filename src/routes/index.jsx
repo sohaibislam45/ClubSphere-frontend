@@ -4,6 +4,9 @@ import Clubs from '../pages/Clubs';
 import ClubDetails from '../pages/ClubDetails';
 import Events from '../pages/Events';
 import EventDetails from '../pages/EventDetails';
+import EventCheckout from '../pages/EventCheckout';
+import PaymentSuccess from '../pages/PaymentSuccess';
+import PaymentCancel from '../pages/PaymentCancel';
 import Login from '../pages/Login';
 import Register from '../pages/Register';
 import AdminDashboard from '../pages/AdminDashboard';
@@ -33,6 +36,16 @@ const AppRoutes = () => {
       <Route path="/clubs/:id" element={<ClubDetails />} />
       <Route path="/events" element={<Events />} />
       <Route path="/events/:id" element={<EventDetails />} />
+      <Route 
+        path="/events/:id/checkout" 
+        element={
+          <PrivateRoute>
+            <EventCheckout />
+          </PrivateRoute>
+        } 
+      />
+      <Route path="/payment/success" element={<PaymentSuccess />} />
+      <Route path="/payment/cancel" element={<PaymentCancel />} />
       <Route path="/login" element={<Login />} />
       <Route path="/register" element={<Register />} />
       <Route 
