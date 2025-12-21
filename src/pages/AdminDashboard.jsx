@@ -4,6 +4,7 @@ import { useAuth } from '../context/AuthContext';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import api from '../lib/api';
 import Loader from '../components/ui/Loader';
+import Swal from '../lib/sweetalertConfig';
 
 const AdminDashboard = () => {
   const { user, logout } = useAuth();
@@ -111,6 +112,20 @@ const AdminDashboard = () => {
     onSuccess: () => {
       queryClient.invalidateQueries(['admin-deletion-requests']);
       queryClient.invalidateQueries(['admin-dashboard-stats']);
+      Swal.fire({
+        icon: 'success',
+        title: 'Club Deleted!',
+        text: 'The club has been successfully deleted.',
+        timer: 3000,
+        showConfirmButton: false
+      });
+    },
+    onError: (error) => {
+      Swal.fire({
+        icon: 'error',
+        title: 'Error',
+        text: error.response?.data?.error || 'Failed to delete club. Please try again.'
+      });
     }
   });
 
@@ -123,6 +138,20 @@ const AdminDashboard = () => {
     onSuccess: () => {
       queryClient.invalidateQueries(['admin-deletion-requests']);
       queryClient.invalidateQueries(['admin-dashboard-stats']);
+      Swal.fire({
+        icon: 'success',
+        title: 'Deletion Request Rejected!',
+        text: 'The deletion request has been rejected. The club remains active.',
+        timer: 3000,
+        showConfirmButton: false
+      });
+    },
+    onError: (error) => {
+      Swal.fire({
+        icon: 'error',
+        title: 'Error',
+        text: error.response?.data?.error || 'Failed to reject deletion request. Please try again.'
+      });
     }
   });
 
@@ -139,15 +168,37 @@ const AdminDashboard = () => {
   };
 
   const handleApproveDeletion = (clubId) => {
-    if (window.confirm('Are you sure you want to approve this club deletion? This action cannot be undone and will delete the club permanently.')) {
-      approveDeletionMutation.mutate(clubId);
-    }
+    Swal.fire({
+      title: 'Approve Club Deletion?',
+      text: 'This action cannot be undone. The club will be permanently deleted along with all related data.',
+      icon: 'warning',
+      showCancelButton: true,
+      confirmButtonColor: '#ef4444',
+      cancelButtonColor: '#6b7280',
+      confirmButtonText: 'Yes, Delete Club',
+      cancelButtonText: 'Cancel'
+    }).then((result) => {
+      if (result.isConfirmed) {
+        approveDeletionMutation.mutate(clubId);
+      }
+    });
   };
 
   const handleRejectDeletion = (clubId) => {
-    if (window.confirm('Are you sure you want to reject this deletion request? The club will remain active.')) {
-      rejectDeletionMutation.mutate(clubId);
-    }
+    Swal.fire({
+      title: 'Reject Deletion Request?',
+      text: 'The deletion request will be rejected and the club will remain active.',
+      icon: 'question',
+      showCancelButton: true,
+      confirmButtonColor: '#38e07b',
+      cancelButtonColor: '#6b7280',
+      confirmButtonText: 'Yes, Reject Request',
+      cancelButtonText: 'Cancel'
+    }).then((result) => {
+      if (result.isConfirmed) {
+        rejectDeletionMutation.mutate(clubId);
+      }
+    });
   };
 
   const pendingClubs = pendingClubsData?.clubs || [];
@@ -440,7 +491,7 @@ const AdminDashboard = () => {
               {/* Pending Approvals Section */}
               <div className="flex flex-col gap-4 p-6 rounded-[2rem] bg-surface-dark border border-surface-highlight">
                 <div className="flex items-center justify-between">
-                  <h3 className="text-white text-lg font-bold">Pending Approvals</h3>
+                  <h3 className="text-white text-lg font-bold">Pending Approval and Delete</h3>
                   <Link to="/dashboard/admin/clubs?status=pending" className="text-primary text-xs font-bold hover:underline">
                     View All
                   </Link>
@@ -495,23 +546,23 @@ const AdminDashboard = () => {
                     ))}
                     {/* Deletion Requests */}
                     {deletionRequests.map((club) => (
-                      <div key={club.id} className="flex items-center justify-between gap-3 p-3 rounded-2xl bg-background-dark border border-red-500/30">
-                        <div className="flex items-center gap-3">
-                          <div 
-                            className="size-10 rounded-full bg-cover bg-center bg-card-dark"
-                            style={{ backgroundImage: club.image ? `url("${club.image}")` : 'none' }}
-                          ></div>
-                          <div className="flex flex-col">
-                            <div className="flex items-center gap-2">
-                              <p className="text-white text-sm font-bold">{club.name}</p>
-                              <span className="px-2 py-0.5 rounded-full bg-red-500/20 text-red-400 text-xs font-bold">Delete</span>
+                      <div key={club.id} className="flex items-center gap-3">
+                        <div className="flex flex-1 items-center justify-between gap-3 p-3 rounded-2xl bg-background-dark border border-red-500/30">
+                          <div className="flex items-center gap-3">
+                            <div 
+                              className="size-10 rounded-full bg-cover bg-center bg-card-dark"
+                              style={{ backgroundImage: club.image ? `url("${club.image}")` : 'none' }}
+                            ></div>
+                            <div className="flex flex-col">
+                              <div className="flex items-center gap-2">
+                                <p className="text-white text-sm font-bold">{club.name}</p>
+                                <span className="px-2 py-0.5 rounded-full bg-red-500/20 text-red-400 text-xs font-bold">Delete</span>
+                              </div>
+                              <p className="text-gray-500 text-xs">
+                                Requested by {club.deletionRequest?.requestedBy || 'Manager'} • {club.deletionRequest?.requestedAt || 'Recently'}
+                              </p>
                             </div>
-                            <p className="text-gray-500 text-xs">
-                              Requested by {club.deletionRequest?.requestedBy || 'Manager'} • {club.deletionRequest?.requestedAt || 'Recently'}
-                            </p>
                           </div>
-                        </div>
-                        <div className="flex gap-2">
                           <button 
                             onClick={() => handleRejectDeletion(club.id)}
                             disabled={rejectDeletionMutation.isPending}
@@ -520,15 +571,15 @@ const AdminDashboard = () => {
                           >
                             <span className="material-symbols-outlined text-[18px]">close</span>
                           </button>
-                          <button 
-                            onClick={() => handleApproveDeletion(club.id)}
-                            disabled={approveDeletionMutation.isPending}
-                            className="size-8 flex items-center justify-center rounded-full bg-red-500 text-white hover:bg-red-600 transition-colors shadow-lg shadow-red-500/20 disabled:opacity-50" 
-                            title="Approve Deletion"
-                          >
-                            <span className="material-symbols-outlined text-[18px]">delete</span>
-                          </button>
                         </div>
+                        <button 
+                          onClick={() => handleApproveDeletion(club.id)}
+                          disabled={approveDeletionMutation.isPending}
+                          className="size-10 flex items-center justify-center rounded-full bg-red-500 text-white hover:bg-red-600 transition-colors shadow-lg shadow-red-500/20 disabled:opacity-50 flex-shrink-0" 
+                          title="Approve Deletion"
+                        >
+                          <span className="material-symbols-outlined text-[20px]">delete</span>
+                        </button>
                       </div>
                     ))}
                   </div>

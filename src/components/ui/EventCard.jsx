@@ -1,6 +1,8 @@
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 
 const EventCard = ({ event }) => {
+  const navigate = useNavigate();
+
   const formatDate = (dateString) => {
     if (!dateString) return '';
     const date = new Date(dateString);
@@ -12,8 +14,20 @@ const EventCard = ({ event }) => {
 
   const dateInfo = formatDate(event.eventDate);
 
+  const handleCardClick = () => {
+    navigate(`/events/${event.id}`);
+  };
+
+  const handleButtonClick = (e) => {
+    e.stopPropagation();
+    navigate(`/events/${event.id}`);
+  };
+
   return (
-    <Link to={`/events/${event.id}`} className="group relative flex flex-col bg-white dark:bg-surface-dark-alt2 rounded-[2rem] overflow-hidden border border-slate-200 dark:border-border-dark hover:border-primary/50 dark:hover:border-primary/50 transition-all duration-300 hover:shadow-xl hover:shadow-primary/5 hover:-translate-y-1">
+    <div 
+      onClick={handleCardClick}
+      className="group relative flex flex-col bg-white dark:bg-surface-dark-alt2 rounded-[2rem] overflow-hidden border border-slate-200 dark:border-border-dark hover:border-primary/50 dark:hover:border-primary/50 transition-all duration-300 hover:shadow-xl hover:shadow-primary/5 hover:-translate-y-1 cursor-pointer"
+    >
       {/* Image Container */}
       <div className="relative h-60 w-full overflow-hidden">
         <div className="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent z-10"></div>
@@ -62,17 +76,14 @@ const EventCard = ({ event }) => {
           </div>
           <span className="text-sm font-medium text-slate-700 dark:text-slate-300">{event.clubName || "Club"}</span>
           <button
-            onClick={(e) => {
-              e.preventDefault();
-              // Handle registration
-            }}
+            onClick={handleButtonClick}
             className="ml-auto text-sm font-bold text-primary hover:text-primary-dark transition-colors"
           >
             {event.isPaid ? 'Register' : 'Join Event'}
           </button>
         </div>
       </div>
-    </Link>
+    </div>
   );
 };
 

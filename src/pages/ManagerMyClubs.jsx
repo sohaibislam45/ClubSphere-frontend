@@ -432,14 +432,9 @@ const ManagerMyClubs = () => {
                   </div>
                   {/* Content */}
                   <div className="flex flex-1 flex-col p-5">
-                    <div className="mb-4 flex items-start justify-between">
-                      <div>
-                        <h3 className="mb-1 text-xl font-bold text-white">{club.name}</h3>
-                        <p className="text-sm text-[#9eb7a8]">{club.schedule || club.description}</p>
-                      </div>
-                      <button className="text-[#9eb7a8] hover:text-white">
-                        <span className="material-symbols-outlined">more_vert</span>
-                      </button>
+                    <div className="mb-4">
+                      <h3 className="mb-1 text-xl font-bold text-white">{club.name}</h3>
+                      <p className="text-sm text-[#9eb7a8]">{club.schedule || club.description}</p>
                     </div>
                     {/* Stats */}
                     <div className="mb-6 grid grid-cols-2 gap-4 rounded-lg bg-black/20 p-3">
