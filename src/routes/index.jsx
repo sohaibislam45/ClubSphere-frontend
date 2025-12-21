@@ -29,6 +29,7 @@ import MemberMyClubs from '../pages/MemberMyClubs';
 import MemberMyEvents from '../pages/MemberMyEvents';
 import MemberPaymentHistory from '../pages/MemberPaymentHistory';
 import MemberSettings from '../pages/MemberSettings';
+import NotFound from '../pages/NotFound';
 import PrivateRoute from '../components/routes/PrivateRoute';
 
 const AppRoutes = () => {
@@ -213,6 +214,8 @@ const AppRoutes = () => {
           </PrivateRoute>
         } 
       />
+      {/* Catch-all route for 404 pages */}
+      <Route path="*" element={<NotFound />} />
     </Routes>
   );
 };
