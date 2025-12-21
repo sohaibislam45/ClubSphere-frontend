@@ -79,6 +79,25 @@ if (typeof document !== 'undefined' && !document.getElementById('swal2-clubspher
       border-color: ${theme.primary} !important;
       box-shadow: 0 0 0 3px ${theme.primary}33 !important;
     }
+    .swal2-input select,
+    select.swal2-input {
+      background-color: ${theme.backgroundDark} !important;
+      border: 1px solid ${theme.borderDark} !important;
+      color: ${theme.textWhite} !important;
+      border-radius: 9999px !important;
+      padding: 0.875rem 1rem !important;
+      appearance: none;
+      background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 12 12'%3E%3Cpath fill='%239eb7a8' d='M6 9L1 4h10z'/%3E%3C/svg%3E");
+      background-repeat: no-repeat;
+      background-position: right 1rem center;
+      padding-right: 2.5rem !important;
+    }
+    .swal2-input select:focus,
+    select.swal2-input:focus {
+      border-color: ${theme.primary} !important;
+      box-shadow: 0 0 0 3px ${theme.primary}33 !important;
+      outline: none;
+    }
     .swal2-validation-message {
       background-color: ${theme.error} !important;
       color: ${theme.textWhite} !important;

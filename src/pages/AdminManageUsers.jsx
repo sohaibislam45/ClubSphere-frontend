@@ -54,6 +54,30 @@ const AdminManageUsers = () => {
     }
   });
 
+  // Update user mutation
+  const updateUserMutation = useMutation({
+    mutationFn: async ({ userId, userData }) => {
+      await api.put(`/api/admin/users/${userId}`, userData);
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries(['admin-users']);
+      Swal.fire({
+        icon: 'success',
+        title: 'User Updated',
+        text: 'User has been updated successfully',
+        timer: 2000,
+        showConfirmButton: false
+      });
+    },
+    onError: (error) => {
+      Swal.fire({
+        icon: 'error',
+        title: 'Error',
+        text: error.response?.data?.error || 'Failed to update user'
+      });
+    }
+  });
+
   // Get user initials for avatar fallback
   const getUserInitials = (name) => {
     if (!name) return 'U';
@@ -90,6 +114,66 @@ const AdminManageUsers = () => {
       }
     };
     return badges[role] || badges.member;
+  };
+
+  // Handle edit user
+  const handleEditUser = (userItem) => {
+    Swal.fire({
+      title: 'Edit User',
+      html: `
+        <div style="text-align: left; margin-top: 1rem;">
+          <label style="display: block; color: #9eb7a8; font-size: 0.875rem; margin-bottom: 0.5rem; font-weight: 500;">Name</label>
+          <input id="swal-name" class="swal2-input" value="${userItem.name || ''}" placeholder="User name" style="margin-bottom: 1rem;">
+          
+          <label style="display: block; color: #9eb7a8; font-size: 0.875rem; margin-bottom: 0.5rem; font-weight: 500;">Email</label>
+          <input id="swal-email" class="swal2-input" type="email" value="${userItem.email || ''}" placeholder="User email" style="margin-bottom: 1rem;">
+          
+          <label style="display: block; color: #9eb7a8; font-size: 0.875rem; margin-bottom: 0.5rem; font-weight: 500;">Role</label>
+          <select id="swal-role" class="swal2-input" style="margin-bottom: 0;">
+            <option value="member" ${userItem.role === 'member' ? 'selected' : ''}>Member</option>
+            <option value="clubManager" ${userItem.role === 'clubManager' ? 'selected' : ''}>Club Manager</option>
+            <option value="admin" ${userItem.role === 'admin' ? 'selected' : ''}>Admin</option>
+          </select>
+        </div>
+      `,
+      focusConfirm: false,
+      showCancelButton: true,
+      confirmButtonText: 'Save Changes',
+      cancelButtonText: 'Cancel',
+      confirmButtonColor: '#38e07b',
+      cancelButtonColor: '#29382f',
+      preConfirm: () => {
+        const name = document.getElementById('swal-name').value.trim();
+        const email = document.getElementById('swal-email').value.trim();
+        const role = document.getElementById('swal-role').value;
+
+        if (!name) {
+          Swal.showValidationMessage('Name is required');
+          return false;
+        }
+
+        if (!email) {
+          Swal.showValidationMessage('Email is required');
+          return false;
+        }
+
+        // Basic email validation
+        const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+        if (!emailRegex.test(email)) {
+          Swal.showValidationMessage('Please enter a valid email address');
+          return false;
+        }
+
+        return { name, email, role };
+      }
+    }).then((result) => {
+      if (result.isConfirmed && result.value) {
+        updateUserMutation.mutate({
+          userId: userItem.id,
+          userData: result.value
+        });
+      }
+    });
   };
 
   const users = data?.users || [];
@@ -310,8 +394,10 @@ const AdminManageUsers = () => {
                             <td className="p-5 text-right">
                               <div className="flex items-center justify-end gap-2">
                                 <button
-                                  className="size-8 flex items-center justify-center rounded-full hover:bg-white/10 text-[#9eb7a8] hover:text-white transition-colors"
-                                  title="Edit Role"
+                                  onClick={() => handleEditUser(userItem)}
+                                  disabled={updateUserMutation.isPending}
+                                  className="size-8 flex items-center justify-center rounded-full hover:bg-white/10 text-[#9eb7a8] hover:text-white transition-colors disabled:opacity-50"
+                                  title="Edit User"
                                 >
                                   <span className="material-symbols-outlined text-[20px]">edit</span>
                                 </button>
@@ -331,7 +417,8 @@ const AdminManageUsers = () => {
                                       }
                                     });
                                   }}
-                                  className="size-8 flex items-center justify-center rounded-full hover:bg-red-500/20 text-[#9eb7a8] hover:text-red-400 transition-colors"
+                                  disabled={deleteUserMutation.isPending}
+                                  className="size-8 flex items-center justify-center rounded-full hover:bg-red-500/20 text-[#9eb7a8] hover:text-red-400 transition-colors disabled:opacity-50"
                                   title="Delete User"
                                 >
                                   <span className="material-symbols-outlined text-[20px]">delete</span>
