@@ -10,7 +10,7 @@ import { useAuth } from '../context/AuthContext';
 import Swal from '../lib/sweetalertConfig';
 
 // Initialize Stripe (using publishable key from environment variable)
-const STRIPE_PUBLISHABLE_KEY = import.meta.env.VITE_STRIPE_PUBLISHABLE_KEY || 'pk_test_BQokikJOvBiI2HlWgH4olfQ2';
+const STRIPE_PUBLISHABLE_KEY = import.meta.env.VITE_STRIPE_PUBLISHABLE_KEY || 'pk_test_51Sel9TEUORonO8t1ajChbAAsGeZDpxiTln2akDFmhc54czA41d0nCjl7IXUu2vkUhSjp516lV6F9w3hyA7WpAe0900hKQXMb29';
 
 if (!STRIPE_PUBLISHABLE_KEY || !STRIPE_PUBLISHABLE_KEY.startsWith('pk_')) {
   console.error('Invalid Stripe publishable key. Please check VITE_STRIPE_PUBLISHABLE_KEY in your .env file.');
