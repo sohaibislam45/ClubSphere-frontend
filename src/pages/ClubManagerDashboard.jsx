@@ -1,16 +1,88 @@
 import { useState, useRef, useEffect } from 'react';
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
+import { useQuery } from '@tanstack/react-query';
 import { useAuth } from '../context/AuthContext';
 import ManagerSidebar from '../components/layout/ManagerSidebar';
+import Loader from '../components/ui/Loader';
+import api from '../lib/api';
 
 const ClubManagerDashboard = () => {
   const { user, logout } = useAuth();
+  const navigate = useNavigate();
   const [dropdownOpen, setDropdownOpen] = useState(false);
   const dropdownRef = useRef(null);
 
   useEffect(() => {
     document.title = 'Club Manager Dashboard - ClubSphere';
   }, []);
+
+  // Fetch clubs
+  const { data: clubsData, isLoading: clubsLoading } = useQuery({
+    queryKey: ['managerClubs'],
+    queryFn: async () => {
+      const response = await api.get('/api/manager/clubs');
+      return response.data;
+    }
+  });
+
+  // Fetch events
+  const { data: eventsData, isLoading: eventsLoading } = useQuery({
+    queryKey: ['managerEvents'],
+    queryFn: async () => {
+      const response = await api.get('/api/manager/events?filter=all');
+      return response.data;
+    }
+  });
+
+  const clubs = clubsData?.clubs || [];
+  const events = eventsData?.events || [];
+
+  // Calculate stats
+  const stats = {
+    totalClubs: clubs.length,
+    totalMembers: clubs.reduce((sum, club) => sum + (club.memberCount || 0), 0),
+    totalEvents: events.length,
+    revenue: events.reduce((sum, event) => {
+      // Revenue is stored in cents, convert to taka
+      const eventRevenue = (event.revenue || 0) / 100;
+      return sum + eventRevenue;
+    }, 0)
+  };
+
+  // Get upcoming events (next 5)
+  const now = new Date();
+  const upcomingEvents = events
+    .filter(event => {
+      if (!event.date) return false;
+      const eventDate = new Date(event.date);
+      return eventDate >= now;
+    })
+    .sort((a, b) => new Date(a.date) - new Date(b.date))
+    .slice(0, 5);
+
+  // Format date helper
+  const formatDate = (dateString) => {
+    if (!dateString) return '';
+    const date = new Date(dateString);
+    const months = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
+    return `${months[date.getMonth()]} ${date.getDate()}, ${date.getFullYear()}`;
+  };
+
+  // Get status badge
+  const getStatusBadge = (event) => {
+    if (!event.date) {
+      return { text: 'Draft', color: 'yellow' };
+    }
+    const eventDate = new Date(event.date);
+    const now = new Date();
+    if (eventDate < now) {
+      return { text: 'Past', color: 'gray' };
+    }
+    if (event.status === 'draft') {
+      return { text: 'Draft', color: 'yellow' };
+    }
+    return { text: 'Published', color: 'green' };
+  };
 
   // Close dropdown when clicking outside
   useEffect(() => {
@@ -28,92 +100,6 @@ const ClubManagerDashboard = () => {
       document.removeEventListener('mousedown', handleClickOutside);
     };
   }, [dropdownOpen]);
-
-  const clubs = [
-    {
-      id: 1,
-      name: 'Grandmaster Chess',
-      description: 'Weekly strategic meetups',
-      members: 450,
-      image: 'https://lh3.googleusercontent.com/aida-public/AB6AXuD69HVW9YOVekWCKFaw_ghZLxjJsKbYVUwwqnssqw5Lgc0NShYlTUHqyGMYmnrsoQadxLoLViDzQhy17116d41eHtUrmJXvvAxrNCWjEKSIra2_9jXOtkEPBY5-OGKiATXxmomY6GGkR5fao9nUqFnoJ5hk08HjWQXbg_uRef25oibGKoOz7iY7QtdxT7Jo7d0tINLE54c-_OFHl0YnK75BPihQO236IWO_xGA7It81ZC6tcxZ_fj5n4Co_84WUAo_6h1It9_KpZjxp'
-    },
-    {
-      id: 2,
-      name: 'Alpine Hikers',
-      description: 'Outdoor adventures',
-      members: 720,
-      image: 'https://lh3.googleusercontent.com/aida-public/AB6AXuAqfKkfLU2bsKiagacUkK08ocKRyLzOogGWW7u64YGLp8qZ2KB8TyK4UShHC3jYqrmiEL0nhpyhCZQWvcVZlnfaX6DYenWxsjLsQsnVeVrJcBkyZyjj2kYa08YnVlq-xfV4AHwn6-cE357qJZgakY7_CAionwU9w--ajzqTNH2wMEIIgG6804m2zzWUDhyKE_TWGzIxIOoD3-aLHxZ9uzcPoovbPIQ-JGTk9y08r8gEkFRRB-mZKPcPK5umRScDb8RW2p-NE6W9KPUj'
-    }
-  ];
-
-  const events = [
-    {
-      id: 1,
-      name: 'Summer Chess Tournament',
-      club: 'Grandmaster Chess',
-      date: 'Aug 12, 2023',
-      status: 'Published',
-      statusColor: 'green'
-    },
-    {
-      id: 2,
-      name: 'Mountain Trail Basics',
-      club: 'Alpine Hikers',
-      date: 'Aug 15, 2023',
-      status: 'Draft',
-      statusColor: 'yellow'
-    },
-    {
-      id: 3,
-      name: 'End of Season Gala',
-      club: 'All Clubs',
-      date: 'Sep 01, 2023',
-      status: 'Planning',
-      statusColor: 'blue'
-    }
-  ];
-
-  const activities = [
-    {
-      id: 1,
-      user: 'Sarah M.',
-      action: 'registered for',
-      target: 'Summer Chess Tournament',
-      time: '2 mins ago',
-      isPrimary: true
-    },
-    {
-      id: 2,
-      user: 'James K.',
-      action: 'joined',
-      target: 'Alpine Hikers',
-      time: '1 hour ago',
-      isPrimary: false
-    },
-    {
-      id: 3,
-      user: 'Elena R.',
-      action: 'payment received',
-      amount: '৳45.00',
-      time: '3 hours ago',
-      isPrimary: false
-    },
-    {
-      id: 4,
-      action: 'You updated',
-      target: 'Mountain Trail Basics',
-      time: 'Yesterday',
-      isPrimary: false
-    },
-    {
-      id: 5,
-      user: 'Michael B.',
-      action: 'left',
-      target: 'Grandmaster Chess',
-      time: 'Yesterday',
-      isPrimary: false
-    }
-  ];
 
   return (
     <div className="flex h-screen w-full overflow-hidden bg-background-light dark:bg-background-dark font-display text-slate-900 dark:text-white antialiased">
@@ -145,7 +131,10 @@ const ClubManagerDashboard = () => {
               <span className="material-symbols-outlined text-[20px]">notifications</span>
               <span className="absolute top-2.5 right-2.5 size-2 bg-primary rounded-full border-2 border-surface-dark"></span>
             </button>
-            <button className="hidden sm:flex h-10 px-4 rounded-full bg-primary hover:bg-green-400 text-background-dark font-bold text-sm items-center gap-2 transition-colors">
+            <button 
+              onClick={() => navigate('/dashboard/club-manager/events')}
+              className="hidden sm:flex h-10 px-4 rounded-full bg-primary hover:bg-green-400 text-background-dark font-bold text-sm items-center gap-2 transition-colors"
+            >
               <span className="material-symbols-outlined text-lg">add</span>
               <span>Create Event</span>
             </button>
@@ -214,7 +203,9 @@ const ClubManagerDashboard = () => {
                 <p className="text-slate-500 dark:text-slate-400 max-w-2xl">Here is the latest performance overview for your managed clubs and recent activity.</p>
               </div>
               <div className="text-right hidden md:block">
-                <p className="text-sm font-medium text-slate-500 dark:text-slate-400">Last updated: Today, 9:41 AM</p>
+                <p className="text-sm font-medium text-slate-500 dark:text-slate-400">
+                  Last updated: {new Date().toLocaleTimeString('en-US', { hour: 'numeric', minute: '2-digit' })}
+                </p>
               </div>
             </div>
 
@@ -230,7 +221,11 @@ const ClubManagerDashboard = () => {
                 </div>
                 <div>
                   <p className="text-slate-500 dark:text-slate-400 text-sm font-medium mb-1">Managed Clubs</p>
-                  <h3 className="text-3xl font-bold text-slate-900 dark:text-white">3</h3>
+                  {clubsLoading ? (
+                    <Loader />
+                  ) : (
+                    <h3 className="text-3xl font-bold text-slate-900 dark:text-white">{stats.totalClubs}</h3>
+                  )}
                 </div>
               </div>
 
@@ -247,7 +242,13 @@ const ClubManagerDashboard = () => {
                 </div>
                 <div>
                   <p className="text-slate-500 dark:text-slate-400 text-sm font-medium mb-1">Total Members</p>
-                  <h3 className="text-3xl font-bold text-slate-900 dark:text-white">1,240</h3>
+                  {clubsLoading ? (
+                    <Loader />
+                  ) : (
+                    <h3 className="text-3xl font-bold text-slate-900 dark:text-white">
+                      {stats.totalMembers.toLocaleString()}
+                    </h3>
+                  )}
                 </div>
               </div>
 
@@ -264,7 +265,11 @@ const ClubManagerDashboard = () => {
                 </div>
                 <div>
                   <p className="text-slate-500 dark:text-slate-400 text-sm font-medium mb-1">Events Created</p>
-                  <h3 className="text-3xl font-bold text-slate-900 dark:text-white">12</h3>
+                  {eventsLoading ? (
+                    <Loader />
+                  ) : (
+                    <h3 className="text-3xl font-bold text-slate-900 dark:text-white">{stats.totalEvents}</h3>
+                  )}
                 </div>
               </div>
 
@@ -281,7 +286,13 @@ const ClubManagerDashboard = () => {
                 </div>
                 <div>
                   <p className="text-slate-500 dark:text-slate-400 text-sm font-medium mb-1">Total Revenue</p>
-                  <h3 className="text-3xl font-bold text-slate-900 dark:text-white">৳4,500</h3>
+                  {eventsLoading ? (
+                    <Loader />
+                  ) : (
+                    <h3 className="text-3xl font-bold text-slate-900 dark:text-white">
+                      ৳{stats.revenue.toLocaleString('en-US', { minimumFractionDigits: 0, maximumFractionDigits: 0 })}
+                    </h3>
+                  )}
                 </div>
               </div>
             </div>
@@ -294,39 +305,47 @@ const ClubManagerDashboard = () => {
                 <div className="flex flex-col gap-4">
                   <div className="flex items-center justify-between">
                     <h3 className="text-xl font-bold text-slate-900 dark:text-white">Your Clubs</h3>
-                    <button className="text-primary text-sm font-bold hover:underline">View All</button>
+                    <Link to="/dashboard/club-manager/clubs" className="text-primary text-sm font-bold hover:underline">
+                      View All
+                    </Link>
                   </div>
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                    {clubs.map((club) => (
-                      <div key={club.id} className="bg-white dark:bg-surface-dark rounded-xl p-4 flex gap-4 items-center group cursor-pointer hover:bg-white/5 border border-transparent hover:border-primary/20 transition-all">
-                        <div 
-                          className="size-20 rounded-lg bg-cover bg-center shrink-0"
-                          style={{ backgroundImage: `url("${club.image}")` }}
-                        ></div>
-                        <div className="flex flex-col flex-1 min-w-0">
-                          <div className="flex justify-between items-start">
-                            <h4 className="font-bold text-lg text-slate-900 dark:text-white truncate">{club.name}</h4>
-                            <span className="material-symbols-outlined text-slate-500 hover:text-primary transition-colors">more_horiz</span>
-                          </div>
-                          <p className="text-sm text-slate-500 dark:text-slate-400 mb-2 truncate">{club.description}</p>
-                          <div className="flex items-center gap-2">
-                            <div className="flex -space-x-2">
-                              <div className="size-6 rounded-full border-2 border-surface-dark bg-slate-500"></div>
-                              <div className="size-6 rounded-full border-2 border-surface-dark bg-slate-600"></div>
-                              <div className="size-6 rounded-full border-2 border-surface-dark bg-slate-700"></div>
+                  {clubsLoading ? (
+                    <div className="flex items-center justify-center py-20">
+                      <Loader />
+                    </div>
+                  ) : (
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                      {clubs.slice(0, 4).map((club) => (
+                        <Link
+                          key={club.id || club._id}
+                          to={`/dashboard/club-manager/clubs/${club.id || club._id}`}
+                          className="bg-white dark:bg-surface-dark rounded-xl p-4 flex gap-4 items-center group cursor-pointer hover:bg-white/5 border border-transparent hover:border-primary/20 transition-all"
+                        >
+                          <div 
+                            className="size-20 rounded-lg bg-cover bg-center shrink-0"
+                            style={{ backgroundImage: club.image ? `url("${club.image}")` : 'none', backgroundColor: '#1c2620' }}
+                          ></div>
+                          <div className="flex flex-col flex-1 min-w-0">
+                            <div className="flex justify-between items-start">
+                              <h4 className="font-bold text-lg text-slate-900 dark:text-white truncate">{club.name}</h4>
+                              <span className="material-symbols-outlined text-slate-500 hover:text-primary transition-colors">more_horiz</span>
                             </div>
-                            <span className="text-xs font-medium text-slate-400">+{club.members} members</span>
+                            <p className="text-sm text-slate-500 dark:text-slate-400 mb-2 truncate">{club.description || 'No description'}</p>
+                            <div className="flex items-center gap-2">
+                              <span className="text-xs font-medium text-slate-400">{club.memberCount || 0} members</span>
+                            </div>
                           </div>
+                        </Link>
+                      ))}
+                      {clubs.length === 0 && (
+                        <div className="md:col-span-2 rounded-xl border-2 border-dashed border-slate-700 text-slate-500 p-8 flex flex-col items-center justify-center gap-2 min-h-[100px]">
+                          <span className="material-symbols-outlined text-4xl">flag</span>
+                          <p className="font-bold">No clubs yet</p>
+                          <p className="text-sm">Create your first club to get started</p>
                         </div>
-                      </div>
-                    ))}
-                    <button className="md:col-span-2 rounded-xl border-2 border-dashed border-slate-700 hover:border-primary/50 text-slate-500 hover:text-primary p-4 flex items-center justify-center gap-2 min-h-[100px] transition-all group">
-                      <div className="size-10 rounded-full bg-slate-800 group-hover:bg-primary/20 flex items-center justify-center transition-colors">
-                        <span className="material-symbols-outlined">add</span>
-                      </div>
-                      <span className="font-bold">Create New Club</span>
-                    </button>
-                  </div>
+                      )}
+                    </div>
+                  )}
                 </div>
 
                 {/* Upcoming Events Table */}
@@ -349,25 +368,49 @@ const ClubManagerDashboard = () => {
                         </tr>
                       </thead>
                       <tbody className="divide-y divide-white/5 text-sm">
-                        {events.map((event) => (
-                          <tr key={event.id} className="hover:bg-white/5 transition-colors">
-                            <td className="px-6 py-4 font-medium text-slate-900 dark:text-white">{event.name}</td>
-                            <td className="px-6 py-4 text-slate-500">{event.club}</td>
-                            <td className="px-6 py-4 text-slate-500">{event.date}</td>
-                            <td className="px-6 py-4">
-                              <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${
-                                event.statusColor === 'green' ? 'bg-green-500/10 text-green-400 border border-green-500/20' :
-                                event.statusColor === 'yellow' ? 'bg-yellow-500/10 text-yellow-400 border border-yellow-500/20' :
-                                'bg-blue-500/10 text-blue-400 border border-blue-500/20'
-                              }`}>
-                                {event.status}
-                              </span>
-                            </td>
-                            <td className="px-6 py-4 text-right">
-                              <button className="text-slate-400 hover:text-white"><span className="material-symbols-outlined">edit</span></button>
+                        {eventsLoading ? (
+                          <tr>
+                            <td colSpan="5" className="px-6 py-8 text-center">
+                              <Loader />
                             </td>
                           </tr>
-                        ))}
+                        ) : upcomingEvents.length === 0 ? (
+                          <tr>
+                            <td colSpan="5" className="px-6 py-8 text-center text-slate-500">
+                              No upcoming events
+                            </td>
+                          </tr>
+                        ) : (
+                          upcomingEvents.map((event) => {
+                            const statusBadge = getStatusBadge(event);
+                            // Find club name
+                            const club = clubs.find(c => (c.id || c._id) === event.clubId || (c.id || c._id) === event.clubId?.toString());
+                            return (
+                              <tr key={event.id || event._id} className="hover:bg-white/5 transition-colors">
+                                <td className="px-6 py-4 font-medium text-slate-900 dark:text-white">{event.name}</td>
+                                <td className="px-6 py-4 text-slate-500">{club?.name || 'Unknown Club'}</td>
+                                <td className="px-6 py-4 text-slate-500">{formatDate(event.date)}</td>
+                                <td className="px-6 py-4">
+                                  <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${
+                                    statusBadge.color === 'green' ? 'bg-green-500/10 text-green-400 border border-green-500/20' :
+                                    statusBadge.color === 'yellow' ? 'bg-yellow-500/10 text-yellow-400 border border-yellow-500/20' :
+                                    'bg-gray-500/10 text-gray-400 border border-gray-500/20'
+                                  }`}>
+                                    {statusBadge.text}
+                                  </span>
+                                </td>
+                                <td className="px-6 py-4 text-right">
+                                  <Link 
+                                    to={`/dashboard/club-manager/events/${event.id || event._id}/registrations`}
+                                    className="text-slate-400 hover:text-white"
+                                  >
+                                    <span className="material-symbols-outlined">edit</span>
+                                  </Link>
+                                </td>
+                              </tr>
+                            );
+                          })
+                        )}
                       </tbody>
                     </table>
                   </div>
@@ -379,36 +422,37 @@ const ClubManagerDashboard = () => {
                 <div className="bg-white dark:bg-surface-dark rounded-xl p-6 h-full shadow-sm">
                   <h3 className="text-lg font-bold text-slate-900 dark:text-white mb-6">Recent Activity</h3>
                   <div className="relative pl-4 border-l border-white/10 space-y-8">
-                    {activities.map((activity) => (
-                      <div key={activity.id} className="relative">
-                        <div className={`absolute -left-[21px] top-1 size-3 rounded-full border-2 border-surface-dark ${
-                          activity.isPrimary ? 'bg-primary' : 'bg-slate-600'
-                        }`}></div>
-                        <div className="flex flex-col gap-1">
-                          <p className="text-sm text-slate-300">
-                            {activity.user && <span className="font-bold text-white">{activity.user}</span>} {activity.action}{' '}
-                            {activity.target && (
-                              <span className={activity.action === 'registered for' ? 'text-primary hover:underline cursor-pointer' : 'font-medium text-white'}>
-                                {activity.target}
-                              </span>
-                            )}
-                            {activity.amount && (
-                              <>
-                                <div className="flex items-center gap-2 mt-1">
-                                  <span className="px-2 py-0.5 rounded bg-white/5 text-xs text-slate-400 font-mono">{activity.amount}</span>
-                                  <span className="text-xs text-green-400">Success</span>
-                                </div>
-                              </>
-                            )}
-                          </p>
-                          <span className="text-xs text-slate-500">{activity.time}</span>
-                        </div>
+                    {upcomingEvents.length > 0 ? (
+                      upcomingEvents.slice(0, 5).map((event, index) => {
+                        const club = clubs.find(c => (c.id || c._id) === event.clubId || (c.id || c._id) === event.clubId?.toString());
+                        return (
+                          <div key={event.id || event._id} className="relative">
+                            <div className={`absolute -left-[21px] top-1 size-3 rounded-full border-2 border-surface-dark ${
+                              index === 0 ? 'bg-primary' : 'bg-slate-600'
+                            }`}></div>
+                            <div className="flex flex-col gap-1">
+                              <p className="text-sm text-slate-300">
+                                <span className="font-medium text-white">{event.name}</span>
+                                {' '}in{' '}
+                                <span className="font-medium text-white">{club?.name || 'Unknown Club'}</span>
+                              </p>
+                              <span className="text-xs text-slate-500">{formatDate(event.date)}</span>
+                            </div>
+                          </div>
+                        );
+                      })
+                    ) : (
+                      <div className="text-sm text-slate-500 text-center py-4">
+                        No recent activity
                       </div>
-                    ))}
+                    )}
                   </div>
-                  <button className="w-full mt-8 py-3 rounded-full border border-white/10 text-sm font-bold text-slate-400 hover:text-white hover:bg-white/5 transition-colors">
-                    View Full History
-                  </button>
+                  <Link 
+                    to="/dashboard/club-manager/events"
+                    className="w-full mt-8 py-3 rounded-full border border-white/10 text-sm font-bold text-slate-400 hover:text-white hover:bg-white/5 transition-colors flex items-center justify-center"
+                  >
+                    View All Events
+                  </Link>
                 </div>
               </div>
             </div>
