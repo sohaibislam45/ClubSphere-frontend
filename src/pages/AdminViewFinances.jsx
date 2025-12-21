@@ -326,7 +326,11 @@ const AdminViewFinances = () => {
                               </div>
                             </td>
                             <td className="p-5 text-right">
-                              <span className="text-white font-mono font-medium">{transaction.amount}</span>
+                              {transaction.status === 'failed' ? (
+                                <span className="text-[#9eb7a8]">-</span>
+                              ) : (
+                                <span className="text-white font-mono font-medium">{transaction.amount}</span>
+                              )}
                             </td>
                             <td className="p-5">
                               <span className="text-[#9eb7a8]">{transaction.type}</span>
