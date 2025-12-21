@@ -24,6 +24,29 @@ const EventDetails = () => {
     enabled: !!id, // Only fetch if id exists
   });
 
+  // Fetch registration status (only if user is authenticated)
+  const { data: registrationData, isLoading: registrationLoading, refetch: refetchRegistration } = useQuery({
+    queryKey: ['event-registration', id],
+    queryFn: async () => {
+      const response = await api.get(`/api/events/${id}/registration`);
+      return response.data;
+    },
+    enabled: !!id && (!!localStorage.getItem('token') || !!user), // Only fetch if event ID exists and user has token or user object
+    refetchOnMount: true,
+    refetchOnWindowFocus: true,
+    staleTime: 0, // Always consider data stale to ensure fresh checks
+  });
+
+  const isRegistered = registrationData?.isRegistered || false;
+
+  // Refetch registration when user becomes available or when component mounts
+  useEffect(() => {
+    const token = localStorage.getItem('token');
+    if ((user || token) && id) {
+      refetchRegistration();
+    }
+  }, [user, id, refetchRegistration]);
+
   // Set document title - must be called before any conditional returns
   useEffect(() => {
     if (event) {
@@ -87,8 +110,8 @@ const EventDetails = () => {
       return;
     }
 
-    // If event is paid, navigate to checkout
-    if (event.isPaid && event.eventFee > 0) {
+    // If event has a fee (is paid), navigate to checkout
+    if (event.eventFee > 0) {
       navigate(`/events/${id}/checkout`);
       return;
     }
@@ -108,6 +131,8 @@ const EventDetails = () => {
           timer: 3000,
           showConfirmButton: false
         }).then(() => {
+          // Refetch registration status and event data
+          refetchRegistration();
           // Refresh event data to update attendee count
           window.location.reload();
         });
@@ -217,10 +242,14 @@ const EventDetails = () => {
                 </div>
                 <button
                   onClick={handleRegisterClick}
-                  disabled={isRegistering}
-                  className="w-full bg-primary text-black font-bold text-lg py-4 rounded-xl hover:bg-primary/90 hover:scale-[1.02] active:scale-[0.98] transition-all shadow-[0_0_20px_-5px_rgba(56,224,123,0.4)] mb-4 disabled:opacity-50 disabled:cursor-not-allowed"
+                  disabled={isRegistering || isRegistered || registrationLoading}
+                  className={`w-full font-bold text-lg py-4 rounded-xl transition-all shadow-[0_0_20px_-5px_rgba(56,224,123,0.4)] mb-4 disabled:opacity-50 disabled:cursor-not-allowed ${
+                    isRegistered 
+                      ? 'bg-slate-200 dark:bg-[#29382f] text-slate-600 dark:text-slate-400 cursor-not-allowed' 
+                      : 'bg-primary text-black hover:bg-primary/90 hover:scale-[1.02] active:scale-[0.98]'
+                  }`}
                 >
-                  {isRegistering ? 'Processing...' : event.isPaid ? 'Register Now' : 'RSVP'}
+                  {registrationLoading ? 'Checking...' : isRegistering ? 'Processing...' : isRegistered ? 'Registered' : event.isPaid ? 'Register Now' : 'RSVP'}
                 </button>
                 <p className="text-center text-xs text-slate-400 dark:text-[#6b7d72] mb-6">
                   {event.maxAttendees && `${event.maxAttendees - event.currentAttendees} spots remaining`}

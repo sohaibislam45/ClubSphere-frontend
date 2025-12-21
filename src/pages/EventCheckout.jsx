@@ -457,15 +457,15 @@ const EventCheckout = () => {
                 <div className="absolute -top-20 -right-20 w-40 h-40 bg-primary/5 rounded-full blur-3xl"></div>
                 <div className="flex flex-col gap-6 relative z-10">
                   <h2 className="text-xl font-bold text-slate-900 dark:text-white">Order Summary</h2>
-                  <div className="flex gap-4 p-4 rounded-2xl bg-background-light dark:bg-surface-dark-lighter border border-black/5 dark:border-white/5">
+                  <div className="flex gap-4 p-4 rounded-2xl bg-white dark:bg-[#29382f] border border-black/5 dark:border-white/10">
                     <div
-                      className="w-20 h-20 shrink-0 rounded-xl bg-cover bg-center"
+                      className="w-20 h-20 shrink-0 rounded-xl bg-cover bg-center border border-black/5 dark:border-white/10"
                       style={{ backgroundImage: `url("${event.image || 'https://via.placeholder.com/80'}")` }}
                     ></div>
-                    <div className="flex flex-col justify-center gap-1">
-                      <h4 className="font-bold text-slate-900 dark:text-white leading-tight">{event.title}</h4>
-                      <p className="text-xs text-slate-500 dark:text-slate-400">{formattedDate} • {formattedTime}</p>
-                      <p className="text-xs text-slate-500 dark:text-slate-400">{event.location}</p>
+                    <div className="flex flex-col justify-center gap-1 flex-1 min-w-0">
+                      <h4 className="font-bold text-slate-900 dark:text-white leading-tight truncate">{event.title}</h4>
+                      <p className="text-xs text-slate-600 dark:text-slate-300">{formattedDate} • {formattedTime}</p>
+                      <p className="text-xs text-slate-600 dark:text-slate-300 truncate">{event.location}</p>
                     </div>
                   </div>
                   <div className="space-y-4">

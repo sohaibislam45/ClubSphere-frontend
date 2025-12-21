@@ -502,7 +502,7 @@ const ClubCheckout = () => {
                 <div className="absolute -top-20 -right-20 w-40 h-40 bg-primary/5 rounded-full blur-3xl"></div>
                 <div className="flex flex-col gap-6 relative z-10">
                   <h2 className="text-xl font-bold text-slate-900 dark:text-white">Order Summary</h2>
-                  <div className="flex gap-4 p-4 rounded-2xl bg-background-light dark:bg-[#29382f] border border-black/5 dark:border-white/10">
+                  <div className="flex gap-4 p-4 rounded-2xl bg-white dark:bg-[#29382f] border border-black/5 dark:border-white/10">
                     <div
                       className="w-20 h-20 shrink-0 rounded-xl bg-cover bg-center border border-black/5 dark:border-white/10"
                       style={{ backgroundImage: `url("${club.bannerImage || club.image || 'https://via.placeholder.com/80'}")` }}
@@ -513,7 +513,7 @@ const ClubCheckout = () => {
                         <p className="text-xs text-slate-600 dark:text-slate-300 font-medium">{club.category}</p>
                       )}
                       {club.location && (
-                        <p className="text-xs text-slate-500 dark:text-slate-400 truncate">{club.location}</p>
+                        <p className="text-xs text-slate-600 dark:text-slate-300 truncate">{club.location}</p>
                       )}
                     </div>
                   </div>
