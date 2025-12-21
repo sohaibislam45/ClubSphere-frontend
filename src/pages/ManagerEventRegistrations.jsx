@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { Link, useParams, useNavigate } from 'react-router-dom';
 import { useQuery } from '@tanstack/react-query';
 import { useAuth } from '../context/AuthContext';
@@ -16,8 +16,11 @@ const ManagerEventRegistrations = () => {
   const navigate = useNavigate();
   const [selectedEventId, setSelectedEventId] = useState(eventIdFromParams || '');
   const [search, setSearch] = useState('');
+  const [debouncedSearch, setDebouncedSearch] = useState('');
   const [statusFilter, setStatusFilter] = useState('all');
   const [page, setPage] = useState(1);
+  const [actionMenuOpen, setActionMenuOpen] = useState(null);
+  const actionMenuRef = useRef(null);
   const limit = 10;
 
   // Fetch events for selector
@@ -29,13 +32,47 @@ const ManagerEventRegistrations = () => {
     }
   });
 
+  // Update selectedEventId when eventIdFromParams changes
+  useEffect(() => {
+    if (eventIdFromParams && eventIdFromParams !== selectedEventId) {
+      setSelectedEventId(eventIdFromParams);
+    }
+  }, [eventIdFromParams]);
+
+  // Debounce search input
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      setDebouncedSearch(search);
+      setPage(1); // Reset to first page when search changes
+    }, 300);
+
+    return () => clearTimeout(timer);
+  }, [search]);
+
+  // Close action menu when clicking outside
+  useEffect(() => {
+    const handleClickOutside = (event) => {
+      if (actionMenuRef.current && !actionMenuRef.current.contains(event.target)) {
+        setActionMenuOpen(null);
+      }
+    };
+
+    if (actionMenuOpen !== null) {
+      document.addEventListener('mousedown', handleClickOutside);
+    }
+
+    return () => {
+      document.removeEventListener('mousedown', handleClickOutside);
+    };
+  }, [actionMenuOpen]);
+
   // Fetch registrations
   const { data: registrationsData, isLoading, error } = useQuery({
-    queryKey: ['eventRegistrations', selectedEventId, search, statusFilter, page],
+    queryKey: ['eventRegistrations', selectedEventId, debouncedSearch, statusFilter, page],
     queryFn: async () => {
       if (!selectedEventId) return { registrations: [], stats: {}, pagination: {} };
       const params = new URLSearchParams();
-      if (search) params.append('search', search);
+      if (debouncedSearch) params.append('search', debouncedSearch);
       if (statusFilter && statusFilter !== 'all') params.append('status', statusFilter);
       params.append('page', page.toString());
       params.append('limit', limit.toString());
@@ -80,12 +117,47 @@ const ManagerEventRegistrations = () => {
   const handleEventChange = (newEventId) => {
     setSelectedEventId(newEventId);
     setPage(1);
-    navigate(`/dashboard/club-manager/events/${newEventId}/registrations`);
+    if (newEventId) {
+      navigate(`/dashboard/club-manager/events/${newEventId}/registrations`);
+    } else {
+      navigate('/dashboard/club-manager/event-registrations');
+    }
   };
 
   const handleExport = () => {
-    // TODO: Implement CSV export
-    console.log('Export CSV');
+    if (!selectedEventId || !registrations.length) {
+      alert('No registrations to export. Please select an event with registrations.');
+      return;
+    }
+
+    // Create CSV content
+    const headers = ['Name', 'Email', 'Phone', 'Status', 'Payment Status', 'Registration Date', 'Member ID'];
+    const rows = registrations.map(reg => [
+      reg.name || '',
+      reg.email || '',
+      reg.phone || '',
+      reg.status || 'registered',
+      reg.paymentStatus || 'pending',
+      reg.registrationDate || '',
+      reg.memberId || ''
+    ]);
+
+    const csvContent = [
+      headers.join(','),
+      ...rows.map(row => row.map(cell => `"${cell}"`).join(','))
+    ].join('\n');
+
+    // Create blob and download
+    const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+    const link = document.createElement('a');
+    const url = URL.createObjectURL(blob);
+    link.setAttribute('href', url);
+    const eventName = selectedEvent?.name?.replace(/[^a-z0-9]/gi, '-') || 'event';
+    link.setAttribute('download', `${eventName}-registrations-${new Date().toISOString().split('T')[0]}.csv`);
+    link.style.visibility = 'hidden';
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
   };
 
   const selectedEvent = events.find(e => e.id === selectedEventId);
@@ -124,10 +196,17 @@ const ManagerEventRegistrations = () => {
                     <p className="text-slate-500 dark:text-[#9da6b9] mt-1">Manage attendees, view status, and export lists.</p>
                   </div>
                   <div className="flex gap-3">
-                    <button className="flex items-center justify-center rounded-lg h-10 px-4 bg-white dark:bg-[#282e39] border border-slate-200 dark:border-[#3b4354] text-slate-900 dark:text-white text-sm font-medium hover:bg-slate-50 dark:hover:bg-[#3b4354] transition-colors">
-                      <span className="material-symbols-outlined mr-2 text-[20px]">edit</span>
-                      Edit Event
-                    </button>
+                    {selectedEventId && (
+                      <button 
+                        onClick={() => {
+                          navigate('/dashboard/club-manager/events');
+                        }}
+                        className="flex items-center justify-center rounded-lg h-10 px-4 bg-white dark:bg-[#282e39] border border-slate-200 dark:border-[#3b4354] text-slate-900 dark:text-white text-sm font-medium hover:bg-slate-50 dark:hover:bg-[#3b4354] transition-colors"
+                      >
+                        <span className="material-symbols-outlined mr-2 text-[20px]">edit</span>
+                        Edit Event
+                      </button>
+                    )}
                     <button
                       onClick={handleExport}
                       className="flex items-center justify-center rounded-lg h-10 px-4 bg-primary text-white text-sm font-bold shadow-lg shadow-primary/20 hover:bg-blue-600 transition-colors"
@@ -256,6 +335,7 @@ const ManagerEventRegistrations = () => {
                               <th className="px-6 py-4" scope="col">Name</th>
                               <th className="px-6 py-4" scope="col">Contact Info</th>
                               <th className="px-6 py-4" scope="col">Status</th>
+                              <th className="px-6 py-4" scope="col">Payment</th>
                               <th className="px-6 py-4" scope="col">Registration Date</th>
                               <th className="px-6 py-4 text-right" scope="col">Actions</th>
                             </tr>
@@ -263,7 +343,7 @@ const ManagerEventRegistrations = () => {
                           <tbody className="divide-y divide-slate-200 dark:divide-[#282e39]">
                             {registrations.length === 0 ? (
                               <tr>
-                                <td colSpan="5" className="px-6 py-8 text-center text-slate-500 dark:text-[#9da6b9]">
+                                <td colSpan="6" className="px-6 py-8 text-center text-slate-500 dark:text-[#9da6b9]">
                                   No registrations found
                                 </td>
                               </tr>
@@ -299,13 +379,87 @@ const ManagerEventRegistrations = () => {
                                   <td className="px-6 py-4 whitespace-nowrap">
                                     {getStatusBadge(registration.status)}
                                   </td>
+                                  <td className="px-6 py-4 whitespace-nowrap">
+                                    {registration.paymentStatus === 'paid' ? (
+                                      <span className="inline-flex items-center gap-1 rounded-full bg-emerald-100 dark:bg-emerald-500/10 px-2.5 py-0.5 text-xs font-medium text-emerald-800 dark:text-emerald-400 border border-emerald-200 dark:border-emerald-500/20">
+                                        <span className="size-1.5 rounded-full bg-emerald-500"></span>
+                                        Paid
+                                      </span>
+                                    ) : (
+                                      <span className="inline-flex items-center gap-1 rounded-full bg-amber-100 dark:bg-amber-500/10 px-2.5 py-0.5 text-xs font-medium text-amber-800 dark:text-amber-400 border border-amber-200 dark:border-amber-500/20">
+                                        <span className="size-1.5 rounded-full bg-amber-500"></span>
+                                        Pending
+                                      </span>
+                                    )}
+                                  </td>
                                   <td className="px-6 py-4 whitespace-nowrap text-slate-500 dark:text-slate-400">
                                     {registration.registrationDate}
                                   </td>
                                   <td className="px-6 py-4 whitespace-nowrap text-right">
-                                    <button className="text-slate-400 hover:text-primary transition-colors p-2 rounded-lg hover:bg-slate-100 dark:hover:bg-[#282e39]">
-                                      <span className="material-symbols-outlined text-[20px]">more_vert</span>
-                                    </button>
+                                    <div className="relative" ref={actionMenuOpen === registration.id ? actionMenuRef : null}>
+                                      <button 
+                                        onClick={() => setActionMenuOpen(actionMenuOpen === registration.id ? null : registration.id)}
+                                        className="text-slate-400 hover:text-primary transition-colors p-2 rounded-lg hover:bg-slate-100 dark:hover:bg-[#282e39]"
+                                      >
+                                        <span className="material-symbols-outlined text-[20px]">more_vert</span>
+                                      </button>
+                                      {actionMenuOpen === registration.id && (
+                                        <div className="absolute right-0 mt-2 w-48 bg-white dark:bg-[#1c1f27] border border-slate-200 dark:border-[#3b4354] rounded-xl shadow-lg z-50 overflow-hidden">
+                                          <div className="py-1">
+                                            <button
+                                              onClick={() => {
+                                                alert(`Registration Details:\n\nName: ${registration.name}\nEmail: ${registration.email}\nPhone: ${registration.phone}\nStatus: ${registration.status}\nPayment Status: ${registration.paymentStatus}\nRegistration Date: ${registration.registrationDate}`);
+                                                setActionMenuOpen(null);
+                                              }}
+                                              className="w-full px-4 py-2 text-left text-sm text-slate-900 dark:text-white hover:bg-slate-50 dark:hover:bg-[#282e39] transition-colors flex items-center gap-2"
+                                            >
+                                              <span className="material-symbols-outlined text-lg">visibility</span>
+                                              <span>View Details</span>
+                                            </button>
+                                            <button
+                                              onClick={() => {
+                                                window.location.href = `mailto:${registration.email}`;
+                                                setActionMenuOpen(null);
+                                              }}
+                                              className="w-full px-4 py-2 text-left text-sm text-slate-900 dark:text-white hover:bg-slate-50 dark:hover:bg-[#282e39] transition-colors flex items-center gap-2"
+                                            >
+                                              <span className="material-symbols-outlined text-lg">email</span>
+                                              <span>Send Email</span>
+                                            </button>
+                                            {registration.phone && registration.phone !== '--' && (
+                                              <button
+                                                onClick={() => {
+                                                  window.location.href = `tel:${registration.phone}`;
+                                                  setActionMenuOpen(null);
+                                                }}
+                                                className="w-full px-4 py-2 text-left text-sm text-slate-900 dark:text-white hover:bg-slate-50 dark:hover:bg-[#282e39] transition-colors flex items-center gap-2"
+                                              >
+                                                <span className="material-symbols-outlined text-lg">phone</span>
+                                                <span>Call</span>
+                                              </button>
+                                            )}
+                                            {registration.status === 'registered' && (
+                                              <>
+                                                <div className="border-t border-slate-200 dark:border-[#3b4354] my-1"></div>
+                                                <button
+                                                  onClick={() => {
+                                                    if (window.confirm(`Are you sure you want to cancel ${registration.name}'s registration?`)) {
+                                                      // TODO: Implement cancel registration API call
+                                                      alert('Cancel registration functionality will be implemented soon.');
+                                                      setActionMenuOpen(null);
+                                                    }
+                                                  }}
+                                                  className="w-full px-4 py-2 text-left text-sm text-red-500 hover:bg-red-50 dark:hover:bg-red-500/10 transition-colors flex items-center gap-2"
+                                                >
+                                                  <span className="material-symbols-outlined text-lg">cancel</span>
+                                                  <span>Cancel Registration</span>
+                                                </button>
+                                              </>
+                                            )}
+                                          </div>
+                                        </div>
+                                      )}
+                                    </div>
                                   </td>
                                 </tr>
                               ))
@@ -321,22 +475,53 @@ const ManagerEventRegistrations = () => {
                             <span className="font-medium text-slate-900 dark:text-white">{Math.min(page * limit, pagination.total)}</span> of{' '}
                             <span className="font-medium text-slate-900 dark:text-white">{pagination.total}</span> results
                           </p>
-                          <div className="flex gap-2">
+                          <nav aria-label="Pagination" className="isolate inline-flex -space-x-px rounded-md shadow-sm">
                             <button
                               onClick={() => setPage(Math.max(1, page - 1))}
                               disabled={page === 1}
-                              className="rounded-lg border border-slate-200 dark:border-[#3b4354] bg-white dark:bg-[#111318] px-3 py-1 text-sm font-medium text-slate-500 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-[#282e39] disabled:opacity-50"
+                              className="relative inline-flex items-center rounded-l-md px-2 py-2 text-slate-500 dark:text-slate-400 ring-1 ring-inset ring-slate-200 dark:ring-[#3b4354] hover:bg-slate-50 dark:hover:bg-[#282e39] focus:z-20 focus:outline-offset-0 disabled:opacity-50"
                             >
-                              Previous
+                              <span className="sr-only">Previous</span>
+                              <span className="material-symbols-outlined text-[20px]">chevron_left</span>
                             </button>
+                            {(() => {
+                              const maxPages = 5;
+                              let startPage = Math.max(1, page - Math.floor(maxPages / 2));
+                              let endPage = Math.min(pagination.totalPages, startPage + maxPages - 1);
+                              
+                              // Adjust start if we're near the end
+                              if (endPage - startPage < maxPages - 1) {
+                                startPage = Math.max(1, endPage - maxPages + 1);
+                              }
+                              
+                              const pages = [];
+                              for (let i = startPage; i <= endPage; i++) {
+                                pages.push(i);
+                              }
+                              
+                              return pages.map((pageNum) => (
+                                <button
+                                  key={pageNum}
+                                  onClick={() => setPage(pageNum)}
+                                  className={`relative inline-flex items-center px-4 py-2 text-sm font-semibold ring-1 ring-inset ring-slate-200 dark:ring-[#3b4354] hover:bg-slate-50 dark:hover:bg-[#282e39] focus:z-20 focus:outline-offset-0 ${
+                                    page === pageNum
+                                      ? 'bg-primary/20 text-primary dark:bg-primary/10 dark:text-primary'
+                                      : 'text-slate-900 dark:text-white'
+                                  }`}
+                                >
+                                  {pageNum}
+                                </button>
+                              ));
+                            })()}
                             <button
                               onClick={() => setPage(Math.min(pagination.totalPages, page + 1))}
                               disabled={page === pagination.totalPages}
-                              className="rounded-lg border border-slate-200 dark:border-[#3b4354] bg-white dark:bg-[#111318] px-3 py-1 text-sm font-medium text-slate-900 dark:text-white hover:bg-slate-50 dark:hover:bg-[#282e39] disabled:opacity-50"
+                              className="relative inline-flex items-center rounded-r-md px-2 py-2 text-slate-500 dark:text-slate-400 ring-1 ring-inset ring-slate-200 dark:ring-[#3b4354] hover:bg-slate-50 dark:hover:bg-[#282e39] focus:z-20 focus:outline-offset-0 disabled:opacity-50"
                             >
-                              Next
+                              <span className="sr-only">Next</span>
+                              <span className="material-symbols-outlined text-[20px]">chevron_right</span>
                             </button>
-                          </div>
+                          </nav>
                         </div>
                       )}
                     </>
