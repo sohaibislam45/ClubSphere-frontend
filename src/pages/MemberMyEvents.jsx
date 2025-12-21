@@ -15,7 +15,7 @@ const MemberMyEvents = () => {
   useEffect(() => {
     document.title = 'My Events - ClubSphere';
   }, []);
-  const [activeTab, setActiveTab] = useState('upcoming');
+  const [activeTab, setActiveTab] = useState('my-joining');
   const [search, setSearch] = useState('');
 
   const { data, isLoading, error } = useQuery({
@@ -31,7 +31,7 @@ const MemberMyEvents = () => {
   });
 
   const events = data?.events || [];
-  const counts = data?.counts || { upcoming: 0, waitlist: 0, past: 0, cancelled: 0 };
+  const counts = data?.counts || { 'my-joining': 0, upcoming: 0, joined: 0, cancelled: 0 };
 
   const getStatusBadgeClass = (statusColor) => {
     switch (statusColor) {
@@ -158,6 +158,23 @@ const MemberMyEvents = () => {
               <div className="border-b border-white/10 w-full">
                 <nav aria-label="Tabs" className="flex gap-8 overflow-x-auto no-scrollbar">
                   <button
+                    onClick={() => setActiveTab('my-joining')}
+                    className={`whitespace-nowrap pb-4 border-b-2 text-sm tracking-wide transition-colors ${
+                      activeTab === 'my-joining'
+                        ? 'border-primary text-white font-bold'
+                        : 'border-transparent text-gray-400 hover:text-white font-medium hover:border-white/20'
+                    }`}
+                  >
+                    My Joining Events
+                    <span className={`ml-2 text-xs py-0.5 px-2 rounded-full font-bold ${
+                      activeTab === 'my-joining'
+                        ? 'bg-primary text-background-dark'
+                        : 'bg-surface-dark border border-white/10 text-gray-400'
+                    }`}>
+                      {counts['my-joining'] || 0}
+                    </span>
+                  </button>
+                  <button
                     onClick={() => setActiveTab('upcoming')}
                     className={`whitespace-nowrap pb-4 border-b-2 text-sm tracking-wide transition-colors ${
                       activeTab === 'upcoming'
@@ -171,35 +188,25 @@ const MemberMyEvents = () => {
                         ? 'bg-primary text-background-dark'
                         : 'bg-surface-dark border border-white/10 text-gray-400'
                     }`}>
-                      {counts.upcoming}
+                      {counts.upcoming || 0}
                     </span>
                   </button>
                   <button
-                    onClick={() => setActiveTab('waitlist')}
+                    onClick={() => setActiveTab('joined')}
                     className={`whitespace-nowrap pb-4 border-b-2 text-sm tracking-wide transition-colors ${
-                      activeTab === 'waitlist'
+                      activeTab === 'joined'
                         ? 'border-primary text-white font-bold'
                         : 'border-transparent text-gray-400 hover:text-white font-medium hover:border-white/20'
                     }`}
                   >
-                    Waitlist
+                    Joined
                     <span className={`ml-2 text-xs py-0.5 px-2 rounded-full font-bold ${
-                      activeTab === 'waitlist'
+                      activeTab === 'joined'
                         ? 'bg-primary text-background-dark'
                         : 'bg-surface-dark border border-white/10 text-gray-400'
                     }`}>
-                      {counts.waitlist}
+                      {counts.joined || 0}
                     </span>
-                  </button>
-                  <button
-                    onClick={() => setActiveTab('past')}
-                    className={`whitespace-nowrap pb-4 border-b-2 text-sm tracking-wide transition-colors ${
-                      activeTab === 'past'
-                        ? 'border-primary text-white font-bold'
-                        : 'border-transparent text-gray-400 hover:text-white font-medium hover:border-white/20'
-                    }`}
-                  >
-                    Past Events
                   </button>
                   <button
                     onClick={() => setActiveTab('cancelled')}
@@ -209,7 +216,14 @@ const MemberMyEvents = () => {
                         : 'border-transparent text-gray-400 hover:text-white font-medium hover:border-white/20'
                     }`}
                   >
-                    Cancelled
+                    Cancelled Events
+                    <span className={`ml-2 text-xs py-0.5 px-2 rounded-full font-bold ${
+                      activeTab === 'cancelled'
+                        ? 'bg-primary text-background-dark'
+                        : 'bg-surface-dark border border-white/10 text-gray-400'
+                    }`}>
+                      {counts.cancelled || 0}
+                    </span>
                   </button>
                 </nav>
               </div>
@@ -235,8 +249,18 @@ const MemberMyEvents = () => {
                 <div className="bg-surface-dark p-6 rounded-full mb-4 inline-block">
                   <span className="material-symbols-outlined text-6xl text-gray-600">event_busy</span>
                 </div>
-                <h3 className="text-xl font-bold text-white">No {activeTab} events</h3>
-                <p className="text-gray-400 mt-2 mb-6">You haven't registered for any {activeTab} events yet.</p>
+                <h3 className="text-xl font-bold text-white">
+                  {activeTab === 'my-joining' ? 'No joining events' : 
+                   activeTab === 'upcoming' ? 'No upcoming events' :
+                   activeTab === 'joined' ? 'No joined events' :
+                   'No cancelled events'}
+                </h3>
+                <p className="text-gray-400 mt-2 mb-6">
+                  {activeTab === 'my-joining' ? "You haven't registered for any events yet." :
+                   activeTab === 'upcoming' ? "You don't have any upcoming events." :
+                   activeTab === 'joined' ? "You haven't joined any events yet." :
+                   "You don't have any cancelled event registrations."}
+                </p>
                 <Link 
                   to="/dashboard/member/discover"
                   className="text-primary font-bold hover:underline"
