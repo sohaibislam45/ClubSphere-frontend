@@ -2,7 +2,7 @@ import { useState, useEffect } from 'react';
 import { useParams, useNavigate, Link } from 'react-router-dom';
 import { useQuery } from '@tanstack/react-query';
 import { loadStripe } from '@stripe/stripe-js';
-import { Elements, CardElement, useStripe, useElements } from '@stripe/react-stripe-js';
+import { Elements, CardNumberElement, CardExpiryElement, CardCvcElement, useStripe, useElements } from '@stripe/react-stripe-js';
 import Navbar from '../components/layout/Navbar';
 import Loader from '../components/ui/Loader';
 import api from '../lib/api';
@@ -10,7 +10,13 @@ import { useAuth } from '../context/AuthContext';
 import Swal from '../lib/sweetalertConfig';
 
 // Initialize Stripe (using publishable key from environment variable)
-const stripePromise = loadStripe(import.meta.env.VITE_STRIPE_PUBLISHABLE_KEY || 'pk_test_51SgdYyRL1cjj2uXLHqiGAoCLVWljzojO3MJX8YUo7pEadJJEQnQpHYmokTsYrXt2xdVoYLGfgAfJDrQjynljf3Ao00NTD7EOWq');
+const STRIPE_PUBLISHABLE_KEY = import.meta.env.VITE_STRIPE_PUBLISHABLE_KEY || 'pk_test_BQokikJOvBiI2HlWgH4olfQ2';
+
+if (!STRIPE_PUBLISHABLE_KEY || !STRIPE_PUBLISHABLE_KEY.startsWith('pk_')) {
+  console.error('Invalid Stripe publishable key. Please check VITE_STRIPE_PUBLISHABLE_KEY in your .env file.');
+}
+
+const stripePromise = loadStripe(STRIPE_PUBLISHABLE_KEY);
 
 const CheckoutForm = ({ event, clientSecret, paymentIntentId, onSuccess, onCancel }) => {
   const stripe = useStripe();
@@ -31,15 +37,44 @@ const CheckoutForm = ({ event, clientSecret, paymentIntentId, onSuccess, onCance
     setIsProcessing(true);
 
     try {
-      // Confirm payment with Stripe
-      const { error, paymentIntent } = await stripe.confirmCardPayment(clientSecret, {
-        payment_method: {
-          card: elements.getElement(CardElement),
-          billing_details: {
-            name: nameOnCard,
-            email: email
-          }
+      // Get all card elements
+      const cardNumberElement = elements.getElement(CardNumberElement);
+      const cardExpiryElement = elements.getElement(CardExpiryElement);
+      const cardCvcElement = elements.getElement(CardCvcElement);
+
+      if (!cardNumberElement || !cardExpiryElement || !cardCvcElement) {
+        Swal.fire({
+          icon: 'error',
+          title: 'Payment Error',
+          text: 'Please fill in all card details.',
+        });
+        setIsProcessing(false);
+        return;
+      }
+
+      // Create payment method first (required when using separate card elements)
+      const { error: pmError, paymentMethod } = await stripe.createPaymentMethod({
+        type: 'card',
+        card: cardNumberElement,
+        billing_details: {
+          name: nameOnCard,
+          email: email
         }
+      });
+
+      if (pmError) {
+        Swal.fire({
+          icon: 'error',
+          title: 'Payment Failed',
+          text: pmError.message || 'Failed to process card information. Please try again.',
+        });
+        setIsProcessing(false);
+        return;
+      }
+
+      // Confirm payment with the created payment method
+      const { error, paymentIntent } = await stripe.confirmCardPayment(clientSecret, {
+        payment_method: paymentMethod.id
       });
 
       if (error) {
@@ -104,7 +139,6 @@ const CheckoutForm = ({ event, clientSecret, paymentIntentId, onSuccess, onCance
         iconColor: '#fa755a',
       },
     },
-    hidePostalCode: true,
   };
 
   const serviceFee = 0;
@@ -124,10 +158,16 @@ const CheckoutForm = ({ event, clientSecret, paymentIntentId, onSuccess, onCance
     <form onSubmit={handleSubmit} className="space-y-6">
       {/* Contact Information */}
       <div className="bg-white dark:bg-surface-dark border border-black/5 dark:border-white/5 rounded-[2rem] p-6 md:p-8 shadow-sm">
-        <h3 className="text-xl font-bold text-slate-900 dark:text-white mb-6 flex items-center gap-2">
-          <span className="flex items-center justify-center w-8 h-8 rounded-full bg-background-light dark:bg-surface-dark-lighter text-sm">1</span>
+        <h3 className="text-xl font-bold text-slate-900 dark:text-white mb-6">
           Contact Information
         </h3>
+        <div className="flex items-start gap-4 mb-6 pb-6 border-b border-black/5 dark:border-white/5">
+          <div className="w-16 h-16 rounded-full bg-cover bg-center border-2 border-primary/20 flex-shrink-0" style={{ backgroundImage: `url("${user?.photoURL || user?.photo || 'https://ui-avatars.com/api/?name=' + encodeURIComponent(user?.name || 'User') + '&background=38e07b&color=fff&size=128'}")` }}></div>
+          <div className="flex-1">
+            <p className="font-semibold text-slate-900 dark:text-white">{user?.name || 'User'}</p>
+            <p className="text-sm text-slate-500 dark:text-slate-400">{user?.email || ''}</p>
+          </div>
+        </div>
         <div className="space-y-4">
           <div className="flex flex-col gap-2">
             <label className="text-sm font-medium text-slate-700 dark:text-slate-300">Email Address</label>
@@ -156,8 +196,7 @@ const CheckoutForm = ({ event, clientSecret, paymentIntentId, onSuccess, onCance
 
       {/* Payment Details */}
       <div className="bg-white dark:bg-surface-dark border border-black/5 dark:border-white/5 rounded-[2rem] p-6 md:p-8 shadow-sm">
-        <h3 className="text-xl font-bold text-slate-900 dark:text-white mb-6 flex items-center gap-2">
-          <span className="flex items-center justify-center w-8 h-8 rounded-full bg-background-light dark:bg-surface-dark-lighter text-sm">2</span>
+        <h3 className="text-xl font-bold text-slate-900 dark:text-white mb-6">
           Payment Details
         </h3>
         
@@ -188,7 +227,7 @@ const CheckoutForm = ({ event, clientSecret, paymentIntentId, onSuccess, onCance
                 <span className="material-symbols-outlined">credit_card</span>
               </div>
               <div className="pl-10 pr-20">
-                <CardElement options={cardElementOptions} />
+                <CardNumberElement options={cardElementOptions} />
               </div>
               <div className="absolute inset-y-0 right-3 flex items-center pointer-events-none gap-1 z-10">
                 <div className="h-4 w-6 bg-slate-300 dark:bg-slate-600 rounded"></div>
@@ -199,24 +238,18 @@ const CheckoutForm = ({ event, clientSecret, paymentIntentId, onSuccess, onCance
           <div className="grid grid-cols-2 gap-6">
             <div className="flex flex-col gap-2">
               <label className="text-sm font-medium text-slate-700 dark:text-slate-300">Expiration</label>
-              <input
-                type="text"
-                className="w-full rounded-xl border border-slate-200 dark:border-white/10 bg-white dark:bg-[#29382f] p-3 text-slate-900 dark:text-white placeholder:text-slate-400 dark:placeholder:text-slate-500 focus:ring-2 focus:ring-primary/50 focus:border-primary transition-colors"
-                placeholder="MM / YY"
-                disabled
-              />
+              <div className="rounded-xl border border-slate-200 dark:border-white/10 bg-white dark:bg-[#29382f] p-3">
+                <CardExpiryElement options={cardElementOptions} />
+              </div>
             </div>
             <div className="flex flex-col gap-2">
               <label className="text-sm font-medium text-slate-700 dark:text-slate-300 flex justify-between">
                 CVC
                 <span className="material-symbols-outlined text-slate-400 text-[16px] cursor-help" title="3-digit security code on back of card">help</span>
               </label>
-              <input
-                type="text"
-                className="w-full rounded-xl border border-slate-200 dark:border-white/10 bg-white dark:bg-[#29382f] p-3 text-slate-900 dark:text-white placeholder:text-slate-400 dark:placeholder:text-slate-500 focus:ring-2 focus:ring-primary/50 focus:border-primary transition-colors"
-                placeholder="123"
-                disabled
-              />
+              <div className="rounded-xl border border-slate-200 dark:border-white/10 bg-white dark:bg-[#29382f] p-3">
+                <CardCvcElement options={cardElementOptions} />
+              </div>
             </div>
           </div>
           <div className="flex flex-col gap-2">
@@ -257,8 +290,9 @@ const CheckoutForm = ({ event, clientSecret, paymentIntentId, onSuccess, onCance
             <button
               type="button"
               onClick={onCancel}
-              className="text-slate-500 hover:text-slate-900 dark:text-slate-400 dark:hover:text-white text-sm font-medium transition-colors"
+              className="px-6 py-2.5 rounded-xl border border-slate-300 dark:border-slate-600 bg-white dark:bg-surface-dark hover:bg-slate-50 dark:hover:bg-surface-dark-lighter text-slate-700 dark:text-slate-300 font-medium text-sm transition-colors flex items-center gap-2 mx-auto"
             >
+              <span className="material-symbols-outlined text-[18px]">close</span>
               Cancel Payment
             </button>
           </div>
@@ -399,8 +433,8 @@ const EventCheckout = () => {
           {/* Checkout Form */}
           <div className="lg:col-span-7 flex flex-col gap-6">
             <h1 className="text-3xl font-bold text-slate-900 dark:text-white">Checkout</h1>
-            {clientSecret && (
-              <Elements stripe={stripePromise} options={{ clientSecret }}>
+            {clientSecret ? (
+              <Elements key={clientSecret} stripe={stripePromise} options={{ clientSecret }}>
                 <CheckoutForm
                   event={event}
                   clientSecret={clientSecret}
@@ -409,6 +443,10 @@ const EventCheckout = () => {
                   onCancel={handleCancel}
                 />
               </Elements>
+            ) : (
+              <div className="flex items-center justify-center py-12">
+                <Loader />
+              </div>
             )}
           </div>
 
