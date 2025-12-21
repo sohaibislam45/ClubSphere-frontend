@@ -364,7 +364,7 @@ const AdminManageClubs = () => {
               <div className="flex gap-3">
                 <div className="relative group">
                   <button
-                    onClick={() => setStatusFilter(statusFilter === 'all' ? 'active' : statusFilter === 'active' ? 'inactive' : 'all')}
+                    onClick={() => setStatusFilter(statusFilter === 'all' ? 'pending' : statusFilter === 'pending' ? 'active' : statusFilter === 'active' ? 'rejected' : 'all')}
                     className="flex items-center gap-2 h-10 px-4 rounded-lg bg-[#29382f] border border-transparent text-[#9eb7a8] hover:text-white hover:bg-[#3d5245] transition-colors text-sm font-medium"
                   >
                     <span className="material-symbols-outlined text-[18px]">filter_list</span>

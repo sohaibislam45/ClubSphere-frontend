@@ -4,7 +4,6 @@ import { useAuth } from '../context/AuthContext';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import api from '../lib/api';
 import Loader from '../components/ui/Loader';
-import Swal from '../lib/sweetalertConfig';
 
 const AdminDashboard = () => {
   const { user, logout } = useAuth();
@@ -57,6 +56,17 @@ const AdminDashboard = () => {
     }
   });
 
+  // Fetch pending deletion requests
+  const { data: deletionRequestsData, isLoading: deletionRequestsLoading } = useQuery({
+    queryKey: ['admin-deletion-requests'],
+    queryFn: async () => {
+      const response = await api.get('/api/admin/clubs', { 
+        params: { type: 'deletion', limit: 5 } 
+      });
+      return response.data;
+    }
+  });
+
   // Fetch recent transactions
   const { data: transactionsData, isLoading: transactionsLoading } = useQuery({
     queryKey: ['admin-recent-transactions'],
@@ -70,95 +80,78 @@ const AdminDashboard = () => {
 
   // Approve club mutation
   const approveClubMutation = useMutation({
-    mutationFn: async ({ clubId }) => {
+    mutationFn: async (clubId) => {
       const response = await api.put(`/api/admin/clubs/${clubId}/approve`);
       return response.data;
     },
-    onSuccess: (data, variables) => {
+    onSuccess: () => {
       queryClient.invalidateQueries(['admin-pending-clubs']);
       queryClient.invalidateQueries(['admin-dashboard-stats']);
-      
-      Swal.fire({
-        icon: 'success',
-        title: 'Club Approved!',
-        text: `${variables.clubName || 'Club'} has been successfully approved.`,
-        timer: 3000,
-        showConfirmButton: false
-      });
-    },
-    onError: (error) => {
-      Swal.fire({
-        icon: 'error',
-        title: 'Approval Failed',
-        text: error.response?.data?.message || 'Failed to approve club. Please try again.',
-      });
     }
   });
 
   // Reject club mutation
   const rejectClubMutation = useMutation({
-    mutationFn: async ({ clubId }) => {
+    mutationFn: async (clubId) => {
       const response = await api.put(`/api/admin/clubs/${clubId}/reject`);
       return response.data;
     },
-    onSuccess: (data, variables) => {
+    onSuccess: () => {
       queryClient.invalidateQueries(['admin-pending-clubs']);
       queryClient.invalidateQueries(['admin-dashboard-stats']);
-      
-      Swal.fire({
-        icon: 'success',
-        title: 'Club Rejected',
-        text: `${variables.clubName || 'Club'} has been rejected.`,
-        timer: 3000,
-        showConfirmButton: false
-      });
-    },
-    onError: (error) => {
-      Swal.fire({
-        icon: 'error',
-        title: 'Rejection Failed',
-        text: error.response?.data?.message || 'Failed to reject club. Please try again.',
-      });
     }
   });
 
-  const handleApproveClub = (clubId, clubName) => {
-    Swal.fire({
-      title: 'Approve Club?',
-      text: `Are you sure you want to approve ${clubName || 'this club'}?`,
-      icon: 'question',
-      showCancelButton: true,
-      confirmButtonColor: '#38e07b',
-      cancelButtonColor: '#6b7280',
-      confirmButtonText: 'Yes, Approve',
-      cancelButtonText: 'Cancel',
-      reverseButtons: true
-    }).then((result) => {
-      if (result.isConfirmed) {
-        approveClubMutation.mutate({ clubId, clubName });
-      }
-    });
+  // Approve deletion request mutation
+  const approveDeletionMutation = useMutation({
+    mutationFn: async (clubId) => {
+      const response = await api.put(`/api/admin/clubs/${clubId}/approve-deletion`);
+      return response.data;
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries(['admin-deletion-requests']);
+      queryClient.invalidateQueries(['admin-dashboard-stats']);
+    }
+  });
+
+  // Reject deletion request mutation
+  const rejectDeletionMutation = useMutation({
+    mutationFn: async (clubId) => {
+      const response = await api.put(`/api/admin/clubs/${clubId}/reject-deletion`);
+      return response.data;
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries(['admin-deletion-requests']);
+      queryClient.invalidateQueries(['admin-dashboard-stats']);
+    }
+  });
+
+  const handleApproveClub = (clubId) => {
+    if (window.confirm('Are you sure you want to approve this club?')) {
+      approveClubMutation.mutate(clubId);
+    }
   };
 
-  const handleRejectClub = (clubId, clubName) => {
-    Swal.fire({
-      title: 'Reject Club?',
-      text: `Are you sure you want to reject ${clubName || 'this club'}?`,
-      icon: 'warning',
-      showCancelButton: true,
-      confirmButtonColor: '#ef4444',
-      cancelButtonColor: '#6b7280',
-      confirmButtonText: 'Yes, Reject',
-      cancelButtonText: 'Cancel',
-      reverseButtons: true
-    }).then((result) => {
-      if (result.isConfirmed) {
-        rejectClubMutation.mutate({ clubId, clubName });
-      }
-    });
+  const handleRejectClub = (clubId) => {
+    if (window.confirm('Are you sure you want to reject this club?')) {
+      rejectClubMutation.mutate(clubId);
+    }
+  };
+
+  const handleApproveDeletion = (clubId) => {
+    if (window.confirm('Are you sure you want to approve this club deletion? This action cannot be undone and will delete the club permanently.')) {
+      approveDeletionMutation.mutate(clubId);
+    }
+  };
+
+  const handleRejectDeletion = (clubId) => {
+    if (window.confirm('Are you sure you want to reject this deletion request? The club will remain active.')) {
+      rejectDeletionMutation.mutate(clubId);
+    }
   };
 
   const pendingClubs = pendingClubsData?.clubs || [];
+  const deletionRequests = deletionRequestsData?.clubs || [];
   const transactions = transactionsData?.transactions || [];
 
   return (
@@ -444,7 +437,7 @@ const AdminDashboard = () => {
                 </div>
               </div>
 
-              {/* Pending Clubs Section */}
+              {/* Pending Approvals Section */}
               <div className="flex flex-col gap-4 p-6 rounded-[2rem] bg-surface-dark border border-surface-highlight">
                 <div className="flex items-center justify-between">
                   <h3 className="text-white text-lg font-bold">Pending Approvals</h3>
@@ -452,49 +445,93 @@ const AdminDashboard = () => {
                     View All
                   </Link>
                 </div>
-                {pendingClubsLoading ? (
+                {(pendingClubsLoading || deletionRequestsLoading) ? (
                   <div className="flex items-center justify-center py-8">
                     <Loader />
                   </div>
-                ) : pendingClubs.length === 0 ? (
+                ) : (pendingClubs.length === 0 && deletionRequests.length === 0) ? (
                   <div className="text-center py-8">
-                    <p className="text-gray-500 text-sm">No pending clubs</p>
+                    <p className="text-gray-500 text-sm">No pending approvals</p>
                   </div>
                 ) : (
-                  pendingClubs.map((club) => (
-                    <div key={club.id} className="flex items-center justify-between gap-3 p-3 rounded-2xl bg-background-dark border border-surface-highlight/50">
-                      <div className="flex items-center gap-3">
-                        <div 
-                          className="size-10 rounded-full bg-cover bg-center bg-card-dark"
-                          style={{ backgroundImage: club.image ? `url("${club.image}")` : 'none' }}
-                        ></div>
-                        <div className="flex flex-col">
-                          <p className="text-white text-sm font-bold">{club.name}</p>
-                          <p className="text-gray-500 text-xs">
-                            {club.category || 'General'} • {club.memberCount || 0} Members
-                          </p>
+                  <div className="flex flex-col gap-3">
+                    {/* New Club Requests */}
+                    {pendingClubs.map((club) => (
+                      <div key={club.id} className="flex items-center justify-between gap-3 p-3 rounded-2xl bg-background-dark border border-surface-highlight/50">
+                        <div className="flex items-center gap-3">
+                          <div 
+                            className="size-10 rounded-full bg-cover bg-center bg-card-dark"
+                            style={{ backgroundImage: club.image ? `url("${club.image}")` : 'none' }}
+                          ></div>
+                          <div className="flex flex-col">
+                            <div className="flex items-center gap-2">
+                              <p className="text-white text-sm font-bold">{club.name}</p>
+                              <span className="px-2 py-0.5 rounded-full bg-blue-500/20 text-blue-400 text-xs font-bold">New</span>
+                            </div>
+                            <p className="text-gray-500 text-xs">
+                              {club.category || 'General'} • {club.memberCount || 0} Members
+                            </p>
+                          </div>
+                        </div>
+                        <div className="flex gap-2">
+                          <button 
+                            onClick={() => handleRejectClub(club.id)}
+                            disabled={rejectClubMutation.isPending}
+                            className="size-8 flex items-center justify-center rounded-full bg-surface-highlight text-gray-400 hover:text-red-400 hover:bg-red-400/10 transition-colors disabled:opacity-50" 
+                            title="Reject"
+                          >
+                            <span className="material-symbols-outlined text-[18px]">close</span>
+                          </button>
+                          <button 
+                            onClick={() => handleApproveClub(club.id)}
+                            disabled={approveClubMutation.isPending}
+                            className="size-8 flex items-center justify-center rounded-full bg-primary text-background-dark hover:bg-white transition-colors shadow-lg shadow-primary/20 disabled:opacity-50" 
+                            title="Approve"
+                          >
+                            <span className="material-symbols-outlined text-[18px]">check</span>
+                          </button>
                         </div>
                       </div>
-                      <div className="flex gap-2">
-                        <button 
-                          onClick={() => handleRejectClub(club.id, club.name)}
-                          disabled={rejectClubMutation.isPending}
-                          className="size-8 flex items-center justify-center rounded-full bg-surface-highlight text-gray-400 hover:text-red-400 hover:bg-red-400/10 transition-colors disabled:opacity-50" 
-                          title="Reject"
-                        >
-                          <span className="material-symbols-outlined text-[18px]">close</span>
-                        </button>
-                        <button 
-                          onClick={() => handleApproveClub(club.id, club.name)}
-                          disabled={approveClubMutation.isPending}
-                          className="size-8 flex items-center justify-center rounded-full bg-primary text-background-dark hover:bg-white transition-colors shadow-lg shadow-primary/20 disabled:opacity-50" 
-                          title="Approve"
-                        >
-                          <span className="material-symbols-outlined text-[18px]">check</span>
-                        </button>
+                    ))}
+                    {/* Deletion Requests */}
+                    {deletionRequests.map((club) => (
+                      <div key={club.id} className="flex items-center justify-between gap-3 p-3 rounded-2xl bg-background-dark border border-red-500/30">
+                        <div className="flex items-center gap-3">
+                          <div 
+                            className="size-10 rounded-full bg-cover bg-center bg-card-dark"
+                            style={{ backgroundImage: club.image ? `url("${club.image}")` : 'none' }}
+                          ></div>
+                          <div className="flex flex-col">
+                            <div className="flex items-center gap-2">
+                              <p className="text-white text-sm font-bold">{club.name}</p>
+                              <span className="px-2 py-0.5 rounded-full bg-red-500/20 text-red-400 text-xs font-bold">Delete</span>
+                            </div>
+                            <p className="text-gray-500 text-xs">
+                              Requested by {club.deletionRequest?.requestedBy || 'Manager'} • {club.deletionRequest?.requestedAt || 'Recently'}
+                            </p>
+                          </div>
+                        </div>
+                        <div className="flex gap-2">
+                          <button 
+                            onClick={() => handleRejectDeletion(club.id)}
+                            disabled={rejectDeletionMutation.isPending}
+                            className="size-8 flex items-center justify-center rounded-full bg-surface-highlight text-gray-400 hover:text-yellow-400 hover:bg-yellow-400/10 transition-colors disabled:opacity-50" 
+                            title="Reject Deletion"
+                          >
+                            <span className="material-symbols-outlined text-[18px]">close</span>
+                          </button>
+                          <button 
+                            onClick={() => handleApproveDeletion(club.id)}
+                            disabled={approveDeletionMutation.isPending}
+                            className="size-8 flex items-center justify-center rounded-full bg-red-500 text-white hover:bg-red-600 transition-colors shadow-lg shadow-red-500/20 disabled:opacity-50" 
+                            title="Approve Deletion"
+                          >
+                            <span className="material-symbols-outlined text-[18px]">delete</span>
+                          </button>
+                        </div>
                       </div>
-                    </div>
-                  ))
+                    ))}
+                  </div>
                 )}
               </div>
             </div>

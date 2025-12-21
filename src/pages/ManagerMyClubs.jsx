@@ -11,6 +11,10 @@ import Swal from '../lib/sweetalertConfig';
 const ManagerMyClubs = () => {
   const { user, logout } = useAuth();
   const queryClient = useQueryClient();
+
+  useEffect(() => {
+    document.title = 'My Clubs - Club Manager - ClubSphere';
+  }, []);
   const navigate = useNavigate();
   const [search, setSearch] = useState('');
   const [categoryFilter, setCategoryFilter] = useState('All Clubs');
@@ -21,22 +25,6 @@ const ManagerMyClubs = () => {
   const [imagePreview, setImagePreview] = useState(null);
   const [selectedImage, setSelectedImage] = useState(null);
   const [isUploadingImage, setIsUploadingImage] = useState(false);
-  const [deleteMenuOpen, setDeleteMenuOpen] = useState(null);
-
-  useEffect(() => {
-    document.title = 'My Clubs - Club Manager - ClubSphere';
-  }, []);
-
-  // Close delete menu when clicking outside
-  useEffect(() => {
-    const handleClickOutside = (event) => {
-      if (deleteMenuOpen && !event.target.closest('.relative')) {
-        setDeleteMenuOpen(null);
-      }
-    };
-    document.addEventListener('mousedown', handleClickOutside);
-    return () => document.removeEventListener('mousedown', handleClickOutside);
-  }, [deleteMenuOpen]);
 
   const { register, handleSubmit, reset, setValue, watch, formState: { errors } } = useForm();
   const imageUrl = watch('image');
@@ -149,32 +137,6 @@ const ManagerMyClubs = () => {
     }
   });
 
-  // Delete club mutation
-  const deleteClubMutation = useMutation({
-    mutationFn: async (clubId) => {
-      const response = await api.delete(`/api/manager/clubs/${clubId}`);
-      return response.data;
-    },
-    onSuccess: () => {
-      queryClient.invalidateQueries(['managerClubs']);
-      setDeleteMenuOpen(null);
-      Swal.fire({
-        icon: 'success',
-        title: 'Club Deleted!',
-        text: 'Your club has been deleted successfully.',
-        timer: 2000,
-        showConfirmButton: false
-      });
-    },
-    onError: (error) => {
-      Swal.fire({
-        icon: 'error',
-        title: 'Error',
-        text: error.response?.data?.error || 'Failed to delete club. Please try again.'
-      });
-    }
-  });
-
   // Update club mutation
   const updateClubMutation = useMutation({
     mutationFn: async ({ id, data }) => {
@@ -198,7 +160,7 @@ const ManagerMyClubs = () => {
         category: data.category,
         schedule: data.schedule,
         location: data.location,
-        fee: data.fee ? parseFloat(data.fee) : 0,
+        fee: data.fee ? Math.round(parseFloat(data.fee) * 100) : 0,
         image: imageURL
       });
       return response.data;
@@ -227,6 +189,31 @@ const ManagerMyClubs = () => {
     }
   });
 
+  // Delete club mutation (creates deletion request)
+  const deleteClubMutation = useMutation({
+    mutationFn: async (clubId) => {
+      const response = await api.delete(`/api/manager/clubs/${clubId}`);
+      return response.data;
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries(['managerClubs']);
+      Swal.fire({
+        icon: 'success',
+        title: 'Deletion Request Submitted!',
+        text: 'Your deletion request has been submitted. It will be reviewed by an admin.',
+        timer: 3000,
+        showConfirmButton: false
+      });
+    },
+    onError: (error) => {
+      Swal.fire({
+        icon: 'error',
+        title: 'Error',
+        text: error.response?.data?.error || 'Failed to submit deletion request. Please try again.'
+      });
+    }
+  });
+
   const handleManageClub = (clubId) => {
     navigate(`/dashboard/club-manager/clubs/${clubId}/members`);
   };
@@ -238,7 +225,6 @@ const ManagerMyClubs = () => {
     setValue('category', club.category || 'Sports');
     setValue('schedule', club.schedule || '');
     setValue('location', club.location || '');
-    // Fee is already in taka from backend (converted from cents)
     setValue('fee', club.fee ? club.fee.toString() : '0');
     setValue('image', club.image || '');
     setImagePreview(club.image || null);
@@ -248,6 +234,23 @@ const ManagerMyClubs = () => {
 
   const handleCreateEvent = (clubId) => {
     navigate(`/dashboard/club-manager/events?clubId=${clubId}`);
+  };
+
+  const handleDeleteClub = (club) => {
+    Swal.fire({
+      title: 'Request Club Deletion?',
+      text: `Are you sure you want to request deletion for "${club.name}"? This request will be sent to admin for approval.`,
+      icon: 'warning',
+      showCancelButton: true,
+      confirmButtonColor: '#38e07b',
+      cancelButtonColor: '#d33',
+      confirmButtonText: 'Yes, Request Deletion',
+      cancelButtonText: 'Cancel'
+    }).then((result) => {
+      if (result.isConfirmed) {
+        deleteClubMutation.mutate(club.id);
+      }
+    });
   };
 
   const handleImageChange = (e) => {
@@ -434,42 +437,9 @@ const ManagerMyClubs = () => {
                         <h3 className="mb-1 text-xl font-bold text-white">{club.name}</h3>
                         <p className="text-sm text-[#9eb7a8]">{club.schedule || club.description}</p>
                       </div>
-                      <div className="relative">
-                        <button 
-                          onClick={() => setDeleteMenuOpen(deleteMenuOpen === club.id ? null : club.id)}
-                          className="text-[#9eb7a8] hover:text-white transition-colors"
-                        >
-                          <span className="material-symbols-outlined">more_vert</span>
-                        </button>
-                        {deleteMenuOpen === club.id && (
-                          <div className="absolute right-0 top-8 z-50 w-48 bg-surface-dark rounded-xl border border-border-dark shadow-lg overflow-hidden">
-                            <button
-                              onClick={() => {
-                                setDeleteMenuOpen(null);
-                                Swal.fire({
-                                  title: 'Delete Club?',
-                                  text: `Are you sure you want to delete "${club.name}"? This action cannot be undone.`,
-                                  icon: 'warning',
-                                  showCancelButton: true,
-                                  confirmButtonColor: '#ef4444',
-                                  cancelButtonColor: '#6b7280',
-                                  confirmButtonText: 'Yes, Delete',
-                                  cancelButtonText: 'Cancel',
-                                  reverseButtons: true
-                                }).then((result) => {
-                                  if (result.isConfirmed) {
-                                    deleteClubMutation.mutate(club.id);
-                                  }
-                                });
-                              }}
-                              className="w-full px-4 py-3 text-left text-sm text-red-400 hover:bg-red-500/10 transition-colors flex items-center gap-2"
-                            >
-                              <span className="material-symbols-outlined text-lg">delete</span>
-                              Delete Club
-                            </button>
-                          </div>
-                        )}
-                      </div>
+                      <button className="text-[#9eb7a8] hover:text-white">
+                        <span className="material-symbols-outlined">more_vert</span>
+                      </button>
                     </div>
                     {/* Stats */}
                     <div className="mb-6 grid grid-cols-2 gap-4 rounded-lg bg-black/20 p-3">
@@ -521,6 +491,14 @@ const ManagerMyClubs = () => {
                         title="Edit Details"
                       >
                         <span className="material-symbols-outlined text-[20px]">edit</span>
+                      </button>
+                      <button
+                        onClick={() => handleDeleteClub(club)}
+                        disabled={deleteClubMutation.isPending}
+                        className="flex size-10 items-center justify-center rounded-full border border-white/10 text-white transition-colors hover:bg-red-500/20 hover:border-red-500/50 disabled:opacity-50"
+                        title="Request Deletion"
+                      >
+                        <span className="material-symbols-outlined text-[20px]">delete</span>
                       </button>
                     </div>
                   </div>

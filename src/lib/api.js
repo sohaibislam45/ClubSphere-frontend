@@ -1,7 +1,7 @@
 import axios from 'axios';
 
 const api = axios.create({
-  baseURL: import.meta.env.VITE_API_BASE_URL || 'http://localhost:3000',
+  baseURL: import.meta.env.VITE_API_BASE_URL || 'https://clubsphere-backend.vercel.app',
   headers: {
     'Content-Type': 'application/json',
   },
@@ -29,7 +29,7 @@ api.interceptors.response.use(
     if (!error.response) {
       // Network error - backend is not reachable
       if (error.code === 'ERR_NETWORK' || error.message?.includes('Network Error')) {
-        error.message = 'Cannot connect to server. Please ensure the backend is running on http://localhost:3000';
+        error.message = 'Cannot connect to server. Please check if the backend is running on https://clubsphere-backend.vercel.app';
       }
     } else if (error.response?.status === 401) {
       // Handle unauthenticated - clear token and redirect to login

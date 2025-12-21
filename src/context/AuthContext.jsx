@@ -201,7 +201,7 @@ export const AuthProvider = ({ children }) => {
       } else if (error.code === 'auth/popup-closed-by-user') {
         errorMessage = 'Sign-in was cancelled.';
       } else if (error.code === 'auth/network-request-failed' || error.message?.includes('Network Error')) {
-        errorMessage = 'Network error. Please check if the backend server is running on http://localhost:3000';
+        errorMessage = 'Network error. Please check if the backend server is running on https://clubsphere-backend.vercel.app';
       } else if (error.response?.data?.error) {
         errorMessage = error.response.data.error;
       } else if (error.message) {
