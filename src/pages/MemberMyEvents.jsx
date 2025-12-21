@@ -17,6 +17,8 @@ const MemberMyEvents = () => {
   }, []);
   const [activeTab, setActiveTab] = useState('my-joining');
   const [search, setSearch] = useState('');
+  const [selectedEvent, setSelectedEvent] = useState(null);
+  const [isTicketModalOpen, setIsTicketModalOpen] = useState(false);
 
   const { data, isLoading, error } = useQuery({
     queryKey: ['myEvents', activeTab, search],
@@ -96,9 +98,25 @@ const MemberMyEvents = () => {
     }
   };
 
-  const handleViewTicket = (event, eventId) => {
-    event.stopPropagation();
-    navigate(`/events/${eventId}`);
+  const handleViewTicket = (e, eventData) => {
+    e.stopPropagation();
+    setSelectedEvent(eventData);
+    setIsTicketModalOpen(true);
+  };
+
+  const closeTicketModal = () => {
+    setIsTicketModalOpen(false);
+    setSelectedEvent(null);
+  };
+
+  // Generate ticket ID from registration ID or event ID
+  const generateTicketId = (event) => {
+    const id = event.id || event.eventId || '';
+    // Format as TKT-XXXX-XXXX
+    if (id.length >= 8) {
+      return `TKT-${id.substring(0, 4).toUpperCase()}-${id.substring(4, 8).toUpperCase()}`;
+    }
+    return `TKT-${id.substring(0, 8).toUpperCase().padEnd(8, '0')}`;
   };
 
   const handleViewDetails = (event, eventId) => {
@@ -347,7 +365,7 @@ const MemberMyEvents = () => {
                               </button>
                             ) : (
                               <button 
-                                onClick={(e) => handleViewTicket(e, event.eventId || event.id)}
+                                onClick={(e) => handleViewTicket(e, event)}
                                 className="text-white hover:text-primary text-sm font-semibold transition-colors"
                               >
                                 View Ticket
@@ -377,6 +395,165 @@ const MemberMyEvents = () => {
           )}
         </div>
       </main>
+
+      {/* Ticket Modal */}
+      {isTicketModalOpen && selectedEvent && (
+        <div 
+          className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/80 backdrop-blur-sm"
+          onClick={closeTicketModal}
+        >
+          <div 
+            className="relative bg-white dark:bg-surface-dark rounded-2xl shadow-2xl max-w-2xl w-full max-h-[90vh] overflow-y-auto"
+            onClick={(e) => e.stopPropagation()}
+          >
+            {/* Close Button */}
+            <button
+              onClick={closeTicketModal}
+              className="absolute top-4 right-4 z-10 p-2 rounded-full bg-gray-100 dark:bg-gray-800 hover:bg-gray-200 dark:hover:bg-gray-700 text-gray-600 dark:text-gray-400 transition-colors"
+            >
+              <span className="material-symbols-outlined text-xl">close</span>
+            </button>
+
+            {/* Ticket Content */}
+            <div className="p-8">
+              {/* Ticket Header */}
+              <div className="text-center mb-8">
+                <div className="inline-flex items-center justify-center w-16 h-16 rounded-full bg-primary/10 mb-4">
+                  <span className="material-symbols-outlined text-4xl text-primary">confirmation_number</span>
+                </div>
+                <h2 className="text-2xl font-black text-gray-900 dark:text-white mb-2">Event Ticket</h2>
+                <p className="text-gray-500 dark:text-gray-400">Present this ticket at the event</p>
+              </div>
+
+              {/* Ticket Design */}
+              <div className="relative bg-gradient-to-br from-primary/5 to-primary/10 dark:from-primary/10 dark:to-primary/20 rounded-2xl border-2 border-primary/20 p-8 mb-6">
+                {/* Perforated Edge Effect */}
+                <div className="absolute left-0 top-0 bottom-0 w-8 flex flex-col items-center justify-center gap-2">
+                  {[...Array(12)].map((_, i) => (
+                    <div key={i} className="w-2 h-2 rounded-full bg-gray-300 dark:bg-gray-600"></div>
+                  ))}
+                </div>
+                <div className="absolute right-0 top-0 bottom-0 w-8 flex flex-col items-center justify-center gap-2">
+                  {[...Array(12)].map((_, i) => (
+                    <div key={i} className="w-2 h-2 rounded-full bg-gray-300 dark:bg-gray-600"></div>
+                  ))}
+                </div>
+
+                {/* Ticket Content */}
+                <div className="pl-4 pr-4">
+                  {/* Event Image */}
+                  {selectedEvent.image && (
+                    <div className="w-full h-48 rounded-xl overflow-hidden mb-6 bg-gray-200 dark:bg-gray-800">
+                      <img 
+                        src={selectedEvent.image} 
+                        alt={selectedEvent.name}
+                        className="w-full h-full object-cover"
+                      />
+                    </div>
+                  )}
+
+                  {/* Event Name */}
+                  <h3 className="text-3xl font-black text-gray-900 dark:text-white mb-2">
+                    {selectedEvent.name}
+                  </h3>
+                  
+                  {/* Club Name */}
+                  <p className="text-lg text-gray-600 dark:text-gray-400 mb-6">
+                    {selectedEvent.clubName}
+                  </p>
+
+                  {/* Ticket Details Grid */}
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
+                    {/* Ticket ID */}
+                    <div className="bg-white/50 dark:bg-gray-800/50 rounded-xl p-4 border border-gray-200 dark:border-gray-700">
+                      <div className="flex items-center gap-2 mb-2">
+                        <span className="material-symbols-outlined text-primary text-xl">tag</span>
+                        <span className="text-xs font-bold text-gray-500 dark:text-gray-400 uppercase tracking-wider">Ticket ID</span>
+                      </div>
+                      <p className="text-lg font-black text-gray-900 dark:text-white font-mono">
+                        {generateTicketId(selectedEvent)}
+                      </p>
+                    </div>
+
+                    {/* User Name */}
+                    <div className="bg-white/50 dark:bg-gray-800/50 rounded-xl p-4 border border-gray-200 dark:border-gray-700">
+                      <div className="flex items-center gap-2 mb-2">
+                        <span className="material-symbols-outlined text-primary text-xl">person</span>
+                        <span className="text-xs font-bold text-gray-500 dark:text-gray-400 uppercase tracking-wider">Attendee</span>
+                      </div>
+                      <p className="text-lg font-bold text-gray-900 dark:text-white">
+                        {user?.name || 'Guest'}
+                      </p>
+                    </div>
+
+                    {/* Event Date & Time */}
+                    <div className="bg-white/50 dark:bg-gray-800/50 rounded-xl p-4 border border-gray-200 dark:border-gray-700">
+                      <div className="flex items-center gap-2 mb-2">
+                        <span className="material-symbols-outlined text-primary text-xl">schedule</span>
+                        <span className="text-xs font-bold text-gray-500 dark:text-gray-400 uppercase tracking-wider">Date & Time</span>
+                      </div>
+                      <p className="text-base font-bold text-gray-900 dark:text-white mb-1">
+                        {selectedEvent.dateFormatted}
+                      </p>
+                      <p className="text-sm text-gray-600 dark:text-gray-400">
+                        {selectedEvent.time}
+                      </p>
+                    </div>
+
+                    {/* Location */}
+                    <div className="bg-white/50 dark:bg-gray-800/50 rounded-xl p-4 border border-gray-200 dark:border-gray-700">
+                      <div className="flex items-center gap-2 mb-2">
+                        <span className="material-symbols-outlined text-primary text-xl">location_on</span>
+                        <span className="text-xs font-bold text-gray-500 dark:text-gray-400 uppercase tracking-wider">Location</span>
+                      </div>
+                      <p className="text-base font-bold text-gray-900 dark:text-white">
+                        {selectedEvent.location || 'TBD'}
+                      </p>
+                    </div>
+                  </div>
+
+                  {/* QR Code Placeholder */}
+                  <div className="bg-white dark:bg-gray-800 rounded-xl p-6 border-2 border-dashed border-gray-300 dark:border-gray-700 flex flex-col items-center justify-center">
+                    <div className="w-48 h-48 bg-gray-100 dark:bg-gray-700 rounded-lg flex items-center justify-center mb-4">
+                      <div className="text-center">
+                        <span className="material-symbols-outlined text-6xl text-gray-400 dark:text-gray-500 mb-2">qr_code_2</span>
+                        <p className="text-xs text-gray-500 dark:text-gray-400 font-medium">QR Code</p>
+                      </div>
+                    </div>
+                    <p className="text-xs text-gray-500 dark:text-gray-400 text-center">
+                      Scan this code at the event entrance
+                    </p>
+                  </div>
+                </div>
+              </div>
+
+              {/* Action Buttons */}
+              <div className="flex flex-col sm:flex-row gap-3">
+                <button
+                  onClick={() => {
+                    // Print ticket
+                    window.print();
+                  }}
+                  className="flex-1 flex items-center justify-center gap-2 bg-primary hover:bg-primary/90 text-background-dark px-6 py-3 rounded-xl font-bold transition-colors"
+                >
+                  <span className="material-symbols-outlined">print</span>
+                  Print Ticket
+                </button>
+                <button
+                  onClick={() => {
+                    // Download as image (placeholder)
+                    closeTicketModal();
+                  }}
+                  className="flex-1 flex items-center justify-center gap-2 bg-gray-100 dark:bg-gray-800 hover:bg-gray-200 dark:hover:bg-gray-700 text-gray-900 dark:text-white px-6 py-3 rounded-xl font-bold transition-colors"
+                >
+                  <span className="material-symbols-outlined">download</span>
+                  Download
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 };

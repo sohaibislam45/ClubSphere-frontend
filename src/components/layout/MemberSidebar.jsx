@@ -38,7 +38,6 @@ const MemberSidebar = () => {
           ></div>
           <div className="flex flex-col">
             <h1 className="text-base font-bold leading-tight text-gray-900 dark:text-white">{user?.name || 'Member'}</h1>
-            <p className="text-gray-500 dark:text-gray-400 text-xs font-normal">Premium Member</p>
           </div>
         </div>
         <nav className="flex flex-col gap-2">

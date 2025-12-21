@@ -30,8 +30,12 @@ const MemberDiscover = () => {
       if (filter) params.append('filter', filter);
       
       const response = await api.get(`/api/member/discover?${params.toString()}`);
+      console.log('[MemberDiscover] API Response:', response.data);
       return response.data;
-    }
+    },
+    staleTime: 0, // Always consider data stale to ensure fresh data
+    refetchOnMount: true,
+    refetchOnWindowFocus: true
   });
 
   const topPicks = data?.topPicks || [];
