@@ -4,6 +4,7 @@ import { useAuth } from '../context/AuthContext';
 import MemberSidebar from '../components/layout/MemberSidebar';
 import Loader from '../components/ui/Loader';
 import api from '../lib/api';
+import Swal from '../lib/sweetalertConfig';
 
 const MemberMyClubs = () => {
   const { user } = useAuth();
@@ -160,7 +161,15 @@ const MemberMyClubs = () => {
                 <Loader />
               </div>
             ) : error ? (
-              <div className="text-center py-20 text-red-400">Error loading clubs</div>
+              <div className="text-center py-20">
+                <p className="text-red-400 mb-4">Error loading clubs</p>
+                <button 
+                  onClick={() => window.location.reload()} 
+                  className="text-primary hover:underline"
+                >
+                  Try again
+                </button>
+              </div>
             ) : clubs.length === 0 ? (
               <div className="text-center py-20 text-slate-400">
                 <p className="text-lg mb-2">No clubs found</p>

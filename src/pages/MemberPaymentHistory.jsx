@@ -4,6 +4,7 @@ import { useAuth } from '../context/AuthContext';
 import MemberSidebar from '../components/layout/MemberSidebar';
 import Loader from '../components/ui/Loader';
 import api from '../lib/api';
+import Swal from '../lib/sweetalertConfig';
 
 const MemberPaymentHistory = () => {
   const { user } = useAuth();
@@ -235,7 +236,15 @@ const MemberPaymentHistory = () => {
                 <Loader />
               </div>
             ) : error ? (
-              <div className="text-center py-20 text-red-400">Error loading transactions</div>
+              <div className="text-center py-20">
+                <p className="text-red-400 mb-4">Error loading transactions</p>
+                <button 
+                  onClick={() => window.location.reload()} 
+                  className="text-primary hover:underline"
+                >
+                  Try again
+                </button>
+              </div>
             ) : (
               <div className="flex flex-col overflow-hidden rounded-2xl border border-[#29382f] shadow-xl shadow-black/20">
                 <div className="overflow-x-auto">

@@ -2,6 +2,7 @@ import { useState, useRef, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 import MemberSidebar from '../components/layout/MemberSidebar';
+import Swal from '../lib/sweetalertConfig';
 
 const MemberDashboard = () => {
   const { user, logout } = useAuth();

@@ -4,6 +4,7 @@ import { useAuth } from '../context/AuthContext';
 import MemberSidebar from '../components/layout/MemberSidebar';
 import Loader from '../components/ui/Loader';
 import api from '../lib/api';
+import Swal from '../lib/sweetalertConfig';
 
 const MemberSettings = () => {
   const { user } = useAuth();
@@ -82,10 +83,20 @@ const MemberSettings = () => {
     },
     onSuccess: () => {
       queryClient.invalidateQueries(['memberSettings']);
-      alert('Profile updated successfully');
+      Swal.fire({
+        icon: 'success',
+        title: 'Success!',
+        text: 'Profile updated successfully',
+        timer: 2000,
+        showConfirmButton: false
+      });
     },
     onError: (error) => {
-      alert(error.response?.data?.error || 'Failed to update profile');
+      Swal.fire({
+        icon: 'error',
+        title: 'Error',
+        text: error.response?.data?.error || 'Failed to update profile'
+      });
     }
   });
 
@@ -96,10 +107,20 @@ const MemberSettings = () => {
     },
     onSuccess: () => {
       setPasswordData({ currentPassword: '', newPassword: '', confirmPassword: '' });
-      alert('Password updated successfully');
+      Swal.fire({
+        icon: 'success',
+        title: 'Success!',
+        text: 'Password updated successfully',
+        timer: 2000,
+        showConfirmButton: false
+      });
     },
     onError: (error) => {
-      alert(error.response?.data?.error || 'Failed to update password');
+      Swal.fire({
+        icon: 'error',
+        title: 'Error',
+        text: error.response?.data?.error || 'Failed to update password'
+      });
     }
   });
 
@@ -110,7 +131,20 @@ const MemberSettings = () => {
     },
     onSuccess: () => {
       queryClient.invalidateQueries(['memberSettings']);
-      alert('Notification preferences updated successfully');
+      Swal.fire({
+        icon: 'success',
+        title: 'Success!',
+        text: 'Notification preferences updated successfully',
+        timer: 2000,
+        showConfirmButton: false
+      });
+    },
+    onError: (error) => {
+      Swal.fire({
+        icon: 'error',
+        title: 'Error',
+        text: error.response?.data?.error || 'Failed to update notification preferences'
+      });
     }
   });
 
@@ -119,8 +153,23 @@ const MemberSettings = () => {
       const response = await api.put('/api/member/settings/security/2fa', { enabled });
       return response.data;
     },
-    onSuccess: () => {
+    onSuccess: (data, variables) => {
       queryClient.invalidateQueries(['memberSettings']);
+      Swal.fire({
+        icon: 'success',
+        title: 'Success!',
+        text: `Two-factor authentication ${variables ? 'enabled' : 'disabled'} successfully`,
+        timer: 2000,
+        showConfirmButton: false
+      });
+    },
+    onError: (error, variables) => {
+      setTwoFactorEnabled(!variables); // Revert toggle on error
+      Swal.fire({
+        icon: 'error',
+        title: 'Error',
+        text: error.response?.data?.error || 'Failed to update two-factor authentication'
+      });
     }
   });
 
@@ -132,7 +181,11 @@ const MemberSettings = () => {
   const handlePasswordSubmit = (e) => {
     e.preventDefault();
     if (passwordData.newPassword !== passwordData.confirmPassword) {
-      alert('New passwords do not match');
+      Swal.fire({
+        icon: 'error',
+        title: 'Error',
+        text: 'New passwords do not match'
+      });
       return;
     }
     updatePasswordMutation.mutate({

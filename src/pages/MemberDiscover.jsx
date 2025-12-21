@@ -1,9 +1,11 @@
 import { useState, useEffect } from 'react';
 import { useQuery } from '@tanstack/react-query';
+import { Link } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 import MemberSidebar from '../components/layout/MemberSidebar';
 import Loader from '../components/ui/Loader';
 import api from '../lib/api';
+import Swal from '../lib/sweetalertConfig';
 
 const MemberDiscover = () => {
   const { user } = useAuth();
@@ -30,7 +32,6 @@ const MemberDiscover = () => {
 
   const topPicks = data?.topPicks || [];
   const events = data?.events || [];
-  const categories = data?.categories || [];
 
   const handleFilterClick = (filterType) => {
     if (filter === filterType) {
@@ -40,17 +41,6 @@ const MemberDiscover = () => {
     }
   };
 
-  const categoryIcons = {
-    'Wellness': 'self_improvement',
-    'Gaming': 'sports_esports',
-    'Music': 'music_note',
-    'Food & Drink': 'restaurant',
-    'Tech': 'code',
-    'Sports': 'sports_soccer',
-    'Art & Design': 'palette',
-    'Outdoor': 'hiking',
-    'Adventure': 'explore'
-  };
 
   return (
     <div className="bg-background-light dark:bg-background-dark font-display text-gray-900 dark:text-white min-h-screen flex overflow-hidden">
@@ -76,7 +66,7 @@ const MemberDiscover = () => {
                 <span className="material-symbols-outlined text-gray-400">search</span>
               </div>
               <input
-                className="block w-full pl-12 pr-4 py-4 rounded-xl bg-white dark:bg-surface-dark border-transparent focus:border-primary focus:bg-white dark:focus:bg-surface-dark-hover focus:ring-0 text-gray-900 dark:text-white placeholder-gray-500 transition-all shadow-sm"
+                className="block w-full pl-12 pr-4 py-4 rounded-xl bg-white dark:bg-surface-dark border-transparent focus:border-primary focus:bg-white dark:focus:bg-surface-dark focus:ring-0 text-gray-900 dark:text-white focus:text-gray-900 dark:focus:text-white placeholder-gray-500 transition-all shadow-sm"
                 placeholder="Search clubs, events, or interests..."
                 type="text"
                 value={search}
@@ -91,7 +81,7 @@ const MemberDiscover = () => {
                 className={`flex items-center gap-2 px-5 py-2.5 rounded-full font-bold text-sm hover:bg-primary/90 transition-colors whitespace-nowrap ${
                   filter === 'trending'
                     ? 'bg-primary text-background-dark'
-                    : 'bg-white dark:bg-surface-dark border border-gray-200 dark:border-transparent text-gray-700 dark:text-white hover:bg-gray-50 dark:hover:bg-surface-dark-hover'
+                    : 'bg-white dark:bg-surface-dark border border-gray-200 dark:border-transparent text-gray-700 dark:text-white hover:bg-gray-50 dark:hover:bg-surface-dark-alt2'
                 }`}
               >
                 <span className="material-symbols-outlined text-[18px]">local_fire_department</span>
@@ -102,7 +92,7 @@ const MemberDiscover = () => {
                 className={`flex items-center gap-2 px-5 py-2.5 rounded-full font-medium text-sm transition-colors whitespace-nowrap ${
                   filter === 'near_me'
                     ? 'bg-primary text-background-dark font-bold'
-                    : 'bg-white dark:bg-surface-dark border border-gray-200 dark:border-transparent text-gray-700 dark:text-white hover:bg-gray-50 dark:hover:bg-surface-dark-hover'
+                    : 'bg-white dark:bg-surface-dark border border-gray-200 dark:border-transparent text-gray-700 dark:text-white hover:bg-gray-50 dark:hover:bg-surface-dark-alt2'
                 }`}
               >
                 <span className="material-symbols-outlined text-[18px]">location_on</span>
@@ -113,7 +103,7 @@ const MemberDiscover = () => {
                 className={`flex items-center gap-2 px-5 py-2.5 rounded-full font-medium text-sm transition-colors whitespace-nowrap ${
                   category === 'Sports'
                     ? 'bg-primary text-background-dark font-bold'
-                    : 'bg-white dark:bg-surface-dark border border-gray-200 dark:border-transparent text-gray-700 dark:text-white hover:bg-gray-50 dark:hover:bg-surface-dark-hover'
+                    : 'bg-white dark:bg-surface-dark border border-gray-200 dark:border-transparent text-gray-700 dark:text-white hover:bg-gray-50 dark:hover:bg-surface-dark-alt2'
                 }`}
               >
                 <span className="material-symbols-outlined text-[18px]">sports_soccer</span>
@@ -124,7 +114,7 @@ const MemberDiscover = () => {
                 className={`flex items-center gap-2 px-5 py-2.5 rounded-full font-medium text-sm transition-colors whitespace-nowrap ${
                   category === 'Tech'
                     ? 'bg-primary text-background-dark font-bold'
-                    : 'bg-white dark:bg-surface-dark border border-gray-200 dark:border-transparent text-gray-700 dark:text-white hover:bg-gray-50 dark:hover:bg-surface-dark-hover'
+                    : 'bg-white dark:bg-surface-dark border border-gray-200 dark:border-transparent text-gray-700 dark:text-white hover:bg-gray-50 dark:hover:bg-surface-dark-alt2'
                 }`}
               >
                 <span className="material-symbols-outlined text-[18px]">code</span>
@@ -135,7 +125,7 @@ const MemberDiscover = () => {
                 className={`flex items-center gap-2 px-5 py-2.5 rounded-full font-medium text-sm transition-colors whitespace-nowrap ${
                   category === 'Art & Design'
                     ? 'bg-primary text-background-dark font-bold'
-                    : 'bg-white dark:bg-surface-dark border border-gray-200 dark:border-transparent text-gray-700 dark:text-white hover:bg-gray-50 dark:hover:bg-surface-dark-hover'
+                    : 'bg-white dark:bg-surface-dark border border-gray-200 dark:border-transparent text-gray-700 dark:text-white hover:bg-gray-50 dark:hover:bg-surface-dark-alt2'
                 }`}
               >
                 <span className="material-symbols-outlined text-[18px]">palette</span>
@@ -146,7 +136,7 @@ const MemberDiscover = () => {
                 className={`flex items-center gap-2 px-5 py-2.5 rounded-full font-medium text-sm transition-colors whitespace-nowrap ${
                   filter === 'today'
                     ? 'bg-primary text-background-dark font-bold'
-                    : 'bg-white dark:bg-surface-dark border border-gray-200 dark:border-transparent text-gray-700 dark:text-white hover:bg-gray-50 dark:hover:bg-surface-dark-hover'
+                    : 'bg-white dark:bg-surface-dark border border-gray-200 dark:border-transparent text-gray-700 dark:text-white hover:bg-gray-50 dark:hover:bg-surface-dark-alt2'
                 }`}
               >
                 <span className="material-symbols-outlined text-[18px]">event_available</span>
@@ -167,7 +157,15 @@ const MemberDiscover = () => {
               <Loader />
             </div>
           ) : error ? (
-            <div className="text-center py-10 text-red-400">Error loading clubs</div>
+            <div className="text-center py-10">
+              <p className="text-red-400 mb-4">Error loading clubs</p>
+              <button 
+                onClick={() => window.location.reload()} 
+                className="text-primary hover:underline"
+              >
+                Try again
+              </button>
+            </div>
           ) : (
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
               {topPicks.map((club) => (
@@ -204,7 +202,7 @@ const MemberDiscover = () => {
                         {club.distance || club.location}
                       </div>
                     </div>
-                    <button className="mt-5 w-full py-3 bg-gray-100 dark:bg-surface-dark-hover hover:bg-primary hover:text-background-dark text-gray-900 dark:text-white font-bold rounded-xl transition-all duration-300">
+                    <button className="mt-5 w-full py-3 bg-gray-100 dark:bg-surface-dark-alt2 hover:bg-primary hover:text-background-dark text-gray-900 dark:text-white font-bold rounded-xl transition-all duration-300">
                       {club.isJoined ? 'View Club' : 'Join Club'}
                     </button>
                   </div>
@@ -214,36 +212,7 @@ const MemberDiscover = () => {
           )}
         </section>
 
-        {/* Section 2: Explore Categories */}
-        <section className="max-w-7xl mx-auto px-8 mb-10">
-          <h2 className="text-2xl font-bold text-gray-900 dark:text-white mb-4">Explore Categories</h2>
-          <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-6 gap-4">
-            {categories.slice(0, 5).map((cat, index) => (
-              <a
-                key={cat.name || index}
-                className="group relative aspect-square rounded-2xl overflow-hidden flex items-end p-4 bg-gray-800 cursor-pointer"
-                onClick={() => setCategory(cat.name)}
-              >
-                <div className="absolute inset-0 bg-primary opacity-20 group-hover:opacity-30 transition-all duration-300"></div>
-                <div className="absolute inset-0 flex items-center justify-center">
-                  <span className="material-symbols-outlined text-4xl text-primary">
-                    {categoryIcons[cat.name] || 'category'}
-                  </span>
-                </div>
-                <span className="relative text-white font-bold z-10 text-lg">{cat.name}</span>
-              </a>
-            ))}
-            <a className="group relative aspect-square rounded-2xl overflow-hidden flex items-end p-4 bg-gray-800 cursor-pointer">
-              <div className="absolute inset-0 bg-primary opacity-20 group-hover:opacity-30 transition-all duration-300"></div>
-              <div className="absolute inset-0 flex items-center justify-center">
-                <span className="material-symbols-outlined text-4xl text-primary">arrow_forward</span>
-              </div>
-              <span className="relative text-white font-bold z-10 text-lg">View All</span>
-            </a>
-          </div>
-        </section>
-
-        {/* Section 3: Happening This Week */}
+        {/* Section 2: Happening This Week */}
         <section className="max-w-7xl mx-auto px-8 pb-12">
           <h2 className="text-2xl font-bold text-gray-900 dark:text-white mb-4">Happening This Week</h2>
           {isLoading ? (
@@ -251,18 +220,27 @@ const MemberDiscover = () => {
               <Loader />
             </div>
           ) : error ? (
-            <div className="text-center py-10 text-red-400">Error loading events</div>
+            <div className="text-center py-10">
+              <p className="text-red-400 mb-4">Error loading events</p>
+              <button 
+                onClick={() => window.location.reload()} 
+                className="text-primary hover:underline"
+              >
+                Try again
+              </button>
+            </div>
           ) : (
             <div className="bg-white dark:bg-surface-dark rounded-2xl overflow-hidden border border-gray-100 dark:border-transparent">
               {events.length === 0 ? (
                 <div className="p-10 text-center text-gray-400">No events this week</div>
               ) : (
                 events.map((event, index) => (
-                  <div
+                  <Link
                     key={event.id}
+                    to={`/events/${event.id}`}
                     className={`flex flex-col sm:flex-row gap-4 p-5 ${
                       index < events.length - 1 ? 'border-b border-gray-100 dark:border-gray-800' : ''
-                    } hover:bg-gray-50 dark:hover:bg-surface-dark-hover transition-colors group cursor-pointer`}
+                    } hover:bg-gray-50 dark:hover:bg-surface-dark-alt2 transition-colors group cursor-pointer`}
                   >
                     <div className="w-full sm:w-20 h-40 sm:h-20 flex-shrink-0 rounded-xl bg-gray-800 flex flex-col items-center justify-center text-center overflow-hidden relative">
                       {event.image && (
@@ -284,7 +262,14 @@ const MemberDiscover = () => {
                             {event.clubName} • {event.time}
                           </p>
                         </div>
-                        <button className="px-4 py-2 bg-gray-100 dark:bg-gray-800 rounded-full text-sm font-semibold text-gray-900 dark:text-white hover:bg-primary hover:text-background-dark transition-colors">
+                        <button 
+                          onClick={(e) => {
+                            e.preventDefault();
+                            e.stopPropagation();
+                            // RSVP functionality can be added here
+                          }}
+                          className="px-4 py-2 bg-gray-100 dark:bg-gray-800 rounded-full text-sm font-semibold text-gray-900 dark:text-white hover:bg-primary hover:text-background-dark transition-colors"
+                        >
                           RSVP
                         </button>
                       </div>
@@ -294,7 +279,7 @@ const MemberDiscover = () => {
                         </span>
                       </div>
                     </div>
-                  </div>
+                  </Link>
                 ))
               )}
             </div>

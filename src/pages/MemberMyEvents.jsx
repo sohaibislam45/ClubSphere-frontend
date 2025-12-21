@@ -4,6 +4,7 @@ import { useAuth } from '../context/AuthContext';
 import MemberSidebar from '../components/layout/MemberSidebar';
 import Loader from '../components/ui/Loader';
 import api from '../lib/api';
+import Swal from '../lib/sweetalertConfig';
 
 const MemberMyEvents = () => {
   const { user } = useAuth();
@@ -157,7 +158,15 @@ const MemberMyEvents = () => {
                 <Loader />
               </div>
             ) : error ? (
-              <div className="text-center py-20 text-red-400">Error loading events</div>
+              <div className="text-center py-20">
+                <p className="text-red-400 mb-4">Error loading events</p>
+                <button 
+                  onClick={() => window.location.reload()} 
+                  className="text-primary hover:underline"
+                >
+                  Try again
+                </button>
+              </div>
             ) : events.length === 0 ? (
               <div className="rounded-2xl border border-white/10 bg-surface-dark overflow-hidden shadow-xl z-10 relative p-20 text-center">
                 <div className="bg-surface-dark p-6 rounded-full mb-4 inline-block">
