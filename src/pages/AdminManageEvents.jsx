@@ -1103,7 +1103,7 @@ const EditEventModal = ({ isOpen, onClose, eventId, onSubmit, isLoading }) => {
         location: event.location || '',
         clubId: event.clubId || '',
         isPaid: event.type === 'paid' || event.type === 'Paid',
-        fee: event.fee && event.fee > 0 ? event.fee.toString() : '15.00',
+        fee: event.fee && event.fee > 0 ? event.fee.toString() : '0',
         maxAttendees: event.maxAttendees ? event.maxAttendees.toString() : ''
       });
       setCharCount(event.description?.length || 0);
