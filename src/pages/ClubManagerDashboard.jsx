@@ -37,6 +37,9 @@ const ClubManagerDashboard = () => {
   const clubs = clubsData?.clubs || [];
   const events = eventsData?.events || [];
 
+  // Combined loading state - show single loader if any query is loading
+  const isLoading = clubsLoading || eventsLoading;
+
   // Calculate stats
   const stats = {
     totalClubs: clubs.length,
@@ -195,6 +198,11 @@ const ClubManagerDashboard = () => {
 
         {/* Scrollable Dashboard Content */}
         <div className="flex-1 overflow-y-auto p-4 md:p-8 scroll-smooth">
+          {isLoading ? (
+            <div className="flex items-center justify-center min-h-[60vh]">
+              <Loader />
+            </div>
+          ) : (
           <div className="max-w-7xl mx-auto space-y-8 pb-10">
             {/* Welcome Section */}
             <div className="flex flex-col md:flex-row md:items-end justify-between gap-4">
@@ -221,11 +229,7 @@ const ClubManagerDashboard = () => {
                 </div>
                 <div>
                   <p className="text-slate-500 dark:text-slate-400 text-sm font-medium mb-1">Managed Clubs</p>
-                  {clubsLoading ? (
-                    <Loader />
-                  ) : (
-                    <h3 className="text-3xl font-bold text-slate-900 dark:text-white">{stats.totalClubs}</h3>
-                  )}
+                  <h3 className="text-3xl font-bold text-slate-900 dark:text-white">{stats.totalClubs}</h3>
                 </div>
               </div>
 
@@ -242,13 +246,9 @@ const ClubManagerDashboard = () => {
                 </div>
                 <div>
                   <p className="text-slate-500 dark:text-slate-400 text-sm font-medium mb-1">Total Members</p>
-                  {clubsLoading ? (
-                    <Loader />
-                  ) : (
-                    <h3 className="text-3xl font-bold text-slate-900 dark:text-white">
-                      {stats.totalMembers.toLocaleString()}
-                    </h3>
-                  )}
+                  <h3 className="text-3xl font-bold text-slate-900 dark:text-white">
+                    {stats.totalMembers.toLocaleString()}
+                  </h3>
                 </div>
               </div>
 
@@ -265,11 +265,7 @@ const ClubManagerDashboard = () => {
                 </div>
                 <div>
                   <p className="text-slate-500 dark:text-slate-400 text-sm font-medium mb-1">Events Created</p>
-                  {eventsLoading ? (
-                    <Loader />
-                  ) : (
-                    <h3 className="text-3xl font-bold text-slate-900 dark:text-white">{stats.totalEvents}</h3>
-                  )}
+                  <h3 className="text-3xl font-bold text-slate-900 dark:text-white">{stats.totalEvents}</h3>
                 </div>
               </div>
 
@@ -286,13 +282,9 @@ const ClubManagerDashboard = () => {
                 </div>
                 <div>
                   <p className="text-slate-500 dark:text-slate-400 text-sm font-medium mb-1">Total Revenue</p>
-                  {eventsLoading ? (
-                    <Loader />
-                  ) : (
-                    <h3 className="text-3xl font-bold text-slate-900 dark:text-white">
-                      ৳{stats.revenue.toLocaleString('en-US', { minimumFractionDigits: 0, maximumFractionDigits: 0 })}
-                    </h3>
-                  )}
+                  <h3 className="text-3xl font-bold text-slate-900 dark:text-white">
+                    ৳{stats.revenue.toLocaleString('en-US', { minimumFractionDigits: 0, maximumFractionDigits: 0 })}
+                  </h3>
                 </div>
               </div>
             </div>
@@ -309,12 +301,7 @@ const ClubManagerDashboard = () => {
                       View All
                     </Link>
                   </div>
-                  {clubsLoading ? (
-                    <div className="flex items-center justify-center py-20">
-                      <Loader />
-                    </div>
-                  ) : (
-                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                       {clubs.slice(0, 4).map((club) => (
                         <Link
                           key={club.id || club._id}
@@ -345,7 +332,6 @@ const ClubManagerDashboard = () => {
                         </div>
                       )}
                     </div>
-                  )}
                 </div>
 
                 {/* Upcoming Events Table */}
@@ -368,13 +354,7 @@ const ClubManagerDashboard = () => {
                         </tr>
                       </thead>
                       <tbody className="divide-y divide-white/5 text-sm">
-                        {eventsLoading ? (
-                          <tr>
-                            <td colSpan="5" className="px-6 py-8 text-center">
-                              <Loader />
-                            </td>
-                          </tr>
-                        ) : upcomingEvents.length === 0 ? (
+                        {upcomingEvents.length === 0 ? (
                           <tr>
                             <td colSpan="5" className="px-6 py-8 text-center text-slate-500">
                               No upcoming events
@@ -457,6 +437,7 @@ const ClubManagerDashboard = () => {
               </div>
             </div>
           </div>
+          )}
         </div>
       </main>
     </div>

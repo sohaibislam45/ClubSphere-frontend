@@ -152,11 +152,7 @@ const MemberDiscover = () => {
             <h2 className="text-2xl font-bold text-gray-900 dark:text-white">Top Picks for You</h2>
             <a className="text-primary text-sm font-semibold hover:underline" href="#">View all</a>
           </div>
-          {isLoading ? (
-            <div className="flex items-center justify-center py-10">
-              <Loader />
-            </div>
-          ) : error ? (
+          {error ? (
             <div className="text-center py-10">
               <p className="text-red-400 mb-4">Error loading clubs</p>
               <button 
@@ -215,11 +211,7 @@ const MemberDiscover = () => {
         {/* Section 2: Happening This Week */}
         <section className="max-w-7xl mx-auto px-8 pb-12">
           <h2 className="text-2xl font-bold text-gray-900 dark:text-white mb-4">Happening This Week</h2>
-          {isLoading ? (
-            <div className="flex items-center justify-center py-10">
-              <Loader />
-            </div>
-          ) : error ? (
+          {error ? (
             <div className="text-center py-10">
               <p className="text-red-400 mb-4">Error loading events</p>
               <button 
@@ -285,6 +277,8 @@ const MemberDiscover = () => {
             </div>
           )}
         </section>
+        </>
+        )}
       </main>
     </div>
   );

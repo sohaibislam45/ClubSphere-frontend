@@ -331,6 +331,12 @@ const ManagerMyClubs = () => {
         </div>
 
         <div className="mx-auto flex w-full max-w-[1400px] flex-1 flex-col p-4 lg:p-10">
+          {isLoading ? (
+            <div className="flex items-center justify-center min-h-[60vh]">
+              <Loader />
+            </div>
+          ) : (
+          <>
           {/* Page Heading & Actions */}
           <div className="mb-8 flex flex-col gap-6 lg:flex-row lg:items-end lg:justify-between">
             <div className="flex flex-col gap-2">
@@ -398,11 +404,7 @@ const ManagerMyClubs = () => {
           </div>
 
           {/* Grid Layout */}
-          {isLoading ? (
-            <div className="flex items-center justify-center py-20">
-              <Loader />
-            </div>
-          ) : error ? (
+          {error ? (
             <div className="flex items-center justify-center py-20">
               <div className="text-red-400">Error loading clubs. Please try again.</div>
             </div>
@@ -515,6 +517,8 @@ const ManagerMyClubs = () => {
                 </div>
               </button>
             </div>
+          )}
+          </>
           )}
         </div>
       </main>

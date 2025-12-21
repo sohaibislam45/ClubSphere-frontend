@@ -226,6 +226,11 @@ const AdminManageEvents = () => {
       <main className="flex-1 flex flex-col h-full relative overflow-hidden bg-background-light dark:bg-background-dark">
         {/* Header Section */}
         <div className="flex-1 overflow-y-auto p-6 md:p-8 scroll-smooth">
+          {isLoading ? (
+            <div className="flex items-center justify-center min-h-[60vh]">
+              <Loader />
+            </div>
+          ) : (
           <div className="max-w-[1600px] mx-auto flex flex-col gap-6">
           {/* Title & Create Button */}
           <div className="flex flex-wrap justify-between items-end gap-4">
@@ -318,15 +323,7 @@ const AdminManageEvents = () => {
                 </tr>
               </thead>
               <tbody className="divide-y divide-slate-200 dark:divide-[#29382f]">
-                {isLoading ? (
-                  <tr>
-                    <td colSpan="6" className="px-6 py-4">
-                      <div className="flex items-center justify-center">
-                        <Loader />
-                      </div>
-                    </td>
-                  </tr>
-                ) : events.length === 0 ? (
+                {events.length === 0 ? (
                   <tr>
                     <td colSpan="6" className="px-6 py-4 text-center text-[#9eb7a8]">No events found</td>
                   </tr>
@@ -481,7 +478,7 @@ const AdminManageEvents = () => {
               </div>
             </div>
           </div>
-          </div>
+          )}
         </div>
       </main>
 

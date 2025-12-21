@@ -214,13 +214,12 @@ const MemberSettings = () => {
       <MemberSidebar />
       
       <main className="flex-1 flex flex-col h-full overflow-y-auto bg-background-light dark:bg-background-dark scroll-smooth">
+        {isLoading && !data ? (
+          <div className="flex items-center justify-center min-h-[60vh]">
+            <Loader />
+          </div>
+        ) : (
         <div className="w-full max-w-[1000px] mx-auto px-4 md:px-8 py-8 flex flex-col gap-8">
-          {/* Loading Indicator */}
-          {isLoading && !data && (
-            <div className="flex items-center justify-center py-20">
-              <Loader />
-            </div>
-          )}
 
           {/* Error Banner */}
           {hasError && (
@@ -543,6 +542,7 @@ const MemberSettings = () => {
             </div>
           </section>
         </div>
+        )}
       </main>
     </div>
   );

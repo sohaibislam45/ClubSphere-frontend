@@ -180,6 +180,11 @@ const ManagerEventRegistrations = () => {
           </button>
         </div>
         <div className="flex-1 overflow-y-auto p-4 md:p-8">
+          {isLoading ? (
+            <div className="flex items-center justify-center min-h-[60vh]">
+              <Loader />
+            </div>
+          ) : (
             <div className="max-w-[1200px] mx-auto flex flex-col gap-6">
               {/* Breadcrumbs & Heading */}
               <div className="flex flex-col gap-2">
@@ -530,6 +535,7 @@ const ManagerEventRegistrations = () => {
               )}
             </div>
           </div>
+          )}
         </main>
     </div>
   );

@@ -10,4 +10,7 @@ export default defineConfig({
       base: './src/index.css'
     })
   ],
+  optimizeDeps: {
+    include: ['@stripe/stripe-js', '@stripe/react-stripe-js']
+  }
 })

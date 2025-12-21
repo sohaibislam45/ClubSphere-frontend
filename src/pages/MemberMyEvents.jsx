@@ -120,6 +120,11 @@ const MemberMyEvents = () => {
         <div className="absolute top-0 left-0 w-full h-64 bg-gradient-to-b from-primary/5 to-transparent pointer-events-none"></div>
         
         <div className="flex-1 overflow-y-auto p-4 md:p-8 lg:p-12 scroll-smooth">
+          {isLoading ? (
+            <div className="flex items-center justify-center min-h-[60vh]">
+              <Loader />
+            </div>
+          ) : (
           <div className="max-w-6xl mx-auto flex flex-col gap-8">
             {/* Page Header */}
             <div className="flex flex-col md:flex-row md:items-end justify-between gap-4 z-10 relative">
@@ -230,11 +235,7 @@ const MemberMyEvents = () => {
             </div>
 
             {/* Events Table */}
-            {isLoading ? (
-              <div className="flex items-center justify-center py-20">
-                <Loader />
-              </div>
-            ) : error ? (
+            {error ? (
               <div className="text-center py-20">
                 <p className="text-red-400 mb-4">Error loading events</p>
                 <button 
@@ -373,6 +374,7 @@ const MemberMyEvents = () => {
               </div>
             )}
           </div>
+          )}
         </div>
       </main>
     </div>

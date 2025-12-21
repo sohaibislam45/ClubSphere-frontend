@@ -91,6 +91,11 @@ const MemberMyClubs = () => {
 
         {/* Scrollable Page Content */}
         <div className="flex-1 overflow-y-auto p-4 md:p-8 lg:px-12 pb-20">
+          {isLoading ? (
+            <div className="flex items-center justify-center min-h-[60vh]">
+              <Loader />
+            </div>
+          ) : (
           <div className="max-w-7xl mx-auto flex flex-col gap-8">
             {/* Breadcrumbs */}
             <nav className="flex flex-wrap gap-2 text-sm">
@@ -156,11 +161,7 @@ const MemberMyClubs = () => {
             </div>
 
             {/* Content Grid */}
-            {isLoading ? (
-              <div className="flex items-center justify-center py-20">
-                <Loader />
-              </div>
-            ) : error ? (
+            {error ? (
               <div className="text-center py-20">
                 <p className="text-red-400 mb-4">Error loading clubs</p>
                 <button 
@@ -260,6 +261,7 @@ const MemberMyClubs = () => {
               </div>
             )}
           </div>
+          )}
         </div>
       </main>
     </div>

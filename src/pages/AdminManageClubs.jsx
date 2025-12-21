@@ -393,15 +393,7 @@ const AdminManageClubs = () => {
                     </tr>
                   </thead>
                   <tbody className="divide-y divide-[#29382f]">
-                    {isLoading ? (
-                      <tr>
-                        <td colSpan="6" className="p-4">
-                          <div className="flex items-center justify-center">
-                            <Loader />
-                          </div>
-                        </td>
-                      </tr>
-                    ) : clubs.length === 0 ? (
+                    {clubs.length === 0 ? (
                       <tr>
                         <td colSpan="6" className="p-4 text-center text-[#9eb7a8]">No clubs found</td>
                       </tr>
@@ -601,6 +593,7 @@ const AdminManageClubs = () => {
               </div>
             </div>
           </div>
+          )}
         </div>
       </main>
 

@@ -231,11 +231,7 @@ const MemberPaymentHistory = () => {
             </div>
 
             {/* Transaction Table */}
-            {isLoading ? (
-              <div className="flex items-center justify-center py-20">
-                <Loader />
-              </div>
-            ) : error ? (
+            {error ? (
               <div className="text-center py-20">
                 <p className="text-red-400 mb-4">Error loading transactions</p>
                 <button 
@@ -328,6 +324,7 @@ const MemberPaymentHistory = () => {
               </div>
             )}
           </div>
+          )}
         </div>
       </main>
     </div>

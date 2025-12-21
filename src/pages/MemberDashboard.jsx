@@ -85,6 +85,9 @@ const MemberDashboard = () => {
   const pastEvents = pastEventsData?.events || [];
   const payments = paymentsData?.transactions || [];
 
+  // Combined loading state - show single loader if any query is loading
+  const isLoading = clubsLoading || registeredEventsLoading || upcomingEventsLoading || paymentsLoading;
+
   // Calculate statistics
   const stats = {
     totalClubs: clubs.length,
@@ -218,6 +221,11 @@ const MemberDashboard = () => {
 
         {/* Scrollable Dashboard Content */}
         <div className="flex-1 overflow-y-auto p-6 md:p-8 lg:p-10 scroll-smooth">
+          {isLoading ? (
+            <div className="flex items-center justify-center min-h-[60vh]">
+              <Loader />
+            </div>
+          ) : (
           <div className="max-w-7xl mx-auto space-y-10 pb-10">
             {/* Welcome Section */}
             <section className="flex flex-col md:flex-row gap-6 items-start md:items-end justify-between">
@@ -251,11 +259,7 @@ const MemberDashboard = () => {
                   <span className="text-primary text-sm font-bold bg-primary/10 px-2 py-1 rounded-md">+1 this month</span>
                 </div>
                 <h3 className="text-gray-400 text-sm font-medium">Total Clubs Joined</h3>
-                {clubsLoading ? (
-                  <Loader />
-                ) : (
-                  <p className="text-3xl font-bold text-white">{stats.totalClubs}</p>
-                )}
+                <p className="text-3xl font-bold text-white">{stats.totalClubs}</p>
               </div>
               <div className="bg-surface-dark p-6 rounded-2xl border border-white/5 flex flex-col gap-1">
                 <div className="flex justify-between items-start mb-2">
@@ -265,11 +269,7 @@ const MemberDashboard = () => {
                   <span className="text-primary text-sm font-bold bg-primary/10 px-2 py-1 rounded-md">+2 this week</span>
                 </div>
                 <h3 className="text-gray-400 text-sm font-medium">Events Registered</h3>
-                {registeredEventsLoading ? (
-                  <Loader />
-                ) : (
-                  <p className="text-3xl font-bold text-white">{stats.eventsRegistered}</p>
-                )}
+                <p className="text-3xl font-bold text-white">{stats.eventsRegistered}</p>
               </div>
               <div className="bg-surface-dark p-6 rounded-2xl border border-white/5 flex flex-col gap-1">
                 <div className="flex justify-between items-start mb-2">
@@ -287,9 +287,7 @@ const MemberDashboard = () => {
                   </div>
                 </div>
                 <h3 className="text-gray-400 text-sm font-medium">Next Payment</h3>
-                {paymentsLoading ? (
-                  <Loader />
-                ) : stats.nextPayment ? (
+                {stats.nextPayment ? (
                   <p className="text-xl font-bold text-white mt-auto">{stats.nextPayment.date.split(',')[0]}</p>
                 ) : (
                   <p className="text-lg font-medium text-gray-400 mt-auto">No upcoming</p>
@@ -310,11 +308,7 @@ const MemberDashboard = () => {
                     View Calendar
                   </Link>
                 </div>
-                {upcomingEventsLoading ? (
-                  <div className="flex items-center justify-center py-20">
-                    <Loader />
-                  </div>
-                ) : displayEvents.length === 0 ? (
+                {displayEvents.length === 0 ? (
                   <div className="bg-surface-dark border border-white/5 rounded-2xl p-12 text-center">
                     <span className="material-symbols-outlined text-6xl text-gray-600 mb-4 block">event_busy</span>
                     <h3 className="text-xl font-bold text-white mb-2">No upcoming events</h3>
@@ -405,12 +399,7 @@ const MemberDashboard = () => {
                     <span className="material-symbols-outlined" style={{ fontSize: '20px' }}>add</span>
                   </Link>
                 </div>
-                {clubsLoading ? (
-                  <div className="flex items-center justify-center py-20">
-                    <Loader />
-                  </div>
-                ) : (
-                  <div className="bg-surface-dark rounded-2xl border border-white/5 overflow-hidden">
+                <div className="bg-surface-dark rounded-2xl border border-white/5 overflow-hidden">
                     {clubs.length === 0 ? (
                       <div className="p-12 text-center">
                         <span className="material-symbols-outlined text-6xl text-gray-600 mb-4 block">groups</span>
@@ -452,8 +441,7 @@ const MemberDashboard = () => {
                         </div>
                       ))
                     )}
-                  </div>
-                )}
+                </div>
               </div>
             </div>
 
@@ -480,13 +468,7 @@ const MemberDashboard = () => {
                     </tr>
                   </thead>
                   <tbody className="text-white divide-y divide-white/5">
-                    {paymentsLoading ? (
-                      <tr>
-                        <td colSpan="5" className="px-6 py-12 text-center">
-                          <Loader />
-                        </td>
-                      </tr>
-                    ) : payments.length === 0 ? (
+                    {payments.length === 0 ? (
                       <tr>
                         <td colSpan="5" className="px-6 py-12 text-center">
                           <span className="material-symbols-outlined text-6xl text-gray-600 mb-4 block">receipt_long</span>
@@ -540,6 +522,7 @@ const MemberDashboard = () => {
               © 2023 ClubSphere. All rights reserved.
             </footer>
           </div>
+          )}
         </div>
       </main>
     </div>

@@ -205,6 +205,9 @@ const AdminDashboard = () => {
   const deletionRequests = deletionRequestsData?.clubs || [];
   const transactions = transactionsData?.transactions || [];
 
+  // Combined loading state - show single loader if any query is loading
+  const isLoading = statsLoading || pendingClubsLoading || deletionRequestsLoading || transactionsLoading;
+
   return (
     <div className="flex h-screen w-full overflow-hidden bg-background-light dark:bg-background-dark font-display text-slate-900 dark:text-white">
       {/* Sidebar */}
@@ -345,6 +348,11 @@ const AdminDashboard = () => {
 
         {/* Scrollable Content */}
         <div className="flex-1 overflow-y-auto p-6 md:p-8 scroll-smooth">
+          {isLoading ? (
+            <div className="flex items-center justify-center min-h-[60vh]">
+              <Loader />
+            </div>
+          ) : (
           <div className="max-w-[1400px] mx-auto flex flex-col gap-8">
             {/* Page Heading */}
             <div className="flex flex-col gap-2">
@@ -353,12 +361,7 @@ const AdminDashboard = () => {
             </div>
 
             {/* Stats Grid */}
-            {statsLoading ? (
-              <div className="flex items-center justify-center py-20">
-                <Loader />
-              </div>
-            ) : (
-              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
                 {/* Total Users */}
                 <div className="flex flex-col gap-4 rounded-[2rem] p-6 bg-surface-dark border border-surface-highlight hover:border-primary/30 transition-colors group">
                   <div className="flex items-center justify-between">
@@ -442,7 +445,6 @@ const AdminDashboard = () => {
                   </div>
                 </div>
               </div>
-            )}
 
             {/* Main Grid Layout for Chart & Tables */}
             <div className="grid grid-cols-1 xl:grid-cols-3 gap-6">
@@ -496,11 +498,7 @@ const AdminDashboard = () => {
                     View All
                   </Link>
                 </div>
-                {(pendingClubsLoading || deletionRequestsLoading) ? (
-                  <div className="flex items-center justify-center py-8">
-                    <Loader />
-                  </div>
-                ) : (pendingClubs.length === 0 && deletionRequests.length === 0) ? (
+                {(pendingClubs.length === 0 && deletionRequests.length === 0) ? (
                   <div className="text-center py-8">
                     <p className="text-gray-500 text-sm">No pending approvals</p>
                   </div>
@@ -596,12 +594,7 @@ const AdminDashboard = () => {
                     View All <span className="material-symbols-outlined text-[16px]">arrow_forward</span>
                   </Link>
                 </div>
-                {transactionsLoading ? (
-                  <div className="flex items-center justify-center py-20">
-                    <Loader />
-                  </div>
-                ) : (
-                  <div className="overflow-x-auto w-full">
+                <div className="overflow-x-auto w-full">
                     <table className="w-full text-left">
                       <thead className="bg-surface-highlight/30 text-gray-400 text-xs uppercase tracking-wider">
                         <tr>
@@ -659,10 +652,10 @@ const AdminDashboard = () => {
                       </tbody>
                     </table>
                   </div>
-                )}
               </div>
             </div>
           </div>
+          )}
         </div>
       </main>
     </div>

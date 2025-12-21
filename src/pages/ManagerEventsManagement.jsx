@@ -332,7 +332,12 @@ const ManagerEventsManagement = () => {
           </button>
         </div>
         <div className="flex-1 w-full max-w-[1440px] mx-auto px-6 py-8 relative overflow-y-auto">
-
+          {isLoading ? (
+            <div className="flex items-center justify-center min-h-[60vh]">
+              <Loader />
+            </div>
+          ) : (
+          <>
         {/* Page Header */}
         <div className="flex flex-col md:flex-row md:items-center justify-between gap-6 mb-8">
           <div>
@@ -421,11 +426,7 @@ const ManagerEventsManagement = () => {
         </div>
 
         {/* Events Grid */}
-        {isLoading ? (
-          <div className="flex items-center justify-center py-20">
-            <Loader />
-          </div>
-        ) : events.length === 0 ? (
+        {events.length === 0 ? (
           <div className="flex flex-col items-center justify-center py-20 text-center">
             <div className="size-24 rounded-full bg-primary/10 flex items-center justify-center mb-6">
               <span className="material-symbols-outlined text-5xl text-primary/50">event_busy</span>
@@ -1033,6 +1034,8 @@ const ManagerEventsManagement = () => {
             </div>
           </div>
         )}
+          </>
+          )}
         </div>
       </main>
     </div>

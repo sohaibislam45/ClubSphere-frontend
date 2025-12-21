@@ -513,6 +513,7 @@ const ManagerClubMembers = () => {
               </div>
             )}
           </div>
+          )}
         </div>
       </main>
     </div>

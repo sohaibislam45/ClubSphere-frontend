@@ -245,6 +245,11 @@ const AdminManageUsers = () => {
       <main className="flex-1 flex flex-col h-full relative overflow-hidden bg-background-light dark:bg-background-dark">
         {/* Scrollable Content Area */}
         <div className="flex-1 overflow-y-auto p-6 md:p-8 scroll-smooth">
+          {isLoading ? (
+            <div className="flex items-center justify-center min-h-[60vh]">
+              <Loader />
+            </div>
+          ) : (
           <div className="max-w-7xl mx-auto flex flex-col gap-8">
             {/* Page Heading & Actions */}
             <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
@@ -338,15 +343,7 @@ const AdminManageUsers = () => {
                     </tr>
                   </thead>
                   <tbody className="divide-y divide-[#29382f]">
-                    {isLoading ? (
-                      <tr>
-                        <td colSpan="5" className="p-5">
-                          <div className="flex items-center justify-center">
-                            <Loader />
-                          </div>
-                        </td>
-                      </tr>
-                    ) : users.length === 0 ? (
+                    {users.length === 0 ? (
                       <tr>
                         <td colSpan="5" className="p-5 text-center text-[#9eb7a8]">No users found</td>
                       </tr>
@@ -503,6 +500,7 @@ const AdminManageUsers = () => {
             {/* Footer Spacer */}
             <div className="h-10"></div>
           </div>
+          )}
         </div>
       </main>
     </div>

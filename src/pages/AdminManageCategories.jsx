@@ -138,6 +138,11 @@ const AdminManageCategories = () => {
       {/* Main Content */}
       <main className="flex-1 flex flex-col h-full relative overflow-hidden bg-background-light dark:bg-background-dark">
         <div className="flex-1 overflow-y-auto p-6 md:p-8 scroll-smooth">
+          {isLoading ? (
+            <div className="flex items-center justify-center min-h-[60vh]">
+              <Loader />
+            </div>
+          ) : (
           <div className="max-w-[1200px] mx-auto flex flex-col gap-8">
             {/* Page Heading */}
             <div className="flex flex-wrap justify-between items-end gap-4">
@@ -155,11 +160,7 @@ const AdminManageCategories = () => {
             </div>
 
             {/* Categories Grid */}
-            {isLoading ? (
-              <div className="flex items-center justify-center py-12">
-                <Loader />
-              </div>
-            ) : categories.length === 0 ? (
+            {categories.length === 0 ? (
               <div className="text-center py-12 text-[#9eb7a8]">
                 <p className="text-lg mb-2">No categories found</p>
                 <p className="text-sm">Click "Add Category" to create your first category</p>
@@ -201,6 +202,7 @@ const AdminManageCategories = () => {
               </div>
             )}
           </div>
+          )}
         </div>
       </main>
 
