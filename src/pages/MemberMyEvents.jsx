@@ -165,7 +165,7 @@ const MemberMyEvents = () => {
                         : 'border-transparent text-gray-400 hover:text-white font-medium hover:border-white/20'
                     }`}
                   >
-                    My Joining Events
+                    Registered Events
                     <span className={`ml-2 text-xs py-0.5 px-2 rounded-full font-bold ${
                       activeTab === 'my-joining'
                         ? 'bg-primary text-background-dark'
@@ -199,7 +199,7 @@ const MemberMyEvents = () => {
                         : 'border-transparent text-gray-400 hover:text-white font-medium hover:border-white/20'
                     }`}
                   >
-                    Joined
+                    Event History
                     <span className={`ml-2 text-xs py-0.5 px-2 rounded-full font-bold ${
                       activeTab === 'joined'
                         ? 'bg-primary text-background-dark'
@@ -250,15 +250,15 @@ const MemberMyEvents = () => {
                   <span className="material-symbols-outlined text-6xl text-gray-600">event_busy</span>
                 </div>
                 <h3 className="text-xl font-bold text-white">
-                  {activeTab === 'my-joining' ? 'No joining events' : 
+                  {activeTab === 'my-joining' ? 'No registered events' : 
                    activeTab === 'upcoming' ? 'No upcoming events' :
-                   activeTab === 'joined' ? 'No joined events' :
+                   activeTab === 'joined' ? 'No event history' :
                    'No cancelled events'}
                 </h3>
                 <p className="text-gray-400 mt-2 mb-6">
-                  {activeTab === 'my-joining' ? "You haven't registered for any events yet." :
+                  {activeTab === 'my-joining' ? "You haven't registered for any upcoming events yet." :
                    activeTab === 'upcoming' ? "You don't have any upcoming events." :
-                   activeTab === 'joined' ? "You haven't joined any events yet." :
+                   activeTab === 'joined' ? "You haven't attended any past events yet." :
                    "You don't have any cancelled event registrations."}
                 </p>
                 <Link 
