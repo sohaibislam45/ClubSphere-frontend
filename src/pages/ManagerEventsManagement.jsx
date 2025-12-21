@@ -18,8 +18,10 @@ const ManagerEventsManagement = () => {
   
   const [filter, setFilter] = useState('all');
   const [showCreateModal, setShowCreateModal] = useState(false);
+  const [showEditModal, setShowEditModal] = useState(false);
   const [showDeleteModal, setShowDeleteModal] = useState(false);
   const [selectedEventId, setSelectedEventId] = useState(null);
+  const [editingEvent, setEditingEvent] = useState(null);
   const [formData, setFormData] = useState({
     name: '',
     description: '',
@@ -81,6 +83,30 @@ const ManagerEventsManagement = () => {
     }
   });
 
+  // Update event mutation
+  const updateMutation = useMutation({
+    mutationFn: async ({ eventId, data }) => {
+      const response = await api.put(`/api/manager/events/${eventId}`, data);
+      return response.data;
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries(['managerEvents']);
+      setShowEditModal(false);
+      setEditingEvent(null);
+      setFormData({
+        name: '',
+        description: '',
+        date: '',
+        time: '',
+        location: '',
+        maxAttendees: '',
+        price: '',
+        isPaid: false,
+        clubId: clubIdFromQuery || ''
+      });
+    }
+  });
+
   // Delete event mutation
   const deleteMutation = useMutation({
     mutationFn: async (eventId) => {
@@ -104,7 +130,9 @@ const ManagerEventsManagement = () => {
 
   const formatCurrency = (amount) => {
     if (!amount || amount === 0) return 'Free';
-    return `$${parseFloat(amount).toFixed(2)}`;
+    // Backend stores price in cents, so divide by 100 to get dollars
+    const dollars = typeof amount === 'number' ? amount : parseFloat(amount);
+    return `৳${(dollars / 100).toFixed(2)}`;
   };
 
   const getAttendancePercentage = (current, max) => {
@@ -112,10 +140,21 @@ const ManagerEventsManagement = () => {
     return Math.round((current / max) * 100);
   };
 
+  // Convert 24-hour time format (HH:MM) to 12-hour format (HH:MM AM/PM)
+  const convertTo12Hour = (time24) => {
+    if (!time24) return '12:00 PM';
+    const [hours, minutes] = time24.split(':');
+    const hour = parseInt(hours);
+    const period = hour >= 12 ? 'PM' : 'AM';
+    const hour12 = hour % 12 || 12;
+    return `${hour12}:${minutes || '00'} ${period}`;
+  };
+
   const handleCreateEvent = (e) => {
     e.preventDefault();
     const eventData = {
       ...formData,
+      time: convertTo12Hour(formData.time), // Convert to 12-hour format for backend
       price: formData.isPaid ? parseFloat(formData.price) : 0,
       maxAttendees: parseInt(formData.maxAttendees) || 0
     };
@@ -129,8 +168,58 @@ const ManagerEventsManagement = () => {
   };
 
   const handleEditEvent = (eventId) => {
-    // TODO: Implement edit functionality
-    console.log('Edit event:', eventId);
+    const event = events.find(e => e.id === eventId);
+    if (!event) return;
+    
+    // Format date for input (YYYY-MM-DD)
+    const eventDate = new Date(event.date);
+    const formattedDate = eventDate.toISOString().split('T')[0];
+    
+    // Format time for input (HH:MM)
+    // Backend stores time as string like "12:00 PM" or "14:30"
+    let formattedTime = event.time || '12:00';
+    // Convert 12-hour format to 24-hour if needed
+    if (formattedTime.includes('AM') || formattedTime.includes('PM')) {
+      const parts = formattedTime.split(' ');
+      const timePart = parts[0];
+      const period = parts[1];
+      const [hours, minutes] = timePart.split(':');
+      let hour24 = parseInt(hours);
+      if (period === 'PM' && hour24 !== 12) hour24 += 12;
+      if (period === 'AM' && hour24 === 12) hour24 = 0;
+      formattedTime = `${hour24.toString().padStart(2, '0')}:${minutes || '00'}`;
+    } else {
+      // Already in 24-hour format, ensure it's HH:MM
+      const [hours, minutes] = formattedTime.split(':');
+      formattedTime = `${hours.padStart(2, '0')}:${(minutes || '00').padStart(2, '0')}`;
+    }
+    
+    setEditingEvent(event);
+    setFormData({
+      name: event.name || '',
+      description: event.description || '',
+      date: formattedDate,
+      time: formattedTime,
+      location: event.location || '',
+      maxAttendees: event.maxAttendees || '',
+      price: event.price ? (event.price / 100).toFixed(2) : '', // Convert cents to dollars
+      isPaid: event.price > 0,
+      clubId: event.clubId || clubIdFromQuery || ''
+    });
+    setShowEditModal(true);
+  };
+
+  const handleUpdateEvent = (e) => {
+    e.preventDefault();
+    if (!editingEvent) return;
+    
+    const eventData = {
+      ...formData,
+      time: convertTo12Hour(formData.time), // Convert to 12-hour format for backend
+      price: formData.isPaid ? parseFloat(formData.price) : 0,
+      maxAttendees: parseInt(formData.maxAttendees) || 0
+    };
+    updateMutation.mutate({ eventId: editingEvent.id, data: eventData });
   };
 
   return (
@@ -201,7 +290,7 @@ const ManagerEventsManagement = () => {
             </div>
             <div>
               <p className="text-[#9eb7a8] text-sm font-medium mb-1">Total Revenue</p>
-              <h3 className="text-3xl font-bold text-white">{formatCurrency(stats.revenue || 0)}</h3>
+              <h3 className="text-3xl font-bold text-white">৳{parseFloat(stats.revenue || 0).toFixed(2)}</h3>
             </div>
             <div className="mt-4 flex items-center gap-1 text-orange-500 text-sm font-medium">
               <span className="material-symbols-outlined text-sm">trending_down</span>
@@ -243,6 +332,27 @@ const ManagerEventsManagement = () => {
         {isLoading ? (
           <div className="flex items-center justify-center py-20">
             <Loader />
+          </div>
+        ) : events.length === 0 ? (
+          <div className="flex flex-col items-center justify-center py-20 text-center">
+            <div className="size-24 rounded-full bg-primary/10 flex items-center justify-center mb-6">
+              <span className="material-symbols-outlined text-5xl text-primary/50">event_busy</span>
+            </div>
+            <h3 className="text-2xl font-bold text-white mb-2">No Events Found</h3>
+            <p className="text-[#9eb7a8] mb-6 max-w-md">
+              {filter === 'all' 
+                ? "You haven't created any events yet. Start by creating your first event!"
+                : `No ${filter} events found. Try selecting a different filter.`}
+            </p>
+            {filter === 'all' && (
+              <button
+                onClick={() => setShowCreateModal(true)}
+                className="flex items-center gap-2 bg-primary hover:bg-primary/90 text-[#0a2012] px-6 py-3 rounded-full font-bold transition-all"
+              >
+                <span className="material-symbols-outlined">add</span>
+                <span>Create Your First Event</span>
+              </button>
+            )}
           </div>
         ) : (
           <div className="grid grid-cols-1 lg:grid-cols-2 xl:grid-cols-3 gap-6 mb-20">
@@ -523,6 +633,194 @@ const ManagerEventsManagement = () => {
                       <div className="w-5 h-5 border-2 border-[#0a2012] border-t-transparent rounded-full animate-spin"></div>
                     )}
                     {createMutation.isLoading ? 'Saving...' : 'Save Event'}
+                  </button>
+                </div>
+              </form>
+            </div>
+          </div>
+        )}
+
+        {/* Edit Event Modal */}
+        {showEditModal && editingEvent && (
+          <div className="fixed inset-0 z-50 flex justify-end">
+            {/* Backdrop */}
+            <div
+              className="absolute inset-0 bg-black/60 backdrop-blur-sm transition-opacity"
+              onClick={() => {
+                setShowEditModal(false);
+                setEditingEvent(null);
+              }}
+            ></div>
+            {/* Drawer Panel */}
+            <div className="relative w-full max-w-md h-full bg-surface-dark border-l border-[#29382f] shadow-2xl flex flex-col">
+              {/* Header */}
+              <div className="flex items-center justify-between p-6 border-b border-[#29382f]">
+                <h2 className="text-xl font-bold text-white">Edit Event</h2>
+                <button
+                  onClick={() => {
+                    setShowEditModal(false);
+                    setEditingEvent(null);
+                  }}
+                  className="text-[#9eb7a8] hover:text-white transition-colors rounded-full p-1 hover:bg-[#29382f]"
+                >
+                  <span className="material-symbols-outlined">close</span>
+                </button>
+              </div>
+              {/* Scrollable Content */}
+              <form onSubmit={handleUpdateEvent} className="flex-1 overflow-y-auto p-6 space-y-6">
+                {/* Club Selector */}
+                <div className="space-y-2">
+                  <label className="text-sm font-medium text-[#9eb7a8]">Club</label>
+                  <select
+                    required
+                    className="w-full bg-[#122017] border border-[#29382f] rounded-xl px-4 py-3 text-white focus:ring-1 focus:ring-primary focus:border-primary transition-all"
+                    value={formData.clubId}
+                    onChange={(e) => setFormData({ ...formData, clubId: e.target.value })}
+                  >
+                    <option value="">Select a club</option>
+                    {clubs.map((club) => (
+                      <option key={club.id} value={club.id}>
+                        {club.name}
+                      </option>
+                    ))}
+                  </select>
+                </div>
+                {/* Title */}
+                <div className="space-y-2">
+                  <label className="text-sm font-medium text-[#9eb7a8]">Event Title</label>
+                  <input
+                    required
+                    className="w-full bg-[#122017] border border-[#29382f] rounded-xl px-4 py-3 text-white placeholder-[#5c6b62] focus:ring-1 focus:ring-primary focus:border-primary transition-all"
+                    placeholder="e.g. Summer Music Festival"
+                    type="text"
+                    value={formData.name}
+                    onChange={(e) => setFormData({ ...formData, name: e.target.value })}
+                  />
+                </div>
+                {/* Description */}
+                <div className="space-y-2">
+                  <label className="text-sm font-medium text-[#9eb7a8]">Description</label>
+                  <textarea
+                    className="w-full bg-[#122017] border border-[#29382f] rounded-xl px-4 py-3 text-white placeholder-[#5c6b62] focus:ring-1 focus:ring-primary focus:border-primary transition-all resize-none"
+                    placeholder="Describe your event..."
+                    rows="4"
+                    value={formData.description}
+                    onChange={(e) => setFormData({ ...formData, description: e.target.value })}
+                  ></textarea>
+                </div>
+                {/* Date & Time */}
+                <div className="grid grid-cols-2 gap-4">
+                  <div className="space-y-2">
+                    <label className="text-sm font-medium text-[#9eb7a8]">Date</label>
+                    <div className="relative">
+                      <span className="material-symbols-outlined absolute left-3 top-3 text-[#5c6b62] text-lg">calendar_today</span>
+                      <input
+                        required
+                        className="w-full bg-[#122017] border border-[#29382f] rounded-xl pl-10 pr-4 py-3 text-white focus:ring-1 focus:ring-primary focus:border-primary transition-all"
+                        type="date"
+                        value={formData.date}
+                        onChange={(e) => setFormData({ ...formData, date: e.target.value })}
+                      />
+                    </div>
+                  </div>
+                  <div className="space-y-2">
+                    <label className="text-sm font-medium text-[#9eb7a8]">Time</label>
+                    <div className="relative">
+                      <span className="material-symbols-outlined absolute left-3 top-3 text-[#5c6b62] text-lg">schedule</span>
+                      <input
+                        required
+                        className="w-full bg-[#122017] border border-[#29382f] rounded-xl pl-10 pr-4 py-3 text-white focus:ring-1 focus:ring-primary focus:border-primary transition-all"
+                        type="time"
+                        value={formData.time}
+                        onChange={(e) => setFormData({ ...formData, time: e.target.value })}
+                      />
+                    </div>
+                  </div>
+                </div>
+                {/* Location */}
+                <div className="space-y-2">
+                  <label className="text-sm font-medium text-[#9eb7a8]">Location</label>
+                  <div className="relative">
+                    <span className="material-symbols-outlined absolute left-3 top-3 text-[#5c6b62] text-lg">location_on</span>
+                    <input
+                      className="w-full bg-[#122017] border border-[#29382f] rounded-xl pl-10 pr-4 py-3 text-white placeholder-[#5c6b62] focus:ring-1 focus:ring-primary focus:border-primary transition-all"
+                      placeholder="Venue name or address"
+                      type="text"
+                      value={formData.location}
+                      onChange={(e) => setFormData({ ...formData, location: e.target.value })}
+                    />
+                  </div>
+                </div>
+                {/* Max Attendees */}
+                <div className="space-y-2">
+                  <label className="text-sm font-medium text-[#9eb7a8]">Max Attendees</label>
+                  <div className="relative">
+                    <span className="material-symbols-outlined absolute left-3 top-3 text-[#5c6b62] text-lg">group</span>
+                    <input
+                      className="w-full bg-[#122017] border border-[#29382f] rounded-xl pl-10 pr-4 py-3 text-white placeholder-[#5c6b62] focus:ring-1 focus:ring-primary focus:border-primary transition-all"
+                      placeholder="0"
+                      type="number"
+                      min="0"
+                      value={formData.maxAttendees}
+                      onChange={(e) => setFormData({ ...formData, maxAttendees: e.target.value })}
+                    />
+                  </div>
+                </div>
+                {/* Ticket Type */}
+                <div className="p-4 rounded-xl bg-[#122017] border border-[#29382f] space-y-4">
+                  <div className="flex items-center justify-between">
+                    <span className="text-sm font-medium text-white">Paid Event</span>
+                    <label className="relative inline-flex items-center cursor-pointer">
+                      <input
+                        type="checkbox"
+                        className="sr-only peer"
+                        checked={formData.isPaid}
+                        onChange={(e) => setFormData({ ...formData, isPaid: e.target.checked })}
+                      />
+                      <div className="w-11 h-6 bg-[#29382f] peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:start-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-primary"></div>
+                    </label>
+                  </div>
+                  {/* Fee Input (Conditional) */}
+                  {formData.isPaid && (
+                    <div>
+                      <label className="text-xs font-medium text-[#9eb7a8] mb-1 block">Ticket Price</label>
+                      <div className="relative">
+                        <span className="material-symbols-outlined absolute left-3 top-3 text-[#5c6b62] text-lg">attach_money</span>
+                        <input
+                          required={formData.isPaid}
+                          className="w-full bg-surface-dark border border-[#29382f] rounded-xl pl-10 pr-4 py-3 text-white focus:ring-1 focus:ring-primary focus:border-primary transition-all"
+                          type="number"
+                          step="0.01"
+                          min="0"
+                          placeholder="0.00"
+                          value={formData.price}
+                          onChange={(e) => setFormData({ ...formData, price: e.target.value })}
+                        />
+                      </div>
+                    </div>
+                  )}
+                </div>
+                {/* Footer Actions */}
+                <div className="p-6 border-t border-[#29382f] bg-surface-dark flex gap-3 -mx-6 -mb-6">
+                  <button
+                    type="button"
+                    onClick={() => {
+                      setShowEditModal(false);
+                      setEditingEvent(null);
+                    }}
+                    className="flex-1 px-4 py-3 rounded-xl border border-[#29382f] text-white font-bold hover:bg-[#29382f] transition-colors"
+                  >
+                    Cancel
+                  </button>
+                  <button
+                    type="submit"
+                    disabled={updateMutation.isLoading}
+                    className="flex-1 px-4 py-3 rounded-xl bg-primary text-[#0a2012] font-bold shadow-lg shadow-primary/20 hover:bg-primary/90 transition-colors disabled:opacity-50 flex items-center justify-center gap-2"
+                  >
+                    {updateMutation.isLoading && (
+                      <div className="w-5 h-5 border-2 border-[#0a2012] border-t-transparent rounded-full animate-spin"></div>
+                    )}
+                    {updateMutation.isLoading ? 'Saving...' : 'Update Event'}
                   </button>
                 </div>
               </form>
