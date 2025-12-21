@@ -11,7 +11,7 @@ import Swal from '../lib/sweetalertConfig';
 const ClubDetails = () => {
   const { id } = useParams();
   const navigate = useNavigate();
-  const { isAuthenticated } = useAuth();
+  const { isAuthenticated, user } = useAuth();
   const [isJoining, setIsJoining] = useState(false);
 
   // Fetch club details from API
@@ -22,6 +22,29 @@ const ClubDetails = () => {
       return response.data;
     },
   });
+
+  // Fetch membership status (only if user is authenticated)
+  const { data: membershipData, isLoading: membershipLoading, refetch: refetchMembership } = useQuery({
+    queryKey: ['club-membership', id],
+    queryFn: async () => {
+      const response = await api.get(`/api/clubs/${id}/membership`);
+      return response.data;
+    },
+    enabled: !!id && (!!localStorage.getItem('token') || !!user), // Only fetch if club ID exists and user has token or user object
+    refetchOnMount: true,
+    refetchOnWindowFocus: true,
+    staleTime: 0, // Always consider data stale to ensure fresh checks
+  });
+
+  const isMember = membershipData?.isMember || false;
+
+  // Refetch membership when user becomes available or when component mounts
+  useEffect(() => {
+    const token = localStorage.getItem('token');
+    if ((user || token) && id) {
+      refetchMembership();
+    }
+  }, [user, id, refetchMembership]);
 
   // Fetch upcoming events for this club
   const { data: eventsData, isLoading: eventsLoading } = useQuery({
@@ -74,6 +97,8 @@ const ClubDetails = () => {
           timer: 3000,
           showConfirmButton: false
         }).then(() => {
+          // Refetch membership status and club data
+          refetchMembership();
           // Refresh club data to update member count
           window.location.reload();
         });
@@ -286,10 +311,14 @@ const ClubDetails = () => {
                 </div>
                 <button 
                   onClick={handleJoinClick}
-                  disabled={isJoining}
-                  className="w-full bg-primary text-black font-bold text-lg py-4 rounded-xl hover:bg-primary/90 hover:scale-[1.02] active:scale-[0.98] transition-all shadow-[0_0_20px_-5px_rgba(56,224,123,0.4)] mb-4 disabled:opacity-50 disabled:cursor-not-allowed"
+                  disabled={isJoining || isMember || membershipLoading}
+                  className={`w-full font-bold text-lg py-4 rounded-xl transition-all shadow-[0_0_20px_-5px_rgba(56,224,123,0.4)] mb-4 disabled:opacity-50 disabled:cursor-not-allowed ${
+                    isMember 
+                      ? 'bg-slate-200 dark:bg-[#29382f] text-slate-600 dark:text-slate-400 cursor-not-allowed' 
+                      : 'bg-primary text-black hover:bg-primary/90 hover:scale-[1.02] active:scale-[0.98]'
+                  }`}
                 >
-                  {isJoining ? 'Processing...' : 'Join Club'}
+                  {membershipLoading ? 'Checking...' : isJoining ? 'Processing...' : isMember ? 'Joined' : 'Join Club'}
                 </button>
                 <p className="text-center text-xs text-slate-400 dark:text-[#6b7d72] mb-6">Cancel anytime. 14-day free trial included.</p>
                 <hr className="border-slate-200 dark:border-[#29382f] mb-6" />

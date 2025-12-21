@@ -84,21 +84,25 @@ const ClubPaymentSuccess = () => {
           {/* Club Details Card */}
           <div className="bg-white dark:bg-surface-dark border border-black/5 dark:border-white/5 rounded-[2rem] p-6 md:p-8 shadow-xl mb-8">
             <h2 className="text-2xl font-bold mb-6">Club Details</h2>
-            <div className="flex gap-4 p-4 rounded-2xl bg-background-light dark:bg-surface-dark-lighter border border-black/5 dark:border-white/5 mb-6">
+            <div className="flex gap-4 p-4 rounded-2xl bg-white dark:bg-[#29382f] border border-black/5 dark:border-white/10 mb-6">
               <div
-                className="w-24 h-24 shrink-0 rounded-xl bg-cover bg-center"
+                className="w-24 h-24 shrink-0 rounded-xl bg-cover bg-center border border-black/5 dark:border-white/10"
                 style={{ backgroundImage: `url("${club.bannerImage || club.image || 'https://via.placeholder.com/96'}")` }}
               ></div>
-              <div className="flex flex-col justify-center gap-2 flex-1">
-                <h3 className="font-bold text-xl text-slate-900 dark:text-white">{club.clubName}</h3>
-                <div className="flex items-center gap-2 text-slate-500 dark:text-slate-400 text-sm">
-                  <span className="material-symbols-outlined text-lg">category</span>
-                  <span>{club.category}</span>
-                </div>
-                <div className="flex items-center gap-2 text-slate-500 dark:text-slate-400 text-sm">
-                  <span className="material-symbols-outlined text-lg">location_on</span>
-                  <span>{club.location}</span>
-                </div>
+              <div className="flex flex-col justify-center gap-2 flex-1 min-w-0">
+                <h3 className="font-bold text-xl text-slate-900 dark:text-white truncate">{club.clubName}</h3>
+                {club.category && (
+                  <div className="flex items-center gap-2 text-slate-600 dark:text-slate-300 text-sm">
+                    <span className="material-symbols-outlined text-lg">category</span>
+                    <span>{club.category}</span>
+                  </div>
+                )}
+                {club.location && (
+                  <div className="flex items-center gap-2 text-slate-600 dark:text-slate-300 text-sm">
+                    <span className="material-symbols-outlined text-lg">location_on</span>
+                    <span className="truncate">{club.location}</span>
+                  </div>
+                )}
               </div>
             </div>
 
