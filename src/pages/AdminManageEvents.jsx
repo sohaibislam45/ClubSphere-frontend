@@ -478,6 +478,7 @@ const AdminManageEvents = () => {
               </div>
             </div>
           </div>
+          </div>
           )}
         </div>
       </main>

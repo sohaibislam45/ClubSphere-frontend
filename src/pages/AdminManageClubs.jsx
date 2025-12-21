@@ -593,7 +593,6 @@ const AdminManageClubs = () => {
               </div>
             </div>
           </div>
-          )}
         </div>
       </main>
 

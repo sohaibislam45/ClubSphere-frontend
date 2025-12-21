@@ -534,9 +534,9 @@ const ManagerEventRegistrations = () => {
                 </div>
               )}
             </div>
-          </div>
           )}
-        </main>
+        </div>
+      </main>
     </div>
   );
 };

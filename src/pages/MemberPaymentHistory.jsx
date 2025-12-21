@@ -324,7 +324,6 @@ const MemberPaymentHistory = () => {
               </div>
             )}
           </div>
-          )}
         </div>
       </main>
     </div>

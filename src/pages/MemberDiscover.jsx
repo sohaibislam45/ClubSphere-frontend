@@ -277,8 +277,6 @@ const MemberDiscover = () => {
             </div>
           )}
         </section>
-        </>
-        )}
       </main>
     </div>
   );

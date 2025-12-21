@@ -382,7 +382,6 @@ const AdminViewFinances = () => {
               </div>
             </div>
           </div>
-          )}
         </div>
       </main>
     </div>
