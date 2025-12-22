@@ -6,7 +6,7 @@
 
 **Connecting people through passions. The world's fastest growing community platform.**
 
-[🌐 Live Demo](https://clubsphere-c7f59.web.app/) • [📚 Documentation](#) • [🐛 Report Bug](#) • [💡 Request Feature](#)
+[🌐 Live Demo](https://clubsphere-c7f59.web.app/) 
 
 </div>
 
@@ -265,7 +265,7 @@ This project is proprietary software. All rights reserved.
 
 ## 📞 Support
 
-For support, email [your-email@example.com] or open an issue in the repository.
+For support, email [sohaibislam45@gmail.com] or open an issue in the repository.
 
 ## 🙏 Acknowledgments
 
