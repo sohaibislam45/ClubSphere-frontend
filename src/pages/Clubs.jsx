@@ -1,5 +1,7 @@
 import { useState, useEffect } from 'react';
 import { useQuery } from '@tanstack/react-query';
+import { useSearchParams } from 'react-router-dom';
+import { useTranslation } from 'react-i18next';
 import Navbar from '../components/layout/Navbar';
 import Footer from '../components/layout/Footer';
 import ClubCard from '../components/ui/ClubCard';
@@ -7,14 +9,23 @@ import Loader from '../components/ui/Loader';
 import api from '../lib/api';
 
 const Clubs = () => {
+  const { t } = useTranslation();
+  const [searchParams, setSearchParams] = useSearchParams();
+  const [searchTerm, setSearchTerm] = useState(searchParams.get('search') || '');
+  const [selectedCategory, setSelectedCategory] = useState('all');
+  const [sortBy, setSortBy] = useState('newest');
+
   useEffect(() => {
     document.title = 'Discover Clubs - ClubSphere';
     // Scroll to top when component mounts
     window.scrollTo(0, 0);
   }, []);
-  const [searchTerm, setSearchTerm] = useState('');
-  const [selectedCategory, setSelectedCategory] = useState('all');
-  const [sortBy, setSortBy] = useState('newest');
+
+  // Sync search term with URL params when URL changes
+  useEffect(() => {
+    const urlSearch = searchParams.get('search') || '';
+    setSearchTerm(urlSearch);
+  }, [searchParams]);
 
   // Fetch clubs from API
   const { data: clubs = [], isLoading } = useQuery({
@@ -51,10 +62,10 @@ const Clubs = () => {
         <div className="flex flex-col gap-8 mb-10">
           <div className="flex flex-col gap-2">
             <h1 className="text-4xl md:text-5xl font-bold tracking-tight text-slate-900 dark:text-white">
-              Discover Local Clubs
+              {t('clubs.title')}
             </h1>
             <p className="text-lg text-slate-500 dark:text-slate-400 max-w-2xl">
-              Browse and join clubs in your community. Find your people, share your passions.
+              {t('clubs.subtitle')}
             </p>
           </div>
 
@@ -67,7 +78,7 @@ const Clubs = () => {
               </div>
               <input
                 className="w-full h-12 pl-11 pr-4 rounded-full bg-white dark:bg-surface-dark border border-slate-200 dark:border-border-dark text-slate-900 dark:text-white placeholder-slate-400 focus:border-primary focus:ring-1 focus:ring-primary transition-all shadow-sm"
-                placeholder="Search clubs by name or location..."
+                placeholder={t('clubs.searchPlaceholder')}
                 type="text"
                 value={searchTerm}
                 onChange={(e) => setSearchTerm(e.target.value)}
@@ -104,7 +115,7 @@ const Clubs = () => {
                         : 'bg-white dark:bg-surface-dark border border-slate-200 dark:border-border-dark text-slate-600 dark:text-slate-300 hover:border-primary dark:hover:border-primary hover:text-primary dark:hover:text-primary'
                     }`}
                   >
-                    {category === 'all' ? 'All Categories' : category}
+                    {category === 'all' ? t('clubs.allCategories') : category}
                     {selectedCategory === category && (
                       <span className="material-symbols-outlined text-lg">check</span>
                     )}
@@ -129,7 +140,7 @@ const Clubs = () => {
             </div>
             {clubs.length === 0 && (
               <div className="text-center py-12">
-                <p className="text-text-secondary text-lg">No clubs found. Try adjusting your search or filters.</p>
+                <p className="text-text-secondary text-lg">{t('clubs.noClubsFound')}</p>
               </div>
             )}
           </>

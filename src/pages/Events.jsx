@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react';
 import { useQuery } from '@tanstack/react-query';
+import { useTranslation } from 'react-i18next';
 import Navbar from '../components/layout/Navbar';
 import Footer from '../components/layout/Footer';
 import EventCard from '../components/ui/EventCard';
@@ -7,6 +8,7 @@ import Loader from '../components/ui/Loader';
 import api from '../lib/api';
 
 const Events = () => {
+  const { t } = useTranslation();
   useEffect(() => {
     document.title = 'Upcoming Events - ClubSphere';
     // Scroll to top when component mounts
@@ -40,10 +42,10 @@ const Events = () => {
           {/* Title */}
           <div className="flex flex-col gap-2">
             <h1 className="text-4xl md:text-5xl font-bold tracking-tight text-slate-900 dark:text-white">
-              Discover Local Events
+              {t('events.title')}
             </h1>
             <p className="text-lg text-slate-500 dark:text-slate-400 max-w-2xl">
-              Browse and join upcoming gatherings, workshops, and meetups in your community.
+              {t('events.subtitle')}
             </p>
           </div>
           
@@ -56,7 +58,7 @@ const Events = () => {
               </div>
               <input
                 className="w-full h-12 pl-11 pr-4 rounded-full bg-white dark:bg-surface-dark-alt2 border border-slate-200 dark:border-border-dark text-slate-900 dark:text-white placeholder-slate-400 focus:border-primary focus:ring-1 focus:ring-primary transition-all shadow-sm"
-                placeholder="Search events by name, club, or location..."
+                placeholder={t('events.searchPlaceholder')}
                 type="text"
                 value={searchTerm}
                 onChange={(e) => setSearchTerm(e.target.value)}
@@ -71,10 +73,10 @@ const Events = () => {
                   onChange={(e) => setSortBy(e.target.value)}
                   className="h-10 pl-4 pr-10 rounded-full bg-white dark:bg-surface-dark-alt2 border border-slate-200 dark:border-border-dark text-slate-900 dark:text-white text-sm font-medium focus:border-primary focus:ring-1 focus:ring-primary transition-all shadow-sm appearance-none cursor-pointer hover:border-primary dark:hover:border-primary"
                 >
-                  <option value="newest">Newest First</option>
-                  <option value="oldest">Oldest First</option>
-                  <option value="highest_fee">Highest Fee</option>
-                  <option value="lowest_fee">Lowest Fee</option>
+                  <option value="newest">{t('events.newestFirst')}</option>
+                  <option value="oldest">{t('events.oldestFirst')}</option>
+                  <option value="highest_fee">{t('events.highestFee')}</option>
+                  <option value="lowest_fee">{t('events.lowestFee')}</option>
                 </select>
                 <div className="absolute inset-y-0 right-0 flex items-center pr-3 pointer-events-none">
                   <span className="material-symbols-outlined text-lg text-slate-400">expand_more</span>
@@ -91,21 +93,21 @@ const Events = () => {
                       : 'bg-white dark:bg-surface-dark-alt2 border border-slate-200 dark:border-border-dark text-slate-600 dark:text-slate-300 hover:border-primary dark:hover:border-primary hover:text-primary dark:hover:text-primary'
                   }`}
                 >
-                  All Dates
+                  {t('events.allDates')}
                   <span className="material-symbols-outlined text-lg">expand_more</span>
                 </button>
                 <button
                   onClick={() => setSelectedFilter('category')}
                   className="flex items-center gap-2 h-10 pl-4 pr-3 rounded-full bg-white dark:bg-surface-dark border border-slate-200 dark:border-border-dark text-slate-600 dark:text-slate-300 text-sm font-medium hover:border-primary dark:hover:border-primary hover:text-primary dark:hover:text-primary transition-colors shadow-sm"
                 >
-                  Category
+                  {t('events.category')}
                   <span className="material-symbols-outlined text-lg">expand_more</span>
                 </button>
                 <button
                   onClick={() => setSelectedFilter('price')}
                   className="flex items-center gap-2 h-10 pl-4 pr-3 rounded-full bg-white dark:bg-surface-dark border border-slate-200 dark:border-border-dark text-slate-600 dark:text-slate-300 text-sm font-medium hover:border-primary dark:hover:border-primary hover:text-primary dark:hover:text-primary transition-colors shadow-sm"
                 >
-                  Price
+                  {t('events.price')}
                   <span className="material-symbols-outlined text-lg">expand_more</span>
                 </button>
                 <button
@@ -116,7 +118,7 @@ const Events = () => {
                       : 'bg-white dark:bg-surface-dark-alt2 border border-slate-200 dark:border-border-dark text-slate-600 dark:text-slate-300 hover:border-primary dark:hover:border-primary hover:text-primary dark:hover:text-primary'
                   }`}
                 >
-                  Free Only
+                  {t('events.freeOnly')}
                 </button>
               </div>
             </div>
@@ -137,13 +139,13 @@ const Events = () => {
             </div>
             {events.length === 0 && (
               <div className="text-center py-12">
-                <p className="text-text-secondary text-lg">No events found. Try adjusting your search or filters.</p>
+                <p className="text-text-secondary text-lg">{t('events.noEventsFound')}</p>
               </div>
             )}
             {events.length > 0 && events.length >= 9 && (
               <div className="flex justify-center mt-12 pb-12">
                 <button className="group flex items-center justify-center gap-2 h-12 px-8 rounded-full bg-white dark:bg-surface-dark-alt2 border border-slate-200 dark:border-border-dark text-slate-900 dark:text-white font-bold hover:bg-primary dark:hover:bg-primary hover:text-black dark:hover:text-black hover:border-primary dark:hover:border-primary transition-all duration-300 shadow-sm">
-                  Load More Events
+                  {t('events.loadMoreEvents')}
                   <span className="material-symbols-outlined group-hover:translate-y-1 transition-transform">keyboard_arrow_down</span>
                 </button>
               </div>

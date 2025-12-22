@@ -1,7 +1,8 @@
-import { useEffect, useMemo } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import { motion } from 'framer-motion';
 import { Link, useNavigate } from 'react-router-dom';
 import { useQuery } from '@tanstack/react-query';
+import { useTranslation } from 'react-i18next';
 import Navbar from '../components/layout/Navbar';
 import Footer from '../components/layout/Footer';
 import api from '../lib/api';
@@ -12,6 +13,8 @@ import { useAuth } from '../context/AuthContext';
 const Home = () => {
   const navigate = useNavigate();
   const { isAuthenticated } = useAuth();
+  const { t } = useTranslation();
+  const [searchTerm, setSearchTerm] = useState('');
   
   useEffect(() => {
     document.title = 'Home - ClubSphere | Discover Local Communities';
@@ -71,6 +74,23 @@ const Home = () => {
     return colorMap[category] || 'bg-primary';
   };
 
+  // Handle search submission
+  const handleSearch = (e) => {
+    e.preventDefault();
+    if (searchTerm.trim()) {
+      navigate(`/clubs?search=${encodeURIComponent(searchTerm.trim())}`);
+    } else {
+      navigate('/clubs');
+    }
+  };
+
+  // Handle Enter key press in search input
+  const handleKeyPress = (e) => {
+    if (e.key === 'Enter') {
+      handleSearch(e);
+    }
+  };
+
   return (
     <div className="flex flex-col min-h-screen bg-background-light dark:bg-background-dark font-display text-gray-900 dark:text-white transition-colors duration-200">
       <Navbar />
@@ -96,10 +116,10 @@ const Home = () => {
                   className="flex flex-col gap-4 text-center max-w-[800px] z-10"
                 >
                   <h1 className="text-white text-4xl sm:text-5xl lg:text-7xl font-black leading-tight tracking-[-0.033em]">
-                    Discover Local Communities That Move You
+                    {t('home.heroTitle')}
                   </h1>
                   <h2 className="text-gray-200 text-base sm:text-lg font-normal leading-relaxed max-w-[600px] mx-auto">
-                    From hiking groups to coding bootcamps, find your people with ClubSphere. Join a movement, start a conversation.
+                    {t('home.heroSubtitle')}
                   </h2>
                 </motion.div>
                 
@@ -110,24 +130,30 @@ const Home = () => {
                   transition={{ duration: 0.6, delay: 0.4 }}
                   className="w-full max-w-[600px] mt-4 z-10"
                 >
-                  <label className="flex flex-col w-full h-14 sm:h-16">
+                  <form onSubmit={handleSearch} className="flex flex-col w-full h-14 sm:h-16">
                     <div className="flex w-full flex-1 items-stretch rounded-full h-full shadow-lg overflow-hidden group focus-within:ring-2 focus-within:ring-primary/50 transition-all">
                       <div className="text-text-secondary flex border-y border-l border-border-dark bg-card-dark items-center justify-center pl-6 pr-2">
                         <span className="material-symbols-outlined text-[24px]">search</span>
                       </div>
                       <input
                         className="flex w-full min-w-0 flex-1 resize-none bg-card-dark text-white border-y border-border-dark focus:outline-none focus:border-border-dark h-full placeholder:text-text-secondary px-2 text-base font-normal leading-normal"
-                        placeholder="Search by interest or location..."
+                        placeholder={t('home.searchPlaceholder')}
                         type="text"
+                        value={searchTerm}
+                        onChange={(e) => setSearchTerm(e.target.value)}
+                        onKeyPress={handleKeyPress}
                       />
                       <div className="flex items-center justify-center border-y border-r border-border-dark bg-card-dark pr-2 sm:pr-3">
-                        <button className="flex cursor-pointer items-center justify-center rounded-full h-10 sm:h-12 px-6 bg-primary hover:bg-primary-hover transition-colors text-[#111714] text-sm sm:text-base font-bold leading-normal tracking-[0.015em]">
-                          <span className="hidden sm:inline truncate">Find Your Tribe</span>
+                        <button 
+                          type="submit"
+                          className="flex cursor-pointer items-center justify-center rounded-full h-10 sm:h-12 px-6 bg-primary hover:bg-primary-hover transition-colors text-[#111714] text-sm sm:text-base font-bold leading-normal tracking-[0.015em]"
+                        >
+                          <span className="hidden sm:inline truncate">{t('home.findTribe')}</span>
                           <span className="sm:hidden material-symbols-outlined text-lg">arrow_forward</span>
                         </button>
                       </div>
                     </div>
-                  </label>
+                  </form>
                 </motion.div>
               </motion.div>
             </div>
@@ -137,9 +163,9 @@ const Home = () => {
         {/* Featured Clubs Header */}
         <section className="w-full px-4 sm:px-6 lg:px-8 pt-8 flex justify-center">
           <div className="w-full max-w-[1280px] flex items-end justify-between">
-            <h2 className="text-[32px] md:text-4xl font-bold leading-tight tracking-tight">Featured Clubs</h2>
+            <h2 className="text-[32px] md:text-4xl font-bold leading-tight tracking-tight">{t('home.featuredClubs')}</h2>
             <Link to="/clubs" className="hidden sm:flex items-center gap-1 text-primary font-medium hover:underline">
-              View all clubs <span className="material-symbols-outlined text-sm">arrow_forward</span>
+              {t('home.viewAllClubs')} <span className="material-symbols-outlined text-sm">arrow_forward</span>
             </Link>
           </div>
         </section>
@@ -153,7 +179,7 @@ const Home = () => {
               </div>
             ) : featuredClubs.length === 0 ? (
               <div className="text-center py-12">
-                <p className="text-text-secondary text-lg">No featured clubs available at the moment.</p>
+                <p className="text-text-secondary text-lg">{t('home.noFeaturedClubs')}</p>
               </div>
             ) : (
               <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
@@ -199,7 +225,7 @@ const Home = () => {
                           }`}
                           disabled={joinedClubIds.has(club.id)}
                         >
-                          {joinedClubIds.has(club.id) ? 'Joined' : 'Join Club'} 
+                          {joinedClubIds.has(club.id) ? t('clubs.joined') : t('clubs.joinClub')} 
                           {!joinedClubIds.has(club.id) && <span className="material-symbols-outlined text-sm">chevron_right</span>}
                         </button>
                       </div>
@@ -216,11 +242,11 @@ const Home = () => {
           <div className="w-full max-w-[1280px] flex flex-col gap-8">
             <div className="flex items-end justify-between">
               <div>
-                <h2 className="text-[32px] md:text-4xl font-bold leading-tight tracking-tight">Running & Upcoming Events</h2>
-                <p className="text-text-secondary mt-2">Don't miss out on what's happening this week.</p>
+                <h2 className="text-[32px] md:text-4xl font-bold leading-tight tracking-tight">{t('home.upcomingEvents')}</h2>
+                <p className="text-text-secondary mt-2">{t('home.dontMiss')}</p>
               </div>
               <Link to="/events" className="hidden sm:flex items-center gap-1 text-primary font-medium hover:underline">
-                View Calendar <span className="material-symbols-outlined text-sm">calendar_month</span>
+                {t('home.viewCalendar')} <span className="material-symbols-outlined text-sm">calendar_month</span>
               </Link>
             </div>
             {eventsLoading ? (
@@ -229,7 +255,7 @@ const Home = () => {
               </div>
             ) : upcomingEvents.length === 0 ? (
               <div className="text-center py-12">
-                <p className="text-text-secondary text-lg">No Running & Upcoming Events at the moment.</p>
+                <p className="text-text-secondary text-lg">{t('home.noUpcomingEvents')}</p>
               </div>
             ) : (
               <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
@@ -265,7 +291,7 @@ const Home = () => {
                         </div>
                         <div className="flex items-center gap-2">
                           <span className="material-symbols-outlined text-lg">location_on</span>
-                          <span>{event.location || 'Location TBA'}</span>
+                          <span>{event.location || t('events.locationTBA')}</span>
                         </div>
                       </div>
                       <button 
@@ -282,11 +308,11 @@ const Home = () => {
                             } else {
                               Swal.fire({
                                 icon: 'info',
-                                title: 'Login Required',
-                                text: 'Please login to RSVP for this event.',
-                                confirmButtonText: 'Login',
+                                title: t('events.loginRequired'),
+                                text: t('events.loginRequiredText'),
+                                confirmButtonText: t('nav.login'),
                                 showCancelButton: true,
-                                cancelButtonText: 'Cancel'
+                                cancelButtonText: t('events.cancel')
                               }).then((result) => {
                                 if (result.isConfirmed) {
                                   navigate('/login', { state: { returnTo: `/events/${event.id}` } });
@@ -311,11 +337,11 @@ const Home = () => {
                           if (!isAuth) {
                             Swal.fire({
                               icon: 'info',
-                              title: 'Login Required',
-                              text: 'Please login to RSVP for this event.',
-                              confirmButtonText: 'Login',
+                              title: t('events.loginRequired'),
+                              text: t('events.loginRequiredText'),
+                              confirmButtonText: t('nav.login'),
                               showCancelButton: true,
-                              cancelButtonText: 'Cancel'
+                              cancelButtonText: t('events.cancel')
                             }).then((result) => {
                               if (result.isConfirmed) {
                                 navigate('/login', { state: { returnTo: `/events/${event.id}` } });
@@ -327,11 +353,11 @@ const Home = () => {
                           // If user is authenticated but not a member, show join club modal
                           Swal.fire({
                             icon: 'info',
-                            title: 'Join Club Required',
-                            text: 'If you want to reserve event, then you have to join club first',
-                            confirmButtonText: 'Go to Club',
+                            title: t('events.joinClubRequired'),
+                            text: t('events.joinClubRequiredText'),
+                            confirmButtonText: t('events.goToClub'),
                             showCancelButton: true,
-                            cancelButtonText: 'Cancel'
+                            cancelButtonText: t('events.cancel')
                           }).then((result) => {
                             if (result.isConfirmed) {
                               if (event.clubId) {
@@ -348,7 +374,7 @@ const Home = () => {
                         }}
                         className="mt-4 w-full py-2.5 rounded-lg bg-[#29382f] text-white font-bold text-sm hover:bg-primary hover:text-background-dark transition-colors"
                       >
-                        RSVP Now
+                        {t('events.rsvpNow')}
                       </button>
                     </div>
                   </motion.div>
@@ -364,15 +390,15 @@ const Home = () => {
             <div className="flex flex-col gap-10">
               <div className="flex flex-col gap-4 items-start">
                 <h2 className="text-3xl md:text-5xl font-black leading-tight tracking-tight max-w-[720px]">
-                  How It Works
+                  {t('home.howItWorks')}
                 </h2>
-                <p className="text-text-secondary text-lg font-normal leading-normal max-w-[720px]">Three simple steps to finding your next adventure and making meaningful connections.</p>
+                <p className="text-text-secondary text-lg font-normal leading-normal max-w-[720px]">{t('home.howItWorksSubtitle')}</p>
               </div>
               <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
                 {[
-                  { icon: "search", title: "1. Discover", description: "Browse thousands of local clubs based on your interests and location. Filter by activity, size, and vibe." },
-                  { icon: "chat_bubble", title: "2. Connect", description: "Join the conversation instantly. Meet like-minded individuals in your area through secure group chats." },
-                  { icon: "calendar_today", title: "3. Participate", description: "Attend events, workshops, and meetups. RSVP with one click and get automated reminders." }
+                  { icon: "search", title: t('home.discover'), description: t('home.discoverDesc') },
+                  { icon: "chat_bubble", title: t('home.connect'), description: t('home.connectDesc') },
+                  { icon: "calendar_today", title: t('home.participate'), description: t('home.participateDesc') }
                 ].map((step, index) => (
                   <motion.div
                     key={step.title}
@@ -401,15 +427,15 @@ const Home = () => {
             <div className="flex flex-col lg:flex-row gap-12 items-start">
               {/* Text Content */}
               <div className="lg:w-1/3 flex flex-col gap-6 sticky top-24">
-                <span className="text-primary font-bold uppercase tracking-wider text-sm">Why Join ClubSphere?</span>
+                <span className="text-primary font-bold uppercase tracking-wider text-sm">{t('home.whyJoin')}</span>
                 <h2 className="text-4xl md:text-5xl font-black leading-tight tracking-tight">
-                  More Than Just A Platform
+                  {t('home.whyJoinTitle')}
                 </h2>
                 <p className="text-text-secondary text-lg leading-relaxed">
-                  We're building the future of community. Whether you want to boost your career, improve your health, or just have fun, it starts here.
+                  {t('home.whyJoinDesc')}
                 </p>
                 <Link to="/register" className="w-fit flex cursor-pointer items-center justify-center rounded-full h-12 px-8 bg-white dark:bg-white text-background-dark text-base font-bold leading-normal tracking-[0.015em] hover:bg-gray-200 transition-colors">
-                  Get Started Now
+                  {t('home.getStarted')}
                 </Link>
               </div>
               
@@ -427,8 +453,8 @@ const Home = () => {
                     <div className="size-12 rounded-full bg-primary/20 text-primary flex items-center justify-center mb-6">
                       <span className="material-symbols-outlined text-2xl">trending_up</span>
                     </div>
-                    <h3 className="text-2xl font-bold mb-3">Expand Your Network</h3>
-                    <p className="text-text-secondary">Connect with professionals and hobbyists outside your usual circle. 80% of members report making a new close friend within 3 months.</p>
+                    <h3 className="text-2xl font-bold mb-3">{t('home.expandNetwork')}</h3>
+                    <p className="text-text-secondary">{t('home.expandNetworkDesc')}</p>
                   </div>
                   <div className="w-full md:w-48 h-32 md:h-auto rounded-2xl bg-border-dark/50 flex items-center justify-center relative overflow-hidden">
                     <div className="absolute inset-0 opacity-30 bg-[url('https://www.transparenttextures.com/patterns/carbon-fibre.png')]"></div>
@@ -438,8 +464,8 @@ const Home = () => {
                 
                 {/* Medium Cards */}
                 {[
-                  { icon: "school", color: "blue", title: "Learn New Skills", description: "From pottery workshops to Python coding sessions, learn by doing with peers." },
-                  { icon: "spa", color: "pink", title: "Mental Well-being", description: "Combat loneliness and burnout. Real world connection is the best medicine." }
+                  { icon: "school", color: "blue", title: t('home.learnSkills'), description: t('home.learnSkillsDesc') },
+                  { icon: "spa", color: "pink", title: t('home.mentalWellbeing'), description: t('home.mentalWellbeingDesc') }
                 ].map((card, index) => (
                   <motion.div
                     key={card.title}

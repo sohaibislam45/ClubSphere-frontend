@@ -1,9 +1,13 @@
 import { useState, useRef, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import { useAuth } from '../../context/AuthContext';
+import { useTranslation } from 'react-i18next';
+import { useLanguage } from '../../context/LanguageContext';
 
 const Navbar = () => {
   const { user, logout } = useAuth();
+  const { t } = useTranslation();
+  const { currentLanguage, changeLanguage } = useLanguage();
   const [dropdownOpen, setDropdownOpen] = useState(false);
   const dropdownRef = useRef(null);
 
@@ -32,6 +36,12 @@ const Navbar = () => {
     return '/dashboard/member';
   };
 
+  // Toggle language between English and Bangla
+  const toggleLanguage = () => {
+    const newLang = currentLanguage === 'en' ? 'bn' : 'en';
+    changeLanguage(newLang);
+  };
+
   return (
     <header className="sticky top-0 z-50 w-full backdrop-blur-md bg-background-light/90 dark:bg-background-dark/90 border-b border-gray-200 dark:border-border-dark">
       <div className="max-w-[1280px] mx-auto px-4 sm:px-6 lg:px-8">
@@ -54,16 +64,26 @@ const Navbar = () => {
           
           {/* Desktop Nav */}
           <nav className="hidden md:flex items-center gap-9">
-            <Link to="/" className="text-sm font-medium leading-normal hover:text-primary transition-colors">Home</Link>
-            <Link to="/clubs" className="text-sm font-medium leading-normal hover:text-primary transition-colors">Clubs</Link>
-            <Link to="/events" className="text-sm font-medium leading-normal hover:text-primary transition-colors">Events</Link>
+            <Link to="/" className="text-sm font-medium leading-normal hover:text-primary transition-colors">{t('nav.home')}</Link>
+            <Link to="/clubs" className="text-sm font-medium leading-normal hover:text-primary transition-colors">{t('nav.clubs')}</Link>
+            <Link to="/events" className="text-sm font-medium leading-normal hover:text-primary transition-colors">{t('nav.events')}</Link>
             {user && (
-              <Link to={getDashboardPath()} className="text-sm font-medium leading-normal hover:text-primary transition-colors">Dashboard</Link>
+              <Link to={getDashboardPath()} className="text-sm font-medium leading-normal hover:text-primary transition-colors">{t('nav.dashboard')}</Link>
             )}
           </nav>
           
-          {/* Auth Actions */}
-          {user ? (
+          {/* Language Toggle & Auth Actions */}
+          <div className="flex items-center gap-3">
+            {/* Language Toggle Button */}
+            <button
+              onClick={toggleLanguage}
+              className="flex items-center gap-2 px-3 py-2 rounded-lg bg-card-dark dark:bg-[#29382f] text-white hover:bg-gray-700 dark:hover:bg-[#3d5245] transition-colors text-sm font-medium"
+              title={currentLanguage === 'en' ? 'বাংলা' : 'English'}
+            >
+              <span className="text-xs font-bold">{currentLanguage === 'en' ? 'বাংলা' : 'EN'}</span>
+            </button>
+
+            {user ? (
             <div className="relative" ref={dropdownRef}>
               <button 
                 onClick={() => setDropdownOpen(!dropdownOpen)}
@@ -115,22 +135,23 @@ const Navbar = () => {
                       className="w-full px-4 py-3 text-left text-sm text-gray-900 dark:text-white hover:bg-gray-100 dark:hover:bg-white/5 transition-colors flex items-center gap-3"
                     >
                       <span className="material-symbols-outlined text-lg">logout</span>
-                      <span>Log out</span>
+                      <span>{t('nav.logout')}</span>
                     </button>
                   </div>
                 </div>
               )}
             </div>
-          ) : (
-            <div className="flex gap-3">
-              <Link to="/login" className="flex min-w-[84px] cursor-pointer items-center justify-center overflow-hidden rounded-full h-10 px-6 bg-card-dark dark:bg-[#29382f] text-white hover:bg-gray-700 dark:hover:bg-[#3d5245] transition-colors text-sm font-bold tracking-[0.015em]">
-                <span className="truncate">Login</span>
-              </Link>
-              <Link to="/register" className="flex min-w-[84px] cursor-pointer items-center justify-center overflow-hidden rounded-full h-10 px-6 bg-primary hover:bg-primary-hover transition-colors text-[#111714] text-sm font-bold tracking-[0.015em]">
-                <span className="truncate">Register</span>
-              </Link>
-            </div>
-          )}
+            ) : (
+              <div className="flex gap-3">
+                <Link to="/login" className="flex min-w-[84px] cursor-pointer items-center justify-center overflow-hidden rounded-full h-10 px-6 bg-card-dark dark:bg-[#29382f] text-white hover:bg-gray-700 dark:hover:bg-[#3d5245] transition-colors text-sm font-bold tracking-[0.015em]">
+                  <span className="truncate">{t('nav.login')}</span>
+                </Link>
+                <Link to="/register" className="flex min-w-[84px] cursor-pointer items-center justify-center overflow-hidden rounded-full h-10 px-6 bg-primary hover:bg-primary-hover transition-colors text-[#111714] text-sm font-bold tracking-[0.015em]">
+                  <span className="truncate">{t('nav.register')}</span>
+                </Link>
+              </div>
+            )}
+          </div>
         </div>
       </div>
     </header>
