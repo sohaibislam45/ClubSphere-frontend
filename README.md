@@ -265,7 +265,7 @@ This project is proprietary software. All rights reserved.
 
 ## 📞 Support
 
-For support, email [your-email@example.com] or open an issue in the repository.
+For support, email [sohaibislam45@gmail.com] or open an issue in the repository.
 
 ## 🙏 Acknowledgments
 
