@@ -634,6 +634,254 @@ const Home = () => {
           </div>
         </section>
 
+        {/* Testimonials Section */}
+        <section className="w-full px-4 sm:px-6 lg:px-8 py-20 flex justify-center bg-white dark:bg-card-dark/20 border-y border-gray-200 dark:border-border-dark/50">
+          <div className="w-full max-w-[1280px]">
+            <div className="flex flex-col gap-12">
+              <div className="text-center max-w-2xl mx-auto flex flex-col gap-4">
+                <h2 className="text-gray-900 dark:text-white text-3xl md:text-4xl font-bold leading-tight">What Our Members Say</h2>
+                <p className="text-text-muted dark:text-text-secondary text-lg">Real stories from real people in our community.</p>
+              </div>
+              <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+                {[
+                  {
+                    quote: "ClubSphere completely transformed how I find local events. The community is vibrant and welcoming.",
+                    author: "Alex Chen",
+                    role: "Community Organizer",
+                    avatar: "https://lh3.googleusercontent.com/aida-public/AB6AXuDBZ6CDB3iArjU_tvxrCupBUfSulecrz0Y9qLtIP8e3AcjWj4CPqyZd_o9WvE_-caFh2Kl8jlU4JL3YcpV7C1S8qDZm7jzPy-Umx63LT8vZJyrigp5I_aZLIUqO8HeDb66gFGZy4NqMMGkLQDd3QniZ8Z3M6H704nriZyvne7BNUopiiyqGNIsttPAvyWb6gvNd9K-L0_7pqdQ5Q4rsnY07Yui944jqM2dQq4-wbrku73IXnLPhq-yrJ-7VBoDiFVDb3p7M7HKnAPJc"
+                  },
+                  {
+                    quote: "I've met some of my closest friends through clubs on this platform. It's amazing how technology can bring people together.",
+                    author: "Sarah Johnson",
+                    role: "Fitness Enthusiast",
+                    avatar: "https://lh3.googleusercontent.com/aida-public/AB6AXuA905HuwzoL3J6Hn0Sl4XIIJzbR6IPNZbPOMGRUaFXfkY2aBHeN-VxHwYW4dhAJhgtUHW4DdNBaeFGOCxDkNYmguRofHkXkgTONLxG8Twyt9srdWrXmqamsThx_w9SGvHV4fxnZ6VA6zW6EQJBFnVcEQ9PDbnGGTuoAIZ0-T0gnO6dLwbu1ql6BxoEbyHZP1a71z_eEVtaksinsi6LWEmv4KqhZi6gLJ-7q9XaofobfY-pHbyUlLd_VNzJwzhmyxvA7Iz_DLv8tkUro"
+                  },
+                  {
+                    quote: "As a club manager, the tools provided make organizing events so much easier. Highly recommend!",
+                    author: "Michael Torres",
+                    role: "Tech Club Manager",
+                    avatar: "https://lh3.googleusercontent.com/aida-public/AB6AXuA9zqG3-2JnoqjGIKWNWeHge3KqIh7kIXdIcZ5_5CcSX2AV_z7LGRAtUOw6arXnuz2bHq60vM6pWztNijvI2P-6d8HRRlcim8z1_7xXb_YzIvvUXhsz-JFsJ0UOXPZs9UNth8T2TXtPDizQwtDM5gNBckPHiGMFEZkIoF4fOJXqZ_C10bSEZn_EtM-u7KKQQLAX_JfZOJPmQzr5m4I-fpoaLHMuGk8wChObqo7ZbaQpypqV7msw1WScyHoHCYi0-7EU5DAOSiVariW2"
+                  }
+                ].map((testimonial, index) => (
+                  <motion.div
+                    key={testimonial.author}
+                    initial={{ opacity: 0, y: 20 }}
+                    whileInView={{ opacity: 1, y: 0 }}
+                    viewport={{ once: true }}
+                    transition={{ duration: 0.5, delay: index * 0.1 }}
+                    className="flex flex-col gap-4 p-6 rounded-2xl bg-white dark:bg-card-dark border border-gray-200 dark:border-border-dark"
+                  >
+                    <div className="flex items-center gap-1 text-primary">
+                      {[...Array(5)].map((_, i) => (
+                        <span key={i} className="material-symbols-outlined text-lg">star</span>
+                      ))}
+                    </div>
+                    <p className="text-text-muted dark:text-text-secondary leading-relaxed flex-1">"{testimonial.quote}"</p>
+                    <div className="flex items-center gap-3 pt-4 border-t border-gray-100 dark:border-border-dark">
+                      <div
+                        className="size-12 rounded-full bg-cover bg-center"
+                        style={{ backgroundImage: `url("${testimonial.avatar}")` }}
+                      ></div>
+                      <div>
+                        <p className="font-bold text-gray-900 dark:text-white">{testimonial.author}</p>
+                        <p className="text-sm text-text-muted dark:text-text-secondary">{testimonial.role}</p>
+                      </div>
+                    </div>
+                  </motion.div>
+                ))}
+              </div>
+            </div>
+          </div>
+        </section>
+
+        {/* Categories Highlights Section */}
+        <section className="w-full px-4 sm:px-6 lg:px-8 py-20 flex justify-center">
+          <div className="w-full max-w-[1280px]">
+            <div className="flex flex-col gap-12">
+              <div className="text-center max-w-2xl mx-auto flex flex-col gap-4">
+                <h2 className="text-gray-900 dark:text-white text-3xl md:text-4xl font-bold leading-tight">Explore by Category</h2>
+                <p className="text-text-muted dark:text-text-secondary text-lg">Find clubs and events that match your interests.</p>
+              </div>
+              <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+                {[
+                  { name: 'Fitness', icon: 'fitness_center', color: 'bg-primary', href: '/clubs?category=Fitness' },
+                  { name: 'Tech', icon: 'computer', color: 'bg-blue-500', href: '/clubs?category=Tech' },
+                  { name: 'Arts', icon: 'palette', color: 'bg-purple-500', href: '/clubs?category=Arts' },
+                  { name: 'Sports', icon: 'sports_soccer', color: 'bg-green-500', href: '/clubs?category=Sports' },
+                  { name: 'Music', icon: 'music_note', color: 'bg-red-500', href: '/clubs?category=Music' },
+                  { name: 'Gaming', icon: 'sports_esports', color: 'bg-orange-500', href: '/clubs?category=Gaming' },
+                  { name: 'Lifestyle', icon: 'spa', color: 'bg-pink-500', href: '/clubs?category=Lifestyle' },
+                  { name: 'Social', icon: 'groups', color: 'bg-yellow-500', href: '/clubs?category=Social' }
+                ].map((category, index) => (
+                  <motion.a
+                    key={category.name}
+                    href={category.href}
+                    initial={{ opacity: 0, scale: 0.95 }}
+                    whileInView={{ opacity: 1, scale: 1 }}
+                    viewport={{ once: true }}
+                    transition={{ duration: 0.3, delay: index * 0.05 }}
+                    className="flex flex-col items-center gap-3 p-6 rounded-2xl bg-white dark:bg-card-dark border border-gray-200 dark:border-border-dark hover:border-primary hover:shadow-lg transition-all duration-300 group"
+                  >
+                    <div className={`size-14 rounded-full ${category.color} flex items-center justify-center text-white group-hover:scale-110 transition-transform`}>
+                      <span className="material-symbols-outlined text-2xl">{category.icon}</span>
+                    </div>
+                    <p className="font-bold text-gray-900 dark:text-white text-sm">{category.name}</p>
+                  </motion.a>
+                ))}
+              </div>
+            </div>
+          </div>
+        </section>
+
+        {/* Features Section */}
+        <section className="w-full px-4 sm:px-6 lg:px-8 py-20 flex justify-center bg-white dark:bg-card-dark/20 border-y border-gray-200 dark:border-border-dark/50">
+          <div className="w-full max-w-[1280px]">
+            <div className="flex flex-col gap-12">
+              <div className="text-center max-w-2xl mx-auto flex flex-col gap-4">
+                <h2 className="text-gray-900 dark:text-white text-3xl md:text-4xl font-bold leading-tight">Powerful Features</h2>
+                <p className="text-text-muted dark:text-text-secondary text-lg">Everything you need to build and manage thriving communities.</p>
+              </div>
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                {[
+                  { icon: 'event', title: 'Event Management', description: 'Create, manage, and promote events with ease. Handle RSVPs, ticketing, and attendee management all in one place.' },
+                  { icon: 'payments', title: 'Secure Payments', description: 'Integrated payment processing for membership fees and event tickets. Fast, secure, and reliable.' },
+                  { icon: 'forum', title: 'Community Forums', description: 'Engage with members through discussions, announcements, and shared interests. Build stronger connections.' },
+                  { icon: 'notifications', title: 'Smart Notifications', description: 'Stay informed with real-time updates about events, messages, and community activities.' },
+                  { icon: 'analytics', title: 'Analytics & Insights', description: 'Track engagement, growth, and member activity with comprehensive analytics dashboards.' },
+                  { icon: 'security', title: 'Safety & Moderation', description: 'Built-in tools to ensure safe, welcoming communities with moderation and reporting features.' }
+                ].map((feature, index) => (
+                  <motion.div
+                    key={feature.title}
+                    initial={{ opacity: 0, y: 20 }}
+                    whileInView={{ opacity: 1, y: 0 }}
+                    viewport={{ once: true }}
+                    transition={{ duration: 0.5, delay: index * 0.1 }}
+                    className="flex flex-col gap-4 p-6 rounded-2xl bg-white dark:bg-card-dark border border-gray-200 dark:border-border-dark hover:border-primary/50 hover:shadow-md transition-all duration-300"
+                  >
+                    <div className="size-12 rounded-xl bg-primary/10 dark:bg-primary/20 text-primary flex items-center justify-center">
+                      <span className="material-symbols-outlined text-2xl">{feature.icon}</span>
+                    </div>
+                    <h3 className="text-xl font-bold text-gray-900 dark:text-white">{feature.title}</h3>
+                    <p className="text-text-muted dark:text-text-secondary leading-relaxed">{feature.description}</p>
+                  </motion.div>
+                ))}
+              </div>
+            </div>
+          </div>
+        </section>
+
+        {/* Services Section */}
+        <section className="w-full px-4 sm:px-6 lg:px-8 py-20 flex justify-center">
+          <div className="w-full max-w-[1280px]">
+            <div className="flex flex-col gap-12">
+              <div className="text-center max-w-2xl mx-auto flex flex-col gap-4">
+                <h2 className="text-gray-900 dark:text-white text-3xl md:text-4xl font-bold leading-tight">Our Services</h2>
+                <p className="text-text-muted dark:text-text-secondary text-lg">Comprehensive solutions for community builders and members alike.</p>
+              </div>
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+                {[
+                  {
+                    title: 'For Members',
+                    description: 'Discover and join clubs that match your interests, register for events, connect with like-minded people, and build meaningful relationships.',
+                    features: ['Browse thousands of active clubs', 'RSVP to events seamlessly', 'Connect with community members', 'Track your activity and memberships'],
+                    icon: 'person',
+                    color: 'primary'
+                  },
+                  {
+                    title: 'For Club Managers',
+                    description: 'Manage your club with powerful tools including member management, event creation, payment processing, and analytics.',
+                    features: ['Create and manage events', 'Process payments securely', 'Track member engagement', 'Access analytics dashboard'],
+                    icon: 'groups',
+                    color: 'blue'
+                  }
+                ].map((service, index) => (
+                  <motion.div
+                    key={service.title}
+                    initial={{ opacity: 0, x: index % 2 === 0 ? -20 : 20 }}
+                    whileInView={{ opacity: 1, x: 0 }}
+                    viewport={{ once: true }}
+                    transition={{ duration: 0.5, delay: index * 0.2 }}
+                    className="flex flex-col gap-6 p-8 rounded-2xl bg-white dark:bg-card-dark border border-gray-200 dark:border-border-dark"
+                  >
+                    <div className={`size-16 rounded-2xl bg-${service.color === 'primary' ? 'primary' : 'blue-500'}/10 dark:bg-${service.color === 'primary' ? 'primary' : 'blue-500'}/20 text-${service.color === 'primary' ? 'primary' : 'blue-500'} flex items-center justify-center`}>
+                      <span className="material-symbols-outlined text-3xl">{service.icon}</span>
+                    </div>
+                    <div>
+                      <h3 className="text-2xl font-bold text-gray-900 dark:text-white mb-3">{service.title}</h3>
+                      <p className="text-text-muted dark:text-text-secondary leading-relaxed mb-4">{service.description}</p>
+                      <ul className="flex flex-col gap-2">
+                        {service.features.map((feature, idx) => (
+                          <li key={idx} className="flex items-center gap-2 text-text-muted dark:text-text-secondary">
+                            <span className="material-symbols-outlined text-primary text-lg">check_circle</span>
+                            <span>{feature}</span>
+                          </li>
+                        ))}
+                      </ul>
+                    </div>
+                  </motion.div>
+                ))}
+              </div>
+            </div>
+          </div>
+        </section>
+
+        {/* FAQ Section */}
+        <section className="w-full px-4 sm:px-6 lg:px-8 py-20 flex justify-center bg-white dark:bg-card-dark/20 border-y border-gray-200 dark:border-border-dark/50">
+          <div className="w-full max-w-[960px]">
+            <div className="flex flex-col gap-12">
+              <div className="text-center max-w-2xl mx-auto flex flex-col gap-4">
+                <h2 className="text-gray-900 dark:text-white text-3xl md:text-4xl font-bold leading-tight">Frequently Asked Questions</h2>
+                <p className="text-text-muted dark:text-text-secondary text-lg">Got questions? We've got answers.</p>
+              </div>
+              <div className="flex flex-col gap-4">
+                {[
+                  {
+                    question: 'How do I join a club?',
+                    answer: 'Simply browse clubs on our platform, find one that interests you, and click "Join Club". Some clubs may require a membership fee, while others are free to join.'
+                  },
+                  {
+                    question: 'Can I create my own club?',
+                    answer: 'Yes! If you\'re a club manager, you can create and manage your own clubs. Sign up and choose the club manager role to get started.'
+                  },
+                  {
+                    question: 'How do event registrations work?',
+                    answer: 'When you\'re a member of a club, you can register for events organized by that club. Some events may have fees, while others are free. You\'ll receive confirmation and updates via email.'
+                  },
+                  {
+                    question: 'Is my payment information secure?',
+                    answer: 'Absolutely. We use industry-standard encryption and secure payment processing to protect your financial information. We never store your full payment details.'
+                  },
+                  {
+                    question: 'How can I contact club organizers?',
+                    answer: 'Once you\'re a member of a club, you can interact with organizers and other members through the club\'s community features and messaging system.'
+                  },
+                  {
+                    question: 'What if I want to leave a club?',
+                    answer: 'You can leave a club at any time through your dashboard. Note that membership fees are non-refundable, but you\'ll retain access until the end of your membership period.'
+                  }
+                ].map((faq, index) => (
+                  <motion.details
+                    key={faq.question}
+                    initial={{ opacity: 0, y: 10 }}
+                    whileInView={{ opacity: 1, y: 0 }}
+                    viewport={{ once: true }}
+                    transition={{ duration: 0.3, delay: index * 0.05 }}
+                    className="group"
+                  >
+                    <summary className="flex items-center justify-between p-6 cursor-pointer bg-white dark:bg-card-dark border border-gray-200 dark:border-border-dark rounded-xl hover:border-primary transition-colors list-none">
+                      <span className="font-bold text-gray-900 dark:text-white pr-4">{faq.question}</span>
+                      <span className="material-symbols-outlined text-gray-400 group-open:rotate-180 transition-transform">expand_more</span>
+                    </summary>
+                    <div className="p-6 pt-0">
+                      <p className="text-text-muted dark:text-text-secondary leading-relaxed">{faq.answer}</p>
+                    </div>
+                  </motion.details>
+                ))}
+              </div>
+            </div>
+          </div>
+        </section>
+
         {/* Newsletter Section */}
         <NewsletterSection />
       </main>
