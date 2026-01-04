@@ -45,38 +45,68 @@ const MemberSidebar = () => {
           </Link>
           <Link 
             to="/dashboard/member/discover" 
-            className={`flex items-center gap-4 px-4 py-3 rounded-full hover:bg-dashboard-surface-hover dark:hover:bg-surface-dark-hover group transition-all text-dashboard-text-muted dark:text-gray-400 hover:text-dashboard-text-main dark:hover:text-white`}
+            className={`flex items-center gap-4 px-4 py-3 rounded-full transition-all group ${
+              isActive('/dashboard/member/discover')
+                ? 'bg-dashboard-primary/10 dark:bg-primary/20 border border-dashboard-primary/20 dark:border-primary/30'
+                : 'hover:bg-dashboard-surface-hover dark:hover:bg-surface-dark-hover text-dashboard-text-muted dark:text-gray-400 hover:text-dashboard-text-main dark:hover:text-white'
+            }`}
           >
-            <span className="material-symbols-outlined">explore</span>
-            <span className="font-medium">Discover</span>
+            <span className={`material-symbols-outlined ${isActive('/dashboard/member/discover') ? 'text-dashboard-primary dark:text-primary fill' : ''} transition-colors`}>
+              explore
+            </span>
+            <span className={`${isActive('/dashboard/member/discover') ? 'text-dashboard-primary dark:text-primary font-bold' : 'font-medium'}`}>Discover</span>
           </Link>
           <Link 
             to="/dashboard/member/clubs" 
-            className={`flex items-center gap-4 px-4 py-3 rounded-full hover:bg-dashboard-surface-hover dark:hover:bg-surface-dark-hover group transition-all text-dashboard-text-muted dark:text-gray-400 hover:text-dashboard-text-main dark:hover:text-white`}
+            className={`flex items-center gap-4 px-4 py-3 rounded-full transition-all group ${
+              isActive('/dashboard/member/clubs')
+                ? 'bg-dashboard-primary/10 dark:bg-primary/20 border border-dashboard-primary/20 dark:border-primary/30'
+                : 'hover:bg-dashboard-surface-hover dark:hover:bg-surface-dark-hover text-dashboard-text-muted dark:text-gray-400 hover:text-dashboard-text-main dark:hover:text-white'
+            }`}
           >
-            <span className="material-symbols-outlined">groups</span>
-            <span className="font-medium">My Clubs</span>
+            <span className={`material-symbols-outlined ${isActive('/dashboard/member/clubs') ? 'text-dashboard-primary dark:text-primary fill' : ''} transition-colors`}>
+              groups
+            </span>
+            <span className={`${isActive('/dashboard/member/clubs') ? 'text-dashboard-primary dark:text-primary font-bold' : 'font-medium'}`}>My Clubs</span>
           </Link>
           <Link 
             to="/dashboard/member/events" 
-            className={`flex items-center gap-4 px-4 py-3 rounded-full hover:bg-dashboard-surface-hover dark:hover:bg-surface-dark-hover group transition-all text-dashboard-text-muted dark:text-gray-400 hover:text-dashboard-text-main dark:hover:text-white`}
+            className={`flex items-center gap-4 px-4 py-3 rounded-full transition-all group ${
+              isActive('/dashboard/member/events')
+                ? 'bg-dashboard-primary/10 dark:bg-primary/20 border border-dashboard-primary/20 dark:border-primary/30'
+                : 'hover:bg-dashboard-surface-hover dark:hover:bg-surface-dark-hover text-dashboard-text-muted dark:text-gray-400 hover:text-dashboard-text-main dark:hover:text-white'
+            }`}
           >
-            <span className="material-symbols-outlined">calendar_month</span>
-            <span className="font-medium">My Events</span>
+            <span className={`material-symbols-outlined ${isActive('/dashboard/member/events') ? 'text-dashboard-primary dark:text-primary fill' : ''} transition-colors`}>
+              calendar_month
+            </span>
+            <span className={`${isActive('/dashboard/member/events') ? 'text-dashboard-primary dark:text-primary font-bold' : 'font-medium'}`}>My Events</span>
           </Link>
           <Link 
             to="/dashboard/member/payments" 
-            className={`flex items-center gap-4 px-4 py-3 rounded-full hover:bg-dashboard-surface-hover dark:hover:bg-surface-dark-hover group transition-all text-dashboard-text-muted dark:text-gray-400 hover:text-dashboard-text-main dark:hover:text-white`}
+            className={`flex items-center gap-4 px-4 py-3 rounded-full transition-all group ${
+              isActive('/dashboard/member/payments')
+                ? 'bg-dashboard-primary/10 dark:bg-primary/20 border border-dashboard-primary/20 dark:border-primary/30'
+                : 'hover:bg-dashboard-surface-hover dark:hover:bg-surface-dark-hover text-dashboard-text-muted dark:text-gray-400 hover:text-dashboard-text-main dark:hover:text-white'
+            }`}
           >
-            <span className="material-symbols-outlined">credit_card</span>
-            <span className="font-medium">Payments</span>
+            <span className={`material-symbols-outlined ${isActive('/dashboard/member/payments') ? 'text-dashboard-primary dark:text-primary fill' : ''} transition-colors`}>
+              credit_card
+            </span>
+            <span className={`${isActive('/dashboard/member/payments') ? 'text-dashboard-primary dark:text-primary font-bold' : 'font-medium'}`}>Payments</span>
           </Link>
           <Link 
             to="/dashboard/member/settings" 
-            className={`flex items-center gap-4 px-4 py-3 rounded-full hover:bg-dashboard-surface-hover dark:hover:bg-surface-dark-hover group transition-all text-dashboard-text-muted dark:text-gray-400 hover:text-dashboard-text-main dark:hover:text-white`}
+            className={`flex items-center gap-4 px-4 py-3 rounded-full transition-all group ${
+              isActive('/dashboard/member/settings')
+                ? 'bg-dashboard-primary/10 dark:bg-primary/20 border border-dashboard-primary/20 dark:border-primary/30'
+                : 'hover:bg-dashboard-surface-hover dark:hover:bg-surface-dark-hover text-dashboard-text-muted dark:text-gray-400 hover:text-dashboard-text-main dark:hover:text-white'
+            }`}
           >
-            <span className="material-symbols-outlined">settings</span>
-            <span className="font-medium">Settings</span>
+            <span className={`material-symbols-outlined ${isActive('/dashboard/member/settings') ? 'text-dashboard-primary dark:text-primary fill' : ''} transition-colors`}>
+              settings
+            </span>
+            <span className={`${isActive('/dashboard/member/settings') ? 'text-dashboard-primary dark:text-primary font-bold' : 'font-medium'}`}>Settings</span>
           </Link>
         </nav>
       </div>

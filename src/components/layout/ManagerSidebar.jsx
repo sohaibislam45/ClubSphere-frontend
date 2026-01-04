@@ -12,6 +12,23 @@ const ManagerSidebar = () => {
     return location.pathname.startsWith(path);
   };
 
+  // Helper to check active state for specific routes
+  const isClubsActive = () => {
+    return location.pathname.startsWith('/dashboard/club-manager/clubs') && !location.pathname.includes('/members');
+  };
+
+  const isEventsActive = () => {
+    return location.pathname.startsWith('/dashboard/club-manager/events') && !location.pathname.includes('/registrations');
+  };
+
+  const isMembersActive = () => {
+    return location.pathname.includes('/members');
+  };
+
+  const isRegistrationsActive = () => {
+    return location.pathname.includes('/registrations') || location.pathname === '/dashboard/club-manager/event-registrations';
+  };
+
   return (
     <aside className="w-72 h-full hidden lg:flex flex-col bg-dashboard-sidebar dark:bg-background-dark border-r border-dashboard-border dark:border-gray-800 shrink-0 z-20 shadow-sm">
       <div className="p-6 pb-2">
@@ -52,54 +69,54 @@ const ManagerSidebar = () => {
           <Link 
             to="/dashboard/club-manager/clubs" 
             className={`flex items-center gap-4 px-4 py-3 rounded-full transition-all group ${
-              location.pathname.startsWith('/dashboard/club-manager/clubs') && !location.pathname.includes('/members')
+              isClubsActive()
                 ? 'bg-dashboard-primary/10 dark:bg-primary/20 border border-dashboard-primary/20 dark:border-primary/30'
                 : 'hover:bg-dashboard-surface-hover dark:hover:bg-surface-dark-hover text-dashboard-text-muted dark:text-gray-400 hover:text-dashboard-text-main dark:hover:text-white'
             }`}
           >
-            <span className={`material-symbols-outlined ${location.pathname.startsWith('/dashboard/club-manager/clubs') && !location.pathname.includes('/members') ? 'text-dashboard-primary dark:text-primary fill' : ''} transition-colors`}>
+            <span className={`material-symbols-outlined ${isClubsActive() ? 'text-dashboard-primary dark:text-primary fill' : ''} transition-colors`}>
               groups
             </span>
-            <span className={`${location.pathname.startsWith('/dashboard/club-manager/clubs') && !location.pathname.includes('/members') ? 'text-dashboard-primary dark:text-primary font-bold' : 'font-medium'}`}>My Clubs</span>
+            <span className={`${isClubsActive() ? 'text-dashboard-primary dark:text-primary font-bold' : 'font-medium'}`}>My Clubs</span>
           </Link>
           <Link 
             to="/dashboard/club-manager/events" 
             className={`flex items-center gap-4 px-4 py-3 rounded-full transition-all group ${
-              location.pathname.startsWith('/dashboard/club-manager/events') && !location.pathname.includes('/registrations')
+              isEventsActive()
                 ? 'bg-dashboard-primary/10 dark:bg-primary/20 border border-dashboard-primary/20 dark:border-primary/30'
                 : 'hover:bg-dashboard-surface-hover dark:hover:bg-surface-dark-hover text-dashboard-text-muted dark:text-gray-400 hover:text-dashboard-text-main dark:hover:text-white'
             }`}
           >
-            <span className={`material-symbols-outlined ${location.pathname.startsWith('/dashboard/club-manager/events') && !location.pathname.includes('/registrations') ? 'text-dashboard-primary dark:text-primary fill' : ''} transition-colors`}>
+            <span className={`material-symbols-outlined ${isEventsActive() ? 'text-dashboard-primary dark:text-primary fill' : ''} transition-colors`}>
               event
             </span>
-            <span className={`${location.pathname.startsWith('/dashboard/club-manager/events') && !location.pathname.includes('/registrations') ? 'text-dashboard-primary dark:text-primary font-bold' : 'font-medium'}`}>Events Management</span>
+            <span className={`${isEventsActive() ? 'text-dashboard-primary dark:text-primary font-bold' : 'font-medium'}`}>Events Management</span>
           </Link>
           <Link 
             to="/dashboard/club-manager/members" 
             className={`flex items-center gap-4 px-4 py-3 rounded-full transition-all group ${
-              location.pathname.includes('/members')
+              isMembersActive()
                 ? 'bg-dashboard-primary/10 dark:bg-primary/20 border border-dashboard-primary/20 dark:border-primary/30'
                 : 'hover:bg-dashboard-surface-hover dark:hover:bg-surface-dark-hover text-dashboard-text-muted dark:text-gray-400 hover:text-dashboard-text-main dark:hover:text-white'
             }`}
           >
-            <span className={`material-symbols-outlined ${location.pathname.includes('/members') ? 'text-dashboard-primary dark:text-primary fill' : ''} transition-colors`}>
+            <span className={`material-symbols-outlined ${isMembersActive() ? 'text-dashboard-primary dark:text-primary fill' : ''} transition-colors`}>
               person
             </span>
-            <span className={`${location.pathname.includes('/members') ? 'text-dashboard-primary dark:text-primary font-bold' : 'font-medium'}`}>Club Members</span>
+            <span className={`${isMembersActive() ? 'text-dashboard-primary dark:text-primary font-bold' : 'font-medium'}`}>Club Members</span>
           </Link>
           <Link 
             to="/dashboard/club-manager/event-registrations" 
             className={`flex items-center gap-4 px-4 py-3 rounded-full transition-all group ${
-              location.pathname.includes('/registrations') || location.pathname === '/dashboard/club-manager/event-registrations'
+              isRegistrationsActive()
                 ? 'bg-dashboard-primary/10 dark:bg-primary/20 border border-dashboard-primary/20 dark:border-primary/30'
                 : 'hover:bg-dashboard-surface-hover dark:hover:bg-surface-dark-hover text-dashboard-text-muted dark:text-gray-400 hover:text-dashboard-text-main dark:hover:text-white'
             }`}
           >
-            <span className={`material-symbols-outlined ${location.pathname.includes('/registrations') || location.pathname === '/dashboard/club-manager/event-registrations' ? 'text-dashboard-primary dark:text-primary fill' : ''} transition-colors`}>
+            <span className={`material-symbols-outlined ${isRegistrationsActive() ? 'text-dashboard-primary dark:text-primary fill' : ''} transition-colors`}>
               assignment_ind
             </span>
-            <span className={`${location.pathname.includes('/registrations') || location.pathname === '/dashboard/club-manager/event-registrations' ? 'text-dashboard-primary dark:text-primary font-bold' : 'font-medium'}`}>Event Registrations</span>
+            <span className={`${isRegistrationsActive() ? 'text-dashboard-primary dark:text-primary font-bold' : 'font-medium'}`}>Event Registrations</span>
           </Link>
         </nav>
       </div>

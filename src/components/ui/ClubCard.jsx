@@ -1,6 +1,6 @@
 import { Link } from 'react-router-dom';
 
-const ClubCard = ({ club }) => {
+const ClubCard = ({ club, isJoined = false }) => {
   return (
     <Link to={`/clubs/${club.id}`} className="group relative flex flex-col bg-white dark:bg-surface-dark-alt2 rounded-[2rem] overflow-hidden border border-slate-200 dark:border-border-dark hover:border-primary/50 dark:hover:border-primary/50 transition-all duration-300 hover:shadow-xl hover:shadow-primary/5 hover:-translate-y-1">
       {/* Image Container */}
@@ -41,8 +41,8 @@ const ClubCard = ({ club }) => {
             <span className="material-symbols-outlined text-base">group</span>
             <span>{club.memberCount || club.members || "0"} Members</span>
           </div>
-          <div className="text-sm font-bold text-primary">
-            {club.membershipFee > 0 ? `৳${club.membershipFee}` : "Free"}
+          <div className={`text-sm font-bold ${isJoined ? 'text-green-600 dark:text-green-400' : 'text-primary'}`}>
+            {isJoined ? 'Joined' : (club.membershipFee > 0 ? `৳${club.membershipFee}` : "Free")}
           </div>
         </div>
       </div>

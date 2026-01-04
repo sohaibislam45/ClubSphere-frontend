@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useMemo } from 'react';
 import { useQuery } from '@tanstack/react-query';
 import { useSearchParams } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
@@ -8,9 +8,11 @@ import ClubCard from '../components/ui/ClubCard';
 import Loader from '../components/ui/Loader';
 import Pagination from '../components/ui/Pagination';
 import api from '../lib/api';
+import { useAuth } from '../context/AuthContext';
 
 const Clubs = () => {
   const { t } = useTranslation();
+  const { isAuthenticated } = useAuth();
   const [searchParams, setSearchParams] = useSearchParams();
   const [searchTerm, setSearchTerm] = useState(searchParams.get('search') || '');
   const [selectedCategory, setSelectedCategory] = useState('all');
@@ -71,6 +73,24 @@ const Clubs = () => {
 
   const clubs = data?.clubs || [];
   const pagination = data?.pagination || { page: 1, limit: itemsPerPage, total: 0, totalPages: 0 };
+
+  // Fetch user's club memberships (only if authenticated)
+  const { data: membershipsData } = useQuery({
+    queryKey: ['my-clubs'],
+    queryFn: async () => {
+      const response = await api.get('/api/memberships/my-clubs');
+      return response.data;
+    },
+    enabled: isAuthenticated() && !!localStorage.getItem('token'),
+    staleTime: 0,
+    refetchOnMount: true,
+  });
+
+  // Create a Set of club IDs the user is a member of for quick lookup
+  const joinedClubIds = useMemo(() => {
+    if (!membershipsData?.clubIds) return new Set();
+    return new Set(membershipsData.clubIds);
+  }, [membershipsData]);
 
   const handlePageChange = (page) => {
     setCurrentPage(page);
@@ -160,7 +180,7 @@ const Clubs = () => {
           <>
             <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-6 lg:gap-8">
               {clubs.map((club) => (
-                <ClubCard key={club.id} club={club} />
+                <ClubCard key={club.id} club={club} isJoined={joinedClubIds.has(club.id)} />
               ))}
             </div>
             {clubs.length === 0 && (

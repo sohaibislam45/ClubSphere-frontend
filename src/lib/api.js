@@ -13,6 +13,9 @@ api.interceptors.request.use(
     const token = localStorage.getItem('token');
     if (token) {
       config.headers.Authorization = `Bearer ${token}`;
+    } else {
+      // If no token exists, ensure Authorization header is not set
+      delete config.headers.Authorization;
     }
     return config;
   },
@@ -32,19 +35,29 @@ api.interceptors.response.use(
         error.message = 'Cannot connect to server. Please check if the backend is running on https://clubsphere-backend.vercel.app';
       }
     } else if (error.response?.status === 401) {
-      // Handle unauthenticated - clear token and redirect to login
-      localStorage.removeItem('token');
-      localStorage.removeItem('user');
-      // Don't redirect if we're already on login/register page
-      if (!window.location.pathname.includes('/login') && !window.location.pathname.includes('/register')) {
-        window.location.href = '/login';
+      // Handle unauthenticated - only clear token if it's actually invalid
+      // Don't clear token if error is "No token provided" - that means token wasn't sent
+      const errorMessage = error.response?.data?.error || '';
+      const currentPath = window.location.pathname;
+      
+      // Only clear token if it's invalid/expired, not if it wasn't provided
+      if (errorMessage.includes('Invalid') || errorMessage.includes('expired') || errorMessage.includes('Unauthorized')) {
+        if (!currentPath.includes('/login') && !currentPath.includes('/register')) {
+          const token = localStorage.getItem('token');
+          if (token) {
+            localStorage.removeItem('token');
+            localStorage.removeItem('user');
+          }
+        }
       }
+      // If error is "No token provided", don't clear anything - just let component handle it
     } else if (error.response?.status === 403) {
-      // Handle unauthorized (wrong role) - logout user
-      localStorage.removeItem('token');
-      localStorage.removeItem('user');
-      if (!window.location.pathname.includes('/login') && !window.location.pathname.includes('/register')) {
-        window.location.href = '/login';
+      // Handle unauthorized (wrong role) - don't clear token, just let component handle it
+      // 403 means user is authenticated but doesn't have permission
+      const currentPath = window.location.pathname;
+      if (!currentPath.includes('/login') && !currentPath.includes('/register')) {
+        // Don't clear token on 403 - user is authenticated, just lacks permission
+        // Components should handle this appropriately
       }
     }
     return Promise.reject(error);

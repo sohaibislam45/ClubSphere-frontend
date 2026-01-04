@@ -1,10 +1,14 @@
 import { useState, useEffect } from 'react';
-import { Link } from 'react-router-dom';
+import { Link, useLocation, useNavigate } from 'react-router-dom';
 import { useForm } from 'react-hook-form';
 import Swal from '../lib/sweetalertConfig';
 import { useAuth } from '../context/AuthContext';
 
 const Login = () => {
+  const location = useLocation();
+  const navigate = useNavigate();
+  const returnTo = location.state?.returnTo || null;
+
   useEffect(() => {
     document.title = 'Login - ClubSphere';
   }, []);
@@ -17,7 +21,7 @@ const Login = () => {
   const handleDemoLogin = async (email, password) => {
     setIsLoading(true);
     try {
-      const result = await login(email, password);
+      const result = await login(email, password, returnTo);
       if (result.success) {
         Swal.fire({
           icon: 'success',
@@ -47,7 +51,7 @@ const Login = () => {
   const onSubmit = async (data) => {
     setIsLoading(true);
     try {
-      const result = await login(data.email, data.password);
+      const result = await login(data.email, data.password, returnTo);
       if (result.success) {
         Swal.fire({
           icon: 'success',
@@ -77,7 +81,7 @@ const Login = () => {
   const handleGoogleLogin = async () => {
     setIsGoogleLoading(true);
     try {
-      const result = await loginWithGoogle();
+      const result = await loginWithGoogle(returnTo);
       if (result.success) {
         Swal.fire({
           icon: 'success',

@@ -291,7 +291,7 @@ const CheckoutForm = ({ club, clientSecret, paymentIntentId, onSuccess, onCancel
           >
             {isProcessing ? (
               <>
-                <Loader />
+                <div className="w-5 h-5 border-2 border-surface-dark border-t-transparent rounded-full animate-spin"></div>
                 <span>Processing...</span>
               </>
             ) : (

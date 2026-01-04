@@ -1,5 +1,5 @@
 import { useState, useRef, useEffect } from 'react';
-import { Link } from 'react-router-dom';
+import { Link, useLocation } from 'react-router-dom';
 import { useAuth } from '../../context/AuthContext';
 import { useTranslation } from 'react-i18next';
 import { useLanguage } from '../../context/LanguageContext';
@@ -10,8 +10,17 @@ const Navbar = () => {
   const { t } = useTranslation();
   const { currentLanguage, changeLanguage } = useLanguage();
   const { theme, toggleTheme } = useTheme();
+  const location = useLocation();
   const [dropdownOpen, setDropdownOpen] = useState(false);
   const dropdownRef = useRef(null);
+
+  // Check if a nav link is active
+  const isActive = (path) => {
+    if (path === '/') {
+      return location.pathname === '/';
+    }
+    return location.pathname.startsWith(path);
+  };
 
   // Close dropdown when clicking outside
   useEffect(() => {
@@ -66,14 +75,77 @@ const Navbar = () => {
           
           {/* Desktop Nav */}
           <nav className="hidden lg:flex items-center gap-8">
-            <Link to="/" className="text-sm font-medium leading-normal text-gray-600 dark:text-gray-400 hover:text-primary transition-colors">{t('nav.home')}</Link>
-            <Link to="/clubs" className="text-sm font-medium leading-normal text-gray-600 dark:text-gray-400 hover:text-primary transition-colors">{t('nav.clubs')}</Link>
-            <Link to="/events" className="text-sm font-medium leading-normal text-gray-600 dark:text-gray-400 hover:text-primary transition-colors">{t('nav.events')}</Link>
-            <Link to="/how-it-works" className="text-sm font-medium leading-normal text-gray-600 dark:text-gray-400 hover:text-primary transition-colors">How It Works</Link>
-            <Link to="/about-us" className="text-sm font-medium leading-normal text-gray-600 dark:text-gray-400 hover:text-primary transition-colors">About Us</Link>
-            <Link to="/careers" className="text-sm font-medium leading-normal text-gray-600 dark:text-gray-400 hover:text-primary transition-colors">Careers</Link>
+            <Link 
+              to="/" 
+              className={`text-sm font-medium leading-normal transition-colors ${
+                isActive('/') && location.pathname === '/'
+                  ? 'text-primary font-bold'
+                  : 'text-gray-600 dark:text-gray-400 hover:text-primary'
+              }`}
+            >
+              {t('nav.home')}
+            </Link>
+            <Link 
+              to="/clubs" 
+              className={`text-sm font-medium leading-normal transition-colors ${
+                isActive('/clubs')
+                  ? 'text-primary font-bold'
+                  : 'text-gray-600 dark:text-gray-400 hover:text-primary'
+              }`}
+            >
+              {t('nav.clubs')}
+            </Link>
+            <Link 
+              to="/events" 
+              className={`text-sm font-medium leading-normal transition-colors ${
+                isActive('/events')
+                  ? 'text-primary font-bold'
+                  : 'text-gray-600 dark:text-gray-400 hover:text-primary'
+              }`}
+            >
+              {t('nav.events')}
+            </Link>
+            <Link 
+              to="/how-it-works" 
+              className={`text-sm font-medium leading-normal transition-colors ${
+                isActive('/how-it-works')
+                  ? 'text-primary font-bold'
+                  : 'text-gray-600 dark:text-gray-400 hover:text-primary'
+              }`}
+            >
+              How It Works
+            </Link>
+            <Link 
+              to="/about-us" 
+              className={`text-sm font-medium leading-normal transition-colors ${
+                isActive('/about-us')
+                  ? 'text-primary font-bold'
+                  : 'text-gray-600 dark:text-gray-400 hover:text-primary'
+              }`}
+            >
+              About Us
+            </Link>
+            <Link 
+              to="/careers" 
+              className={`text-sm font-medium leading-normal transition-colors ${
+                isActive('/careers')
+                  ? 'text-primary font-bold'
+                  : 'text-gray-600 dark:text-gray-400 hover:text-primary'
+              }`}
+            >
+              Careers
+            </Link>
             {user && (
-              <Link to={getDashboardPath()} className="text-sm font-medium leading-normal text-gray-600 dark:text-gray-400 hover:text-primary transition-colors">{t('nav.dashboard')}</Link>
+              <Link 
+                to={getDashboardPath()} 
+                className={`text-sm font-medium leading-normal transition-colors ${
+                  isActive('/dashboard')
+                    ? 'text-primary font-bold'
+                    : 'text-gray-600 dark:text-gray-400 hover:text-primary'
+                }`}
+              >
+                {t('nav.dashboard')}
+              </Link>
             )}
           </nav>
           

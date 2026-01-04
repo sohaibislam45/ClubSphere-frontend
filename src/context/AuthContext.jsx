@@ -9,7 +9,7 @@ export const AuthProvider = ({ children }) => {
   const [user, setUser] = useState(null);
   const [loading, setLoading] = useState(true);
 
-  const handleGoogleAuthResult = async (googleUser) => {
+  const handleGoogleAuthResult = async (googleUser, returnTo = null) => {
     try {
       // Get the ID token
       const idToken = await googleUser.getIdToken();
@@ -30,12 +30,15 @@ export const AuthProvider = ({ children }) => {
       setUser(userData);
 
       // Redirect based on role
+      // For members only, redirect to returnTo if provided, otherwise dashboard
       if (userData.role === 'admin') {
         window.location.href = '/dashboard/admin';
       } else if (userData.role === 'clubManager') {
         window.location.href = '/dashboard/club-manager';
       } else {
-        window.location.href = '/dashboard/member';
+        // For members: redirect to returnTo if provided, otherwise dashboard
+        const redirectPath = returnTo || '/dashboard/member';
+        window.location.href = redirectPath;
       }
 
       return { success: true };
@@ -55,7 +58,10 @@ export const AuthProvider = ({ children }) => {
       .then((result) => {
         if (result) {
           // User signed in via redirect, process the result
-          return handleGoogleAuthResult(result.user);
+          // Get returnTo from sessionStorage if available (set before redirect)
+          const returnTo = sessionStorage.getItem('googleAuthReturnTo');
+          sessionStorage.removeItem('googleAuthReturnTo');
+          return handleGoogleAuthResult(result.user, returnTo);
         }
       })
       .catch((error) => {
@@ -81,6 +87,13 @@ export const AuthProvider = ({ children }) => {
 
   const fetchCurrentUser = async () => {
     try {
+      const token = localStorage.getItem('token');
+      if (!token) {
+        setLoading(false);
+        setUser(null);
+        return;
+      }
+      
       const response = await api.get('/api/auth/me');
       const userData = response.data.user;
       setUser(userData);
@@ -88,11 +101,23 @@ export const AuthProvider = ({ children }) => {
       setLoading(false);
     } catch (error) {
       console.error('Error fetching current user:', error);
-      logout();
+      // Only logout if token is actually invalid/expired, not if it's just missing
+      if (error.response?.status === 401) {
+        const errorMessage = error.response?.data?.error || '';
+        if (errorMessage.includes('Invalid') || errorMessage.includes('expired')) {
+          logout();
+        } else {
+          // Token might not have been sent, but don't logout - just set loading to false
+          setLoading(false);
+          setUser(null);
+        }
+      } else {
+        setLoading(false);
+      }
     }
   };
 
-  const login = async (email, password) => {
+  const login = async (email, password, returnTo = null) => {
     try {
       const response = await api.post('/api/auth/login', { email, password });
       const { token, user: userData } = response.data;
@@ -103,12 +128,15 @@ export const AuthProvider = ({ children }) => {
       setUser(userData);
 
       // Redirect based on role - use window.location for reliability
+      // For members only, redirect to returnTo if provided, otherwise dashboard
       if (userData.role === 'admin') {
         window.location.href = '/dashboard/admin';
       } else if (userData.role === 'clubManager') {
         window.location.href = '/dashboard/club-manager';
       } else {
-        window.location.href = '/dashboard/member';
+        // For members: redirect to returnTo if provided, otherwise dashboard
+        const redirectPath = returnTo || '/dashboard/member';
+        window.location.href = redirectPath;
       }
 
       return { success: true };
@@ -171,7 +199,7 @@ export const AuthProvider = ({ children }) => {
     return user?.role === role;
   };
 
-  const loginWithGoogle = async () => {
+  const loginWithGoogle = async (returnTo = null) => {
     try {
       // Try popup first, fallback to redirect if it fails
       let result;
@@ -181,6 +209,10 @@ export const AuthProvider = ({ children }) => {
         // If popup is blocked or fails due to COOP policy, use redirect
         if (popupError.code === 'auth/popup-blocked' || popupError.code === 'auth/popup-closed-by-user') {
           console.log('Popup blocked or closed, using redirect instead');
+          // Store returnTo in sessionStorage for redirect flow
+          if (returnTo) {
+            sessionStorage.setItem('googleAuthReturnTo', returnTo);
+          }
           await signInWithRedirect(auth, googleProvider);
           // Redirect will happen, so return early
           return { success: true, redirecting: true };
@@ -189,7 +221,7 @@ export const AuthProvider = ({ children }) => {
       }
       
       // Process the popup result
-      return await handleGoogleAuthResult(result.user);
+      return await handleGoogleAuthResult(result.user, returnTo);
     } catch (error) {
       console.error('Google login error:', error);
       

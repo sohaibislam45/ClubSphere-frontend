@@ -99,15 +99,64 @@ const ClubDetails = () => {
       });
     },
     onError: (error) => {
-      Swal.fire({
-        icon: 'error',
-        title: 'Error',
-        text: error.response?.data?.error || 'Failed to submit review. Please try again.',
-      });
+      // Check if it's an authentication error
+      if (error.response?.status === 401 || error.response?.status === 403) {
+        Swal.fire({
+          icon: 'warning',
+          title: 'Authentication Required',
+          text: error.response?.data?.error || 'Your session has expired. Please login again.',
+          confirmButtonText: 'Login',
+          showCancelButton: true,
+          cancelButtonText: 'Cancel'
+        }).then((result) => {
+          if (result.isConfirmed) {
+            localStorage.removeItem('token');
+            localStorage.removeItem('user');
+            window.location.href = '/login';
+          }
+        });
+      } else {
+        Swal.fire({
+          icon: 'error',
+          title: 'Error',
+          text: error.response?.data?.error || 'Failed to submit review. Please try again.',
+        });
+      }
     }
   });
 
   const handleSubmitReview = () => {
+    // Check if user is authenticated
+    if (!isAuthenticated()) {
+      Swal.fire({
+        icon: 'warning',
+        title: 'Authentication Required',
+        text: 'Please login to submit a review.',
+        confirmButtonText: 'Login',
+        showCancelButton: true,
+        cancelButtonText: 'Cancel'
+      }).then((result) => {
+        if (result.isConfirmed) {
+          navigate('/login', { state: { returnTo: `/clubs/${id}` } });
+        }
+      });
+      return;
+    }
+
+    // Check if token exists
+    const token = localStorage.getItem('token');
+    if (!token) {
+      Swal.fire({
+        icon: 'warning',
+        title: 'Session Expired',
+        text: 'Your session has expired. Please login again.',
+        confirmButtonText: 'Login'
+      }).then(() => {
+        navigate('/login', { state: { returnTo: `/clubs/${id}` } });
+      });
+      return;
+    }
+
     if (!reviewRating || reviewRating < 1) {
       Swal.fire({
         icon: 'error',
