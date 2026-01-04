@@ -30,6 +30,12 @@ const Clubs = () => {
     setSearchTerm(urlSearch);
   }, [searchParams]);
 
+  // Sync category from URL params when URL changes
+  useEffect(() => {
+    const urlCategory = searchParams.get('category') || 'all';
+    setSelectedCategory(urlCategory);
+  }, [searchParams]);
+
   // Reset to page 1 when filters change
   useEffect(() => {
     setCurrentPage(1);

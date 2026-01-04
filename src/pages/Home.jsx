@@ -1,5 +1,5 @@
 import { useEffect, useMemo, useState } from 'react';
-import { motion } from 'framer-motion';
+import { motion, AnimatePresence } from 'framer-motion';
 import { Link, useNavigate } from 'react-router-dom';
 import { useQuery } from '@tanstack/react-query';
 import { useTranslation } from 'react-i18next';
@@ -97,10 +97,58 @@ const Home = () => {
   const { isAuthenticated } = useAuth();
   const { t } = useTranslation();
   const [searchTerm, setSearchTerm] = useState('');
+  const [currentSlide, setCurrentSlide] = useState(0);
+  const [isPaused, setIsPaused] = useState(false);
+
+  // Define hero slides
+  const heroSlides = useMemo(() => [
+    {
+      id: 1,
+      backgroundImage: "https://lh3.googleusercontent.com/aida-public/AB6AXuApBJ-Lz2Q_ykm5UsHclqSM7cAbHW2XA7ujopesa4hjl022IcVeBT4nXY5QhVqxYx-beL4eFJIFRSKKxqpU6jT4pt8mtA8YLsGH-D0NWMoC7GOhT7PJjOSzWd-CzN3PwXvUyGVbcLs5Zmrj_Rggdmv7Ic10U_ZYbNcphuNUT6nNTlKcmY3Ono8FWfYhE3sPZfixQV0oZLj7Asdly7zUpXqqwnptbl0-7ymlPe9sqqqbLz-MKTzNqrNYqLGcRcvcF4AnO_jDs7lVm91X",
+      title: t('home.heroTitle'),
+      subtitle: t('home.heroSubtitle')
+    },
+    {
+      id: 2,
+      backgroundImage: "https://images.unsplash.com/photo-1517486808906-6ca8b3f04846?w=1600",
+      title: "Connect with Like-Minded People",
+      subtitle: "Join thousands of members in active communities across the globe"
+    },
+    {
+      id: 3,
+      backgroundImage: "https://images.unsplash.com/photo-1521737711867-e3b97375f902?w=1600",
+      title: "Start Your Journey Today",
+      subtitle: "Explore events, join clubs, and build lasting friendships"
+    }
+  ], [t]);
   
   useEffect(() => {
     document.title = 'Home - ClubSphere | Discover Local Communities';
   }, []);
+
+  // Auto-play functionality
+  useEffect(() => {
+    if (isPaused) return;
+    
+    const interval = setInterval(() => {
+      setCurrentSlide((prev) => (prev + 1) % heroSlides.length);
+    }, 2000); // Change slide every 5 seconds
+
+    return () => clearInterval(interval);
+  }, [isPaused, heroSlides.length]);
+
+  // Navigation functions
+  const goToSlide = (index) => {
+    setCurrentSlide(index);
+  };
+
+  const nextSlide = () => {
+    setCurrentSlide((prev) => (prev + 1) % heroSlides.length);
+  };
+
+  const prevSlide = () => {
+    setCurrentSlide((prev) => (prev - 1 + heroSlides.length) % heroSlides.length);
+  };
 
   // Fetch featured clubs from API
   const { data: clubsData, isLoading: clubsLoading } = useQuery({
@@ -196,29 +244,63 @@ const Home = () => {
         <section className="w-full px-4 sm:px-6 lg:px-8 py-8 flex justify-center">
           <div className="w-full max-w-[1280px]">
             <div className="@container">
-              <motion.div
-                initial={{ opacity: 0, y: 20 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ duration: 0.6 }}
+              <div
                 className="flex min-h-[560px] flex-col gap-6 bg-cover bg-center bg-no-repeat rounded-xl sm:rounded-2xl lg:rounded-3xl items-center justify-center p-6 sm:p-12 relative overflow-hidden"
-                style={{
-                  backgroundImage: `linear-gradient(rgba(17, 23, 20, 0.5) 0%, rgba(17, 23, 20, 0.8) 100%), url("https://lh3.googleusercontent.com/aida-public/AB6AXuApBJ-Lz2Q_ykm5UsHclqSM7cAbHW2XA7ujopesa4hjl022IcVeBT4nXY5QhVqxYx-beL4eFJIFRSKKxqpU6jT4pt8mtA8YLsGH-D0NWMoC7GOhT7PJjOSzWd-CzN3PwXvUyGVbcLs5Zmrj_Rggdmv7Ic10U_ZYbNcphuNUT6nNTlKcmY3Ono8FWfYhE3sPZfixQV0oZLj7Asdly7zUpXqqwnptbl0-7ymlPe9sqqqbLz-MKTzNqrNYqLGcRcvcF4AnO_jDs7lVm91X")`
-                }}
+                onMouseEnter={() => setIsPaused(true)}
+                onMouseLeave={() => setIsPaused(false)}
               >
-                {/* Hero Content */}
-                <motion.div
-                  initial={{ opacity: 0, y: 20 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  transition={{ duration: 0.6, delay: 0.2 }}
-                  className="flex flex-col gap-4 text-center max-w-[800px] z-10"
+                {/* Background Images with Fade Transition */}
+                <AnimatePresence mode="wait">
+                  <motion.div
+                    key={currentSlide}
+                    initial={{ opacity: 0 }}
+                    animate={{ opacity: 1 }}
+                    exit={{ opacity: 0 }}
+                    transition={{ duration: 0.8 }}
+                    className="absolute inset-0 z-0"
+                    style={{
+                      backgroundImage: `linear-gradient(rgba(17, 23, 20, 0.5) 0%, rgba(17, 23, 20, 0.8) 100%), url("${heroSlides[currentSlide].backgroundImage}")`,
+                      backgroundSize: 'cover',
+                      backgroundPosition: 'center',
+                      backgroundRepeat: 'no-repeat'
+                    }}
+                  />
+                </AnimatePresence>
+
+                {/* Navigation Arrows */}
+                <button
+                  onClick={prevSlide}
+                  className="absolute left-4 z-20 p-2 rounded-full bg-white/20 hover:bg-white/30 backdrop-blur-sm text-white transition-all"
+                  aria-label="Previous slide"
                 >
-                  <h1 className="text-white text-4xl sm:text-5xl lg:text-7xl font-black leading-tight tracking-[-0.033em]">
-                    {t('home.heroTitle')}
-                  </h1>
-                  <h2 className="text-gray-200 text-base sm:text-lg font-normal leading-relaxed max-w-[600px] mx-auto">
-                    {t('home.heroSubtitle')}
-                  </h2>
-                </motion.div>
+                  <span className="material-symbols-outlined">chevron_left</span>
+                </button>
+                <button
+                  onClick={nextSlide}
+                  className="absolute right-4 z-20 p-2 rounded-full bg-white/20 hover:bg-white/30 backdrop-blur-sm text-white transition-all"
+                  aria-label="Next slide"
+                >
+                  <span className="material-symbols-outlined">chevron_right</span>
+                </button>
+
+                {/* Hero Content */}
+                <AnimatePresence mode="wait">
+                  <motion.div
+                    key={currentSlide}
+                    initial={{ opacity: 0, y: 20 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    exit={{ opacity: 0, y: -20 }}
+                    transition={{ duration: 0.6 }}
+                    className="flex flex-col gap-4 text-center max-w-[800px] z-10"
+                  >
+                    <h1 className="text-white text-4xl sm:text-5xl lg:text-7xl font-black leading-tight tracking-[-0.033em]">
+                      {heroSlides[currentSlide].title}
+                    </h1>
+                    <h2 className="text-gray-200 text-base sm:text-lg font-normal leading-relaxed max-w-[600px] mx-auto">
+                      {heroSlides[currentSlide].subtitle}
+                    </h2>
+                  </motion.div>
+                </AnimatePresence>
                 
                 {/* Search Bar */}
                 <motion.div
@@ -252,7 +334,23 @@ const Home = () => {
                     </div>
                   </form>
                 </motion.div>
-              </motion.div>
+
+                {/* Dots Navigation */}
+                <div className="absolute bottom-6 left-1/2 transform -translate-x-1/2 z-20 flex gap-2">
+                  {heroSlides.map((_, index) => (
+                    <button
+                      key={index}
+                      onClick={() => goToSlide(index)}
+                      className={`h-2 rounded-full transition-all ${
+                        index === currentSlide
+                          ? 'w-8 bg-white'
+                          : 'w-2 bg-white/50 hover:bg-white/75'
+                      }`}
+                      aria-label={`Go to slide ${index + 1}`}
+                    />
+                  ))}
+                </div>
+              </div>
             </div>
           </div>
         </section>
@@ -713,20 +811,23 @@ const Home = () => {
                   { name: 'Lifestyle', icon: 'spa', color: 'bg-pink-500', href: '/clubs?category=Lifestyle' },
                   { name: 'Social', icon: 'groups', color: 'bg-yellow-500', href: '/clubs?category=Social' }
                 ].map((category, index) => (
-                  <motion.a
+                  <motion.div
                     key={category.name}
-                    href={category.href}
                     initial={{ opacity: 0, scale: 0.95 }}
                     whileInView={{ opacity: 1, scale: 1 }}
                     viewport={{ once: true }}
                     transition={{ duration: 0.3, delay: index * 0.05 }}
+                  >
+                  <Link
+                    to={category.href}
                     className="flex flex-col items-center gap-3 p-6 rounded-2xl bg-white dark:bg-card-dark border border-gray-200 dark:border-border-dark hover:border-primary hover:shadow-lg transition-all duration-300 group"
                   >
                     <div className={`size-14 rounded-full ${category.color} flex items-center justify-center text-white group-hover:scale-110 transition-transform`}>
                       <span className="material-symbols-outlined text-2xl">{category.icon}</span>
                     </div>
                     <p className="font-bold text-gray-900 dark:text-white text-sm">{category.name}</p>
-                  </motion.a>
+                  </Link>
+                  </motion.div>
                 ))}
               </div>
             </div>
