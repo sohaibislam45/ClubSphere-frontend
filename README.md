@@ -47,8 +47,12 @@ ClubSphere is a comprehensive community management platform that enables users t
 ### Frontend Application
 **Production URL**: [https://clubsphere-c7f59.web.app/](https://clubsphere-c7f59.web.app/)
 
+**Firebase Console**: [https://console.firebase.google.com/project/clubsphere-c7f59/overview](https://console.firebase.google.com/project/clubsphere-c7f59/overview)
+
 ### Backend API
 **API Base URL**: [https://clubsphere-backend.vercel.app/](https://clubsphere-backend.vercel.app/)
+
+**Note**: The backend is deployed separately on Vercel. The frontend is configured to connect to this backend URL via the `VITE_API_BASE_URL` environment variable.
 
 ## ✨ Features
 
@@ -249,10 +253,12 @@ ClubSphere is a comprehensive community management platform that enables users t
 5. **Responsive Design**: Ensured all pages work seamlessly across desktop, tablet, and mobile devices
 
 ### Phase 10: Deployment
-1. **Build Optimization**: Configured production build with Vite
-2. **Firebase Hosting**: Deployed application to Firebase Hosting with proper routing configuration
-3. **Environment Configuration**: Set up environment variables for different deployment stages
-4. **Testing & QA**: Performed thorough testing across all user roles and features
+1. **Build Optimization**: Configured production build with Vite for optimal bundle size and performance
+2. **Firebase Hosting Setup**: Configured Firebase Hosting with SPA routing (all routes redirect to index.html)
+3. **Backend Integration**: Connected frontend to Vercel-deployed backend API
+4. **Environment Configuration**: Set up environment variables for API endpoints and Firebase services
+5. **Deployment Automation**: Set up Firebase CLI for streamlined deployment workflow
+6. **Testing & QA**: Performed thorough testing across all user roles and features in production environment
 
 ## 💡 What I Learned
 
@@ -353,14 +359,14 @@ clubsphere-frontend/
 │   ├── App.jsx            # Main App component
 │   ├── main.jsx           # Application entry point
 │   └── index.css          # Global styles
-├── .firebase/             # Firebase configuration
-├── .github/               # GitHub workflows and templates
-├── dist/                  # Production build output
+├── .firebaserc            # Firebase project configuration
+├── dist/                  # Production build output (generated)
 ├── firebase.json          # Firebase hosting configuration
 ├── index.html             # HTML template
 ├── package.json           # Dependencies and scripts
 ├── tailwind.config.js     # Tailwind CSS configuration
 ├── vite.config.js         # Vite configuration
+├── eslint.config.js       # ESLint configuration
 └── README.md              # This file
 ```
 
@@ -368,9 +374,9 @@ clubsphere-frontend/
 
 ### Prerequisites
 
-- **Node.js** `>=18.0.0`
+- **Node.js** `>=18.0.0` (recommended: `>=20.0.0`)
 - **npm** `>=9.0.0` or **yarn** `>=1.22.0`
-- **Firebase CLI** (for deployment)
+- **Firebase CLI** (for deployment) - Install with `npm install -g firebase-tools`
 - **Git**
 
 ### Installation
@@ -388,17 +394,28 @@ clubsphere-frontend/
 
 3. **Set up environment variables**
    
-   Create a `.env` file in the root directory:
+   Create a `.env` file in the `clubsphere-frontend` directory:
    ```env
+   # Backend API URL
    VITE_API_BASE_URL=https://clubsphere-backend.vercel.app
+   
+   # Firebase Configuration
    VITE_FIREBASE_API_KEY=your_firebase_api_key
    VITE_FIREBASE_AUTH_DOMAIN=your_firebase_auth_domain
-   VITE_FIREBASE_PROJECT_ID=your_firebase_project_id
+   VITE_FIREBASE_PROJECT_ID=clubsphere-c7f59
    VITE_FIREBASE_STORAGE_BUCKET=your_firebase_storage_bucket
    VITE_FIREBASE_MESSAGING_SENDER_ID=your_firebase_messaging_sender_id
    VITE_FIREBASE_APP_ID=your_firebase_app_id
+   
+   # Stripe Configuration
    VITE_STRIPE_PUBLISHABLE_KEY=your_stripe_publishable_key
    ```
+   
+   **Important**: 
+   - All environment variables must be prefixed with `VITE_` to be accessible in the client-side code
+   - Never commit `.env` files to version control (add to `.gitignore`)
+   - Get Firebase configuration from [Firebase Console](https://console.firebase.google.com/)
+   - Get Stripe keys from [Stripe Dashboard](https://dashboard.stripe.com/)
 
 4. **Start the development server**
    ```bash
@@ -420,44 +437,176 @@ clubsphere-frontend/
 
 ## 🔐 Authentication
 
-ClubSphere uses **Firebase Authentication** for user management. The platform supports:
+ClubSphere uses **Firebase Authentication** for client-side authentication and **JWT tokens** for backend authorization. The platform supports:
 
-- Email/Password authentication
-- Google Sign-In
-- Role-based access control (Admin, Club Manager, Member)
+- **Email/Password authentication** - Traditional email and password login
+- **Google Sign-In** - OAuth-based Google authentication
+- **Role-based access control (RBAC)** - Three distinct roles:
+  - **Admin**: Full system access and management
+  - **Club Manager**: Club and event management
+  - **Member**: Club discovery and event participation
 
-Authentication state is managed through React Context (`AuthContext`) and protected routes ensure users have appropriate permissions.
+### Authentication Flow
+
+1. User authenticates with Firebase (email/password or Google OAuth)
+2. Frontend receives Firebase ID token
+3. ID token is sent to backend API for verification
+4. Backend returns JWT token for API authorization
+5. JWT token is stored in localStorage and included in API requests
+6. Protected routes check authentication state via `AuthContext`
+
+Authentication state is managed through React Context (`AuthContext`) and protected routes ensure users have appropriate permissions. The `PrivateRoute` component handles route protection based on user roles.
 
 ## 💳 Payment Integration
 
 The application integrates with **Stripe** for secure payment processing:
 
-- Club membership payments
-- Event registration fees
-- Payment success/cancel handling
-- Payment history tracking
+- **Club membership payments** - One-time or recurring membership fees
+- **Event registration fees** - Payment for event tickets/registrations
+- **Payment success/cancel handling** - User feedback and confirmation pages
+- **Payment history tracking** - Complete transaction history for all users
 
-Stripe Elements are used for secure card input, and payment intents are handled through the backend API.
+### Payment Flow
+
+1. User initiates payment (club membership or event registration)
+2. Frontend creates payment intent via backend API
+3. Stripe Elements securely collect card information
+4. Payment is processed through Stripe
+5. Backend webhook confirms payment completion
+6. User receives confirmation and access is granted
+
+**Security**: Stripe Elements handle all sensitive card data, ensuring PCI compliance. Card information never touches our servers.
 
 ## 🚢 Deployment
 
 ### Firebase Hosting
 
-The application is deployed on Firebase Hosting. To deploy:
+The application is deployed on **Firebase Hosting**. The backend API is deployed separately on **Vercel**.
+
+#### Prerequisites
+
+- **Firebase CLI** installed globally:
+  ```bash
+  npm install -g firebase-tools
+  ```
+
+- **Firebase project** initialized:
+  ```bash
+  firebase login
+  firebase init hosting
+  ```
+
+#### Deployment Steps
 
 1. **Build the application**
    ```bash
    npm run build
    ```
+   This creates an optimized production build in the `dist/` directory.
 
-2. **Deploy to Firebase**
+2. **Deploy to Firebase Hosting**
+   ```bash
+   firebase deploy --only hosting
+   ```
+   
+   Or deploy everything:
    ```bash
    firebase deploy
    ```
 
-### Environment Variables
+3. **Verify deployment**
+   - Visit your Firebase Hosting URL (e.g., `https://clubsphere-c7f59.web.app`)
+   - Check the Firebase Console: https://console.firebase.google.com/
 
-Ensure all environment variables are configured in your Firebase project settings or CI/CD pipeline.
+#### Firebase Configuration
+
+The project uses the following Firebase configuration files:
+- `firebase.json` - Firebase hosting and functions configuration
+- `.firebaserc` - Firebase project settings
+
+#### Environment Variables
+
+For local development, create a `.env` file in the root directory:
+
+```env
+VITE_API_BASE_URL=https://clubsphere-backend.vercel.app
+VITE_FIREBASE_API_KEY=your_firebase_api_key
+VITE_FIREBASE_AUTH_DOMAIN=your_firebase_auth_domain
+VITE_FIREBASE_PROJECT_ID=your_firebase_project_id
+VITE_FIREBASE_STORAGE_BUCKET=your_firebase_storage_bucket
+VITE_FIREBASE_MESSAGING_SENDER_ID=your_firebase_messaging_sender_id
+VITE_FIREBASE_APP_ID=your_firebase_app_id
+VITE_STRIPE_PUBLISHABLE_KEY=your_stripe_publishable_key
+```
+
+**Note**: For production deployment, environment variables should be set in your build environment or CI/CD pipeline. Vite requires the `VITE_` prefix for environment variables to be exposed to the client-side code.
+
+#### Deployment Architecture
+
+```
+┌─────────────────────┐
+│   Firebase Hosting  │  ← Frontend (Static Files)
+│  (clubsphere-c7f59) │
+│   .web.app domain   │
+└──────────┬──────────┘
+           │
+           │ API Requests
+           ▼
+┌─────────────────────┐
+│   Vercel Backend    │  ← Backend API (Express.js)
+│ (clubsphere-backend)│
+│   .vercel.app       │
+└─────────────────────┘
+```
+
+The frontend makes API requests to the Vercel backend using the `VITE_API_BASE_URL` environment variable.
+
+## 🔧 Troubleshooting
+
+### Common Issues
+
+#### Build Errors
+
+**Issue**: Build fails with module not found errors
+- **Solution**: Delete `node_modules` and `package-lock.json`, then run `npm install` again
+
+**Issue**: Vite build warnings about large chunks
+- **Solution**: This is a warning, not an error. Consider code splitting for optimization, but the build will still work
+
+#### Deployment Issues
+
+**Issue**: `firebase: command not found`
+- **Solution**: Install Firebase CLI globally: `npm install -g firebase-tools`
+
+**Issue**: Firebase deployment fails with authentication error
+- **Solution**: Run `firebase login` to authenticate
+
+**Issue**: Environment variables not working in production
+- **Solution**: Ensure all variables are prefixed with `VITE_` and rebuild the application
+
+#### API Connection Issues
+
+**Issue**: API requests failing with CORS errors
+- **Solution**: Verify the backend CORS configuration includes your Firebase Hosting URL
+
+**Issue**: API requests returning 401 Unauthorized
+- **Solution**: Check that the JWT token is being sent in the Authorization header. Clear localStorage and re-authenticate.
+
+#### Development Server Issues
+
+**Issue**: Port 5173 already in use
+- **Solution**: Vite will automatically use the next available port, or specify a port: `npm run dev -- --port 3000`
+
+**Issue**: Hot Module Replacement (HMR) not working
+- **Solution**: Clear browser cache or try a hard refresh (Ctrl+Shift+R or Cmd+Shift+R)
+
+### Getting Help
+
+If you encounter issues not listed here:
+1. Check the [Firebase Hosting Documentation](https://firebase.google.com/docs/hosting)
+2. Review [Vite Documentation](https://vitejs.dev/)
+3. Check browser console for detailed error messages
+4. Open an issue in the repository with error logs and steps to reproduce
 
 ## 🤝 Contributing
 
