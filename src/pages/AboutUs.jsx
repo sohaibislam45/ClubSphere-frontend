@@ -144,14 +144,23 @@ const AboutUs = () => {
                   <h2 className="text-gray-900 dark:text-white text-3xl md:text-4xl font-bold leading-tight">Meet the Team</h2>
                   <p className="text-text-muted dark:text-text-secondary text-lg">The people working behind the scenes to bring you together.</p>
                 </div>
-                <a className="hidden sm:flex items-center gap-1 text-primary-hover dark:text-primary font-bold hover:underline" href="#">
+                <Link to="/careers" className="hidden sm:flex items-center gap-1 text-primary-hover dark:text-primary font-bold hover:underline">
                   See open positions <span className="material-symbols-outlined text-sm">arrow_forward</span>
-                </a>
+                </Link>
               </div>
               <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-8">
                 <div className="flex flex-col gap-4 group">
                   <div className="aspect-square rounded-2xl bg-gray-100 dark:bg-[#29382f] overflow-hidden relative">
-                    <div className="absolute inset-0 bg-gradient-to-br from-gray-200 dark:from-border-dark to-gray-300 dark:to-[#29382f] flex items-end justify-center">
+                    <img 
+                      src="https://gallerytzimas.com/wp-content/uploads/2017/01/team-member-2-550x550.jpg" 
+                      alt="Alex Johnson"
+                      className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-300"
+                      onError={(e) => {
+                        e.target.style.display = 'none';
+                        e.target.nextElementSibling.style.display = 'flex';
+                      }}
+                    />
+                    <div className="absolute inset-0 bg-gradient-to-br from-gray-200 dark:from-border-dark to-gray-300 dark:to-[#29382f] flex items-end justify-center hidden">
                       <span className="material-symbols-outlined text-9xl text-white dark:text-text-secondary opacity-50 -mb-4">person</span>
                     </div>
                   </div>
@@ -163,7 +172,16 @@ const AboutUs = () => {
                 </div>
                 <div className="flex flex-col gap-4 group">
                   <div className="aspect-square rounded-2xl bg-gray-100 dark:bg-[#29382f] overflow-hidden relative">
-                    <div className="absolute inset-0 bg-gradient-to-br from-gray-200 dark:from-border-dark to-gray-300 dark:to-[#29382f] flex items-end justify-center">
+                    <img 
+                      src="https://www.columbuspm.org/wp-content/uploads/2015/09/team-member-sample.jpg" 
+                      alt="Samantha Rivera"
+                      className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-300"
+                      onError={(e) => {
+                        e.target.style.display = 'none';
+                        e.target.nextElementSibling.style.display = 'flex';
+                      }}
+                    />
+                    <div className="absolute inset-0 bg-gradient-to-br from-gray-200 dark:from-border-dark to-gray-300 dark:to-[#29382f] flex items-end justify-center hidden">
                       <span className="material-symbols-outlined text-9xl text-white dark:text-text-secondary opacity-50 -mb-4">person_4</span>
                     </div>
                   </div>
@@ -175,7 +193,16 @@ const AboutUs = () => {
                 </div>
                 <div className="flex flex-col gap-4 group">
                   <div className="aspect-square rounded-2xl bg-gray-100 dark:bg-[#29382f] overflow-hidden relative">
-                    <div className="absolute inset-0 bg-gradient-to-br from-gray-200 dark:from-border-dark to-gray-300 dark:to-[#29382f] flex items-end justify-center">
+                    <img 
+                      src="https://demo.casethemes.net/alico/wp-content/uploads/2022/05/single-team.jpg" 
+                      alt="Marcus Chen"
+                      className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-300"
+                      onError={(e) => {
+                        e.target.style.display = 'none';
+                        e.target.nextElementSibling.style.display = 'flex';
+                      }}
+                    />
+                    <div className="absolute inset-0 bg-gradient-to-br from-gray-200 dark:from-border-dark to-gray-300 dark:to-[#29382f] flex items-end justify-center hidden">
                       <span className="material-symbols-outlined text-9xl text-white dark:text-text-secondary opacity-50 -mb-4">person_3</span>
                     </div>
                   </div>
@@ -187,7 +214,16 @@ const AboutUs = () => {
                 </div>
                 <div className="flex flex-col gap-4 group">
                   <div className="aspect-square rounded-2xl bg-gray-100 dark:bg-[#29382f] overflow-hidden relative">
-                    <div className="absolute inset-0 bg-gradient-to-br from-gray-200 dark:from-border-dark to-gray-300 dark:to-[#29382f] flex items-end justify-center">
+                    <img 
+                      src="https://audifintax.com/eng/wp-content/uploads/2017/04/team1.jpg" 
+                      alt="Jordan Lee"
+                      className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-300"
+                      onError={(e) => {
+                        e.target.style.display = 'none';
+                        e.target.nextElementSibling.style.display = 'flex';
+                      }}
+                    />
+                    <div className="absolute inset-0 bg-gradient-to-br from-gray-200 dark:from-border-dark to-gray-300 dark:to-[#29382f] flex items-end justify-center hidden">
                       <span className="material-symbols-outlined text-9xl text-white dark:text-text-secondary opacity-50 -mb-4">person_2</span>
                     </div>
                   </div>

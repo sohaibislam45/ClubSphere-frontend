@@ -14,6 +14,7 @@ import Login from '../pages/Login';
 import Register from '../pages/Register';
 import HowItWorks from '../pages/HowItWorks';
 import AboutUs from '../pages/AboutUs';
+import Careers from '../pages/Careers';
 import AdminDashboard from '../pages/AdminDashboard';
 import AdminManageUsers from '../pages/AdminManageUsers';
 import AdminManageClubs from '../pages/AdminManageClubs';
@@ -66,6 +67,7 @@ const AppRoutes = () => {
       <Route path="/register" element={<Register />} />
       <Route path="/how-it-works" element={<HowItWorks />} />
       <Route path="/about-us" element={<AboutUs />} />
+      <Route path="/careers" element={<Careers />} />
       <Route 
         path="/dashboard/admin" 
         element={

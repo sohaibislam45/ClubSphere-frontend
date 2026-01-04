@@ -242,18 +242,19 @@ const HowItWorks = () => {
                       </>
                     ) : (
                       <>
-                        <div className="h-24 bg-gray-100 dark:bg-border-dark flex items-center justify-center">
-                          <span className="material-symbols-outlined text-gray-300 dark:text-text-secondary text-4xl">event</span>
+                        <div className="h-24 bg-gradient-to-br from-purple-400 to-purple-600 dark:from-purple-600 dark:to-purple-800 flex items-center justify-center relative">
+                          <div className="absolute inset-0 bg-gradient-to-t from-black/40 to-transparent"></div>
+                          <span className="material-symbols-outlined text-white text-4xl relative z-10">event</span>
                         </div>
                         <div className="p-4 flex flex-col gap-2">
-                          <div className="h-4 w-3/4 bg-gray-800 dark:bg-white rounded-full opacity-10"></div>
-                          <div className="h-3 w-1/2 bg-gray-400 dark:bg-text-secondary rounded-full opacity-10"></div>
+                          <h4 className="text-sm font-bold text-gray-900 dark:text-white line-clamp-1">Join Our Next Event</h4>
+                          <p className="text-xs text-text-muted dark:text-text-secondary line-clamp-1">Discover amazing events in your area</p>
                           <div className="mt-2 flex justify-between items-center">
                             <div className="flex -space-x-2">
-                              <div className="size-6 rounded-full bg-gray-200 dark:bg-[#29382f]"></div>
-                              <div className="size-6 rounded-full bg-gray-300 dark:bg-border-dark"></div>
+                              <div className="size-6 rounded-full bg-gray-200 dark:bg-[#29382f] border-2 border-white dark:border-[#29382f]"></div>
+                              <div className="size-6 rounded-full bg-gray-300 dark:bg-border-dark border-2 border-white dark:border-[#29382f]"></div>
                             </div>
-                            <div className="px-3 py-1 bg-primary text-white dark:text-[#111714] text-xs font-bold rounded-lg">RSVP</div>
+                            <div className="px-3 py-1 bg-primary text-white dark:text-[#111714] text-xs font-bold rounded-lg cursor-pointer hover:bg-primary-hover transition-colors" onClick={() => window.location.href = '/events'}>RSVP</div>
                           </div>
                         </div>
                       </>
