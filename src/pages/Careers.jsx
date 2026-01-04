@@ -1,12 +1,102 @@
-import { useEffect } from 'react';
+import { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
 import Navbar from '../components/layout/Navbar';
 import Footer from '../components/layout/Footer';
+import Swal from '../lib/sweetalertConfig';
 
 const Careers = () => {
+  const [isModalOpen, setIsModalOpen] = useState(false);
+  const [selectedJob, setSelectedJob] = useState(null);
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const [formData, setFormData] = useState({
+    name: '',
+    email: '',
+    phone: '',
+    resume: null,
+    coverLetter: ''
+  });
+
   useEffect(() => {
     document.title = 'Careers - ClubSphere';
   }, []);
+
+  const jobs = [
+    {
+      id: 'senior-frontend-engineer',
+      title: 'Senior Frontend Engineer',
+      category: 'Engineering',
+      categoryColor: 'green'
+    },
+    {
+      id: 'product-designer',
+      title: 'Product Designer',
+      category: 'Design',
+      categoryColor: 'purple'
+    },
+    {
+      id: 'community-manager',
+      title: 'Community Manager',
+      category: 'Operations',
+      categoryColor: 'blue'
+    },
+    {
+      id: 'backend-developer',
+      title: 'Backend Developer (Go)',
+      category: 'Engineering',
+      categoryColor: 'green'
+    }
+  ];
+
+  const handleApplyClick = (jobTitle) => {
+    const job = jobs.find(j => j.title === jobTitle);
+    setSelectedJob(job);
+    setIsModalOpen(true);
+  };
+
+  const handleCloseModal = () => {
+    setIsModalOpen(false);
+    setSelectedJob(null);
+    setFormData({
+      name: '',
+      email: '',
+      phone: '',
+      resume: null,
+      coverLetter: ''
+    });
+  };
+
+  const handleInputChange = (e) => {
+    const { name, value } = e.target;
+    setFormData(prev => ({
+      ...prev,
+      [name]: value
+    }));
+  };
+
+  const handleFileChange = (e) => {
+    setFormData(prev => ({
+      ...prev,
+      resume: e.target.files[0]
+    }));
+  };
+
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+    setIsSubmitting(true);
+
+    // Simulate API call
+    setTimeout(() => {
+      setIsSubmitting(false);
+      handleCloseModal();
+      Swal.fire({
+        icon: 'success',
+        title: 'Application Submitted!',
+        text: `Thank you for applying to ${selectedJob?.title}. We'll review your application and get back to you soon.`,
+        confirmButtonText: 'Close',
+        confirmButtonColor: '#38e07b'
+      });
+    }, 1000);
+  };
 
   return (
     <div className="flex flex-col min-h-screen bg-background-light dark:bg-background-dark font-display text-text-main dark:text-white transition-colors duration-200">
@@ -128,7 +218,10 @@ const Careers = () => {
                       <span className="flex items-center gap-1.5"><span className="material-symbols-outlined text-lg">schedule</span> Full-time</span>
                     </div>
                   </div>
-                  <button className="w-full md:w-auto px-6 py-3 bg-white dark:bg-[#29382f] border-2 border-gray-100 dark:border-border-dark text-gray-900 dark:text-white font-bold rounded-xl hover:bg-primary hover:border-primary hover:text-white dark:hover:text-[#111714] transition-all whitespace-nowrap">
+                  <button 
+                    onClick={() => handleApplyClick('Senior Frontend Engineer')}
+                    className="w-full md:w-auto px-6 py-3 bg-white dark:bg-[#29382f] border-2 border-gray-100 dark:border-border-dark text-gray-900 dark:text-white font-bold rounded-xl hover:bg-primary hover:border-primary hover:text-white dark:hover:text-[#111714] transition-all whitespace-nowrap"
+                  >
                     Apply Now
                   </button>
                 </div>
@@ -146,7 +239,10 @@ const Careers = () => {
                       <span className="flex items-center gap-1.5"><span className="material-symbols-outlined text-lg">schedule</span> Full-time</span>
                     </div>
                   </div>
-                  <button className="w-full md:w-auto px-6 py-3 bg-white dark:bg-[#29382f] border-2 border-gray-100 dark:border-border-dark text-gray-900 dark:text-white font-bold rounded-xl hover:bg-primary hover:border-primary hover:text-white dark:hover:text-[#111714] transition-all whitespace-nowrap">
+                  <button 
+                    onClick={() => handleApplyClick('Product Designer')}
+                    className="w-full md:w-auto px-6 py-3 bg-white dark:bg-[#29382f] border-2 border-gray-100 dark:border-border-dark text-gray-900 dark:text-white font-bold rounded-xl hover:bg-primary hover:border-primary hover:text-white dark:hover:text-[#111714] transition-all whitespace-nowrap"
+                  >
                     Apply Now
                   </button>
                 </div>
@@ -164,7 +260,10 @@ const Careers = () => {
                       <span className="flex items-center gap-1.5"><span className="material-symbols-outlined text-lg">schedule</span> Full-time</span>
                     </div>
                   </div>
-                  <button className="w-full md:w-auto px-6 py-3 bg-white dark:bg-[#29382f] border-2 border-gray-100 dark:border-border-dark text-gray-900 dark:text-white font-bold rounded-xl hover:bg-primary hover:border-primary hover:text-white dark:hover:text-[#111714] transition-all whitespace-nowrap">
+                  <button 
+                    onClick={() => handleApplyClick('Community Manager')}
+                    className="w-full md:w-auto px-6 py-3 bg-white dark:bg-[#29382f] border-2 border-gray-100 dark:border-border-dark text-gray-900 dark:text-white font-bold rounded-xl hover:bg-primary hover:border-primary hover:text-white dark:hover:text-[#111714] transition-all whitespace-nowrap"
+                  >
                     Apply Now
                   </button>
                 </div>
@@ -182,7 +281,10 @@ const Careers = () => {
                       <span className="flex items-center gap-1.5"><span className="material-symbols-outlined text-lg">schedule</span> Full-time</span>
                     </div>
                   </div>
-                  <button className="w-full md:w-auto px-6 py-3 bg-white dark:bg-[#29382f] border-2 border-gray-100 dark:border-border-dark text-gray-900 dark:text-white font-bold rounded-xl hover:bg-primary hover:border-primary hover:text-white dark:hover:text-[#111714] transition-all whitespace-nowrap">
+                  <button 
+                    onClick={() => handleApplyClick('Backend Developer (Go)')}
+                    className="w-full md:w-auto px-6 py-3 bg-white dark:bg-[#29382f] border-2 border-gray-100 dark:border-border-dark text-gray-900 dark:text-white font-bold rounded-xl hover:bg-primary hover:border-primary hover:text-white dark:hover:text-[#111714] transition-all whitespace-nowrap"
+                  >
                     Apply Now
                   </button>
                 </div>
@@ -195,6 +297,133 @@ const Careers = () => {
         </section>
       </main>
       <Footer />
+
+      {/* Job Application Modal */}
+      {isModalOpen && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/50 backdrop-blur-sm" onClick={handleCloseModal}>
+          <div className="relative w-full max-w-2xl bg-white dark:bg-card-dark rounded-2xl shadow-2xl max-h-[90vh] overflow-y-auto" onClick={(e) => e.stopPropagation()}>
+            {/* Modal Header */}
+            <div className="sticky top-0 bg-white dark:bg-card-dark border-b border-gray-200 dark:border-border-dark px-6 py-4 flex items-center justify-between z-10">
+              <div>
+                <h2 className="text-2xl font-bold text-gray-900 dark:text-white">Apply for Position</h2>
+                <p className="text-sm text-text-muted dark:text-text-secondary mt-1">{selectedJob?.title}</p>
+              </div>
+              <button
+                onClick={handleCloseModal}
+                className="p-2 rounded-lg hover:bg-gray-100 dark:hover:bg-[#29382f] transition-colors"
+              >
+                <span className="material-symbols-outlined text-gray-600 dark:text-text-secondary">close</span>
+              </button>
+            </div>
+
+            {/* Modal Body */}
+            <form onSubmit={handleSubmit} className="p-6 space-y-6">
+              <div>
+                <label htmlFor="name" className="block text-sm font-bold text-gray-900 dark:text-white mb-2">
+                  Full Name <span className="text-red-500">*</span>
+                </label>
+                <input
+                  type="text"
+                  id="name"
+                  name="name"
+                  required
+                  value={formData.name}
+                  onChange={handleInputChange}
+                  className="w-full px-4 py-3 bg-gray-50 dark:bg-[#29382f] border border-gray-200 dark:border-border-dark rounded-xl text-gray-900 dark:text-white focus:ring-2 focus:ring-primary focus:border-primary outline-none transition-all"
+                  placeholder="John Doe"
+                />
+              </div>
+
+              <div>
+                <label htmlFor="email" className="block text-sm font-bold text-gray-900 dark:text-white mb-2">
+                  Email Address <span className="text-red-500">*</span>
+                </label>
+                <input
+                  type="email"
+                  id="email"
+                  name="email"
+                  required
+                  value={formData.email}
+                  onChange={handleInputChange}
+                  className="w-full px-4 py-3 bg-gray-50 dark:bg-[#29382f] border border-gray-200 dark:border-border-dark rounded-xl text-gray-900 dark:text-white focus:ring-2 focus:ring-primary focus:border-primary outline-none transition-all"
+                  placeholder="john.doe@example.com"
+                />
+              </div>
+
+              <div>
+                <label htmlFor="phone" className="block text-sm font-bold text-gray-900 dark:text-white mb-2">
+                  Phone Number
+                </label>
+                <input
+                  type="tel"
+                  id="phone"
+                  name="phone"
+                  value={formData.phone}
+                  onChange={handleInputChange}
+                  className="w-full px-4 py-3 bg-gray-50 dark:bg-[#29382f] border border-gray-200 dark:border-border-dark rounded-xl text-gray-900 dark:text-white focus:ring-2 focus:ring-primary focus:border-primary outline-none transition-all"
+                  placeholder="+1 (555) 123-4567"
+                />
+              </div>
+
+              <div>
+                <label htmlFor="resume" className="block text-sm font-bold text-gray-900 dark:text-white mb-2">
+                  Resume/CV <span className="text-red-500">*</span>
+                </label>
+                <input
+                  type="file"
+                  id="resume"
+                  name="resume"
+                  required
+                  onChange={handleFileChange}
+                  accept=".pdf,.doc,.docx"
+                  className="w-full px-4 py-3 bg-gray-50 dark:bg-[#29382f] border border-gray-200 dark:border-border-dark rounded-xl text-gray-900 dark:text-white focus:ring-2 focus:ring-primary focus:border-primary outline-none transition-all file:mr-4 file:py-2 file:px-4 file:rounded-lg file:border-0 file:text-sm file:font-bold file:bg-primary file:text-[#111714] file:cursor-pointer hover:file:bg-primary-hover"
+                />
+                <p className="text-xs text-text-muted dark:text-text-secondary mt-2">Accepted formats: PDF, DOC, DOCX (Max 5MB)</p>
+              </div>
+
+              <div>
+                <label htmlFor="coverLetter" className="block text-sm font-bold text-gray-900 dark:text-white mb-2">
+                  Cover Letter
+                </label>
+                <textarea
+                  id="coverLetter"
+                  name="coverLetter"
+                  rows="6"
+                  value={formData.coverLetter}
+                  onChange={handleInputChange}
+                  className="w-full px-4 py-3 bg-gray-50 dark:bg-[#29382f] border border-gray-200 dark:border-border-dark rounded-xl text-gray-900 dark:text-white focus:ring-2 focus:ring-primary focus:border-primary outline-none transition-all resize-none"
+                  placeholder="Tell us why you're interested in this position and what makes you a great fit..."
+                ></textarea>
+              </div>
+
+              {/* Modal Footer */}
+              <div className="flex flex-col sm:flex-row gap-3 pt-4 border-t border-gray-200 dark:border-border-dark">
+                <button
+                  type="button"
+                  onClick={handleCloseModal}
+                  className="flex-1 px-6 py-3 bg-gray-100 dark:bg-[#29382f] text-gray-900 dark:text-white font-bold rounded-xl hover:bg-gray-200 dark:hover:bg-border-dark transition-colors"
+                >
+                  Cancel
+                </button>
+                <button
+                  type="submit"
+                  disabled={isSubmitting}
+                  className="flex-1 px-6 py-3 bg-primary hover:bg-primary-hover text-[#111714] font-bold rounded-xl transition-colors disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2"
+                >
+                  {isSubmitting ? (
+                    <>
+                      <span className="material-symbols-outlined animate-spin">sync</span>
+                      Submitting...
+                    </>
+                  ) : (
+                    'Submit Application'
+                  )}
+                </button>
+              </div>
+            </form>
+          </div>
+        </div>
+      )}
     </div>
   );
 };
