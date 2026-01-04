@@ -2,6 +2,7 @@ import { useState, useRef, useEffect } from 'react';
 import { Link, useLocation } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
+import AdminSidebar from '../components/layout/AdminSidebar';
 import api from '../lib/api';
 import Loader from '../components/ui/Loader';
 import Swal from '../lib/sweetalertConfig';
@@ -290,63 +291,7 @@ const AdminDashboard = () => {
 
   return (
     <div className="flex h-screen w-full overflow-hidden bg-dashboard-background dark:bg-background-dark font-display text-dashboard-text-main dark:text-white">
-      {/* Sidebar */}
-      <aside className="w-20 lg:w-64 flex flex-col justify-between border-r border-dashboard-border dark:border-surface-highlight bg-dashboard-sidebar dark:bg-background-dark transition-all duration-300 shadow-sm">
-        <div className="flex flex-col gap-4 p-4">
-          {/* Brand */}
-          <div className="flex items-center gap-3 px-2">
-            <div 
-              className="bg-center bg-no-repeat aspect-square bg-cover rounded-full size-10 shrink-0 border-2 border-primary/20"
-              style={{ 
-                backgroundImage: user?.photoURL ? `url("${user.photoURL}")` : 'none',
-                backgroundColor: '#1c2620'
-              }}
-            ></div>
-            <h1 className="text-dashboard-text-main dark:text-white text-lg font-bold leading-normal hidden lg:block tracking-wide">ClubSphere</h1>
-          </div>
-          {/* Nav Links */}
-          <nav className="flex flex-col gap-2 mt-4">
-            <Link to="/" className="flex items-center gap-3 px-3 py-3 rounded-full text-dashboard-text-muted dark:text-gray-400 hover:bg-dashboard-surface-hover dark:hover:bg-surface-highlight hover:text-dashboard-text-main dark:hover:text-white transition-colors">
-              <span className="material-symbols-outlined">home</span>
-              <p className="text-sm font-medium leading-normal hidden lg:block">Home</p>
-            </Link>
-            <Link to="/dashboard/admin" className={`flex items-center gap-3 px-3 py-3 rounded-full transition-colors ${location.pathname === '/dashboard/admin' ? 'bg-dashboard-primary dark:bg-primary text-white font-bold' : 'text-dashboard-text-muted dark:text-gray-400 hover:bg-dashboard-surface-hover dark:hover:bg-surface-highlight hover:text-dashboard-text-main dark:hover:text-white'}`}>
-              <span className="material-symbols-outlined">dashboard</span>
-              <p className={`text-sm leading-normal hidden lg:block ${location.pathname === '/dashboard/admin' ? 'font-bold' : 'font-medium'}`}>Dashboard</p>
-            </Link>
-            <Link to="/dashboard/admin/users" className={`flex items-center gap-3 px-3 py-3 rounded-full transition-colors ${location.pathname === '/dashboard/admin/users' ? 'bg-dashboard-primary dark:bg-primary text-white font-bold' : 'text-dashboard-text-muted dark:text-gray-400 hover:bg-dashboard-surface-hover dark:hover:bg-surface-highlight hover:text-dashboard-text-main dark:hover:text-white'}`}>
-              <span className="material-symbols-outlined">group</span>
-              <p className={`text-sm leading-normal hidden lg:block ${location.pathname === '/dashboard/admin/users' ? 'font-bold' : 'font-medium'}`}>Users</p>
-            </Link>
-            <Link to="/dashboard/admin/clubs" className={`flex items-center gap-3 px-3 py-3 rounded-full transition-colors ${location.pathname === '/dashboard/admin/clubs' ? 'bg-dashboard-primary dark:bg-primary text-white font-bold' : 'text-dashboard-text-muted dark:text-gray-400 hover:bg-dashboard-surface-hover dark:hover:bg-surface-highlight hover:text-dashboard-text-main dark:hover:text-white'}`}>
-              <span className="material-symbols-outlined">diversity_3</span>
-              <p className={`text-sm leading-normal hidden lg:block ${location.pathname === '/dashboard/admin/clubs' ? 'font-bold' : 'font-medium'}`}>Clubs</p>
-            </Link>
-            <Link to="/dashboard/admin/events" className={`flex items-center gap-3 px-3 py-3 rounded-full transition-colors ${location.pathname === '/dashboard/admin/events' ? 'bg-dashboard-primary dark:bg-primary text-white font-bold' : 'text-dashboard-text-muted dark:text-gray-400 hover:bg-dashboard-surface-hover dark:hover:bg-surface-highlight hover:text-dashboard-text-main dark:hover:text-white'}`}>
-              <span className="material-symbols-outlined">calendar_today</span>
-              <p className={`text-sm leading-normal hidden lg:block ${location.pathname === '/dashboard/admin/events' ? 'font-bold' : 'font-medium'}`}>Events</p>
-            </Link>
-            <Link to="/dashboard/admin/finances" className={`flex items-center gap-3 px-3 py-3 rounded-full transition-colors ${location.pathname === '/dashboard/admin/finances' ? 'bg-dashboard-primary dark:bg-primary text-white font-bold' : 'text-dashboard-text-muted dark:text-gray-400 hover:bg-dashboard-surface-hover dark:hover:bg-surface-highlight hover:text-dashboard-text-main dark:hover:text-white'}`}>
-              <span className="material-symbols-outlined">payments</span>
-              <p className={`text-sm leading-normal hidden lg:block ${location.pathname === '/dashboard/admin/finances' ? 'font-bold' : 'font-medium'}`}>Finances</p>
-            </Link>
-            <Link to="/dashboard/admin/categories" className={`flex items-center gap-3 px-3 py-3 rounded-full transition-colors ${location.pathname === '/dashboard/admin/categories' ? 'bg-dashboard-primary dark:bg-primary text-white font-bold' : 'text-dashboard-text-muted dark:text-gray-400 hover:bg-dashboard-surface-hover dark:hover:bg-surface-highlight hover:text-dashboard-text-main dark:hover:text-white'}`}>
-              <span className="material-symbols-outlined">category</span>
-              <p className={`text-sm leading-normal hidden lg:block ${location.pathname === '/dashboard/admin/categories' ? 'font-bold' : 'font-medium'}`}>Categories</p>
-            </Link>
-          </nav>
-        </div>
-        {/* Bottom Settings */}
-        <div className="p-4">
-          <button 
-            onClick={logout}
-            className="flex items-center gap-3 px-3 py-3 rounded-full text-dashboard-text-muted dark:text-gray-400 hover:bg-dashboard-surface-hover dark:hover:bg-surface-highlight hover:text-dashboard-text-main dark:hover:text-white transition-colors w-full"
-          >
-            <span className="material-symbols-outlined">settings</span>
-            <p className="text-sm font-medium leading-normal hidden lg:block">Settings</p>
-          </button>
-        </div>
-      </aside>
+      <AdminSidebar />
 
       {/* Main Content */}
       <main className="flex-1 flex flex-col h-full relative overflow-hidden bg-dashboard-background dark:bg-background-dark">

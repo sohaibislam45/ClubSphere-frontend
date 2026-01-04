@@ -2,12 +2,13 @@ import { useState } from 'react';
 import { Link, useLocation } from 'react-router-dom';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { useAuth } from '../context/AuthContext';
+import AdminSidebar from '../components/layout/AdminSidebar';
 import api from '../lib/api';
 import Swal from '../lib/sweetalertConfig';
 import Loader from '../components/ui/Loader';
 
 const AdminManageCategories = () => {
-  const { user, logout } = useAuth();
+  const { user } = useAuth();
   const location = useLocation();
   const queryClient = useQueryClient();
   const [isAddCategoryModalOpen, setIsAddCategoryModalOpen] = useState(false);
@@ -77,63 +78,7 @@ const AdminManageCategories = () => {
 
   return (
     <div className="flex h-screen w-full overflow-hidden bg-background-light dark:bg-background-dark font-display text-slate-900 dark:text-white">
-      {/* Sidebar */}
-      <aside className="w-20 lg:w-64 flex flex-col justify-between border-r border-dashboard-border dark:border-surface-highlight bg-dashboard-sidebar dark:bg-background-dark transition-all duration-300 shadow-sm">
-        <div className="flex flex-col gap-4 p-4">
-          {/* Brand */}
-          <div className="flex items-center gap-3 px-2">
-            <div 
-              className="bg-center bg-no-repeat aspect-square bg-cover rounded-full size-10 shrink-0 border-2 border-primary/20"
-              style={{ 
-                backgroundImage: user?.photoURL ? `url("${user.photoURL}")` : 'none',
-                backgroundColor: '#1c2620'
-              }}
-            ></div>
-            <h1 className="text-white text-lg font-bold leading-normal hidden lg:block tracking-wide">ClubSphere</h1>
-          </div>
-          {/* Nav Links */}
-          <nav className="flex flex-col gap-2 mt-4">
-            <Link to="/" className="flex items-center gap-3 px-3 py-3 rounded-full text-gray-400 hover:bg-surface-highlight hover:text-white transition-colors">
-              <span className="material-symbols-outlined">home</span>
-              <p className="text-sm font-medium leading-normal hidden lg:block">Home</p>
-            </Link>
-            <Link to="/dashboard/admin" className={`flex items-center gap-3 px-3 py-3 rounded-full transition-colors ${isActive('/dashboard/admin') ? 'bg-primary text-background-dark' : 'text-gray-400 hover:bg-surface-highlight hover:text-white'}`}>
-              <span className="material-symbols-outlined">dashboard</span>
-              <p className={`text-sm leading-normal hidden lg:block ${isActive('/dashboard/admin') ? 'font-bold' : 'font-medium'}`}>Dashboard</p>
-            </Link>
-            <Link to="/dashboard/admin/users" className={`flex items-center gap-3 px-3 py-3 rounded-full transition-colors ${isActive('/dashboard/admin/users') ? 'bg-primary text-background-dark' : 'text-gray-400 hover:bg-surface-highlight hover:text-white'}`}>
-              <span className="material-symbols-outlined">group</span>
-              <p className={`text-sm leading-normal hidden lg:block ${isActive('/dashboard/admin/users') ? 'font-bold' : 'font-medium'}`}>Users</p>
-            </Link>
-            <Link to="/dashboard/admin/clubs" className={`flex items-center gap-3 px-3 py-3 rounded-full transition-colors ${isActive('/dashboard/admin/clubs') ? 'bg-primary text-background-dark' : 'text-gray-400 hover:bg-surface-highlight hover:text-white'}`}>
-              <span className="material-symbols-outlined">diversity_3</span>
-              <p className={`text-sm leading-normal hidden lg:block ${isActive('/dashboard/admin/clubs') ? 'font-bold' : 'font-medium'}`}>Clubs</p>
-            </Link>
-            <Link to="/dashboard/admin/events" className={`flex items-center gap-3 px-3 py-3 rounded-full transition-colors ${isActive('/dashboard/admin/events') ? 'bg-primary text-background-dark' : 'text-gray-400 hover:bg-surface-highlight hover:text-white'}`}>
-              <span className="material-symbols-outlined">calendar_today</span>
-              <p className={`text-sm leading-normal hidden lg:block ${isActive('/dashboard/admin/events') ? 'font-bold' : 'font-medium'}`}>Events</p>
-            </Link>
-            <Link to="/dashboard/admin/finances" className={`flex items-center gap-3 px-3 py-3 rounded-full transition-colors ${isActive('/dashboard/admin/finances') ? 'bg-primary text-background-dark' : 'text-gray-400 hover:bg-surface-highlight hover:text-white'}`}>
-              <span className="material-symbols-outlined">payments</span>
-              <p className={`text-sm leading-normal hidden lg:block ${isActive('/dashboard/admin/finances') ? 'font-bold' : 'font-medium'}`}>Finances</p>
-            </Link>
-            <Link to="/dashboard/admin/categories" className={`flex items-center gap-3 px-3 py-3 rounded-full transition-colors ${isActive('/dashboard/admin/categories') ? 'bg-primary text-background-dark' : 'text-gray-400 hover:bg-surface-highlight hover:text-white'}`}>
-              <span className="material-symbols-outlined">category</span>
-              <p className={`text-sm leading-normal hidden lg:block ${isActive('/dashboard/admin/categories') ? 'font-bold' : 'font-medium'}`}>Categories</p>
-            </Link>
-          </nav>
-        </div>
-        {/* Bottom Settings */}
-        <div className="p-4">
-          <button 
-            onClick={logout}
-            className="flex items-center gap-3 px-3 py-3 rounded-full text-gray-400 hover:bg-surface-highlight hover:text-white transition-colors w-full"
-          >
-            <span className="material-symbols-outlined">settings</span>
-            <p className="text-sm font-medium leading-normal hidden lg:block">Settings</p>
-          </button>
-        </div>
-      </aside>
+      <AdminSidebar />
 
       {/* Main Content */}
       <main className="flex-1 flex flex-col h-full relative overflow-hidden bg-background-light dark:bg-background-dark">
