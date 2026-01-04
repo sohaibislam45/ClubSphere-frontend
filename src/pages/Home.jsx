@@ -202,6 +202,21 @@ const Home = () => {
     staleTime: 5 * 60 * 1000, // Cache for 5 minutes
   });
 
+  // Fetch featured reviews for testimonials section
+  const { data: reviewsData, isLoading: reviewsLoading } = useQuery({
+    queryKey: ['featured-reviews'],
+    queryFn: async () => {
+      try {
+        const response = await api.get('/api/reviews/featured', { params: { limit: 3 } });
+        return response.data;
+      } catch (error) {
+        console.error('Error fetching featured reviews:', error);
+        return { reviews: [] };
+      }
+    },
+    staleTime: 2 * 60 * 1000, // Cache for 2 minutes
+  });
+
   const featuredClubs = clubsData?.clubs || [];
   const upcomingEvents = eventsData?.events || [];
 
@@ -809,7 +824,6 @@ const Home = () => {
                   ))}
                 </div>
               )}
-              </div>
             </div>
           </div>
         </section>
