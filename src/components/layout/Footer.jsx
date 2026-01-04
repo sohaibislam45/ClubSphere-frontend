@@ -1,6 +1,45 @@
+import { useState } from 'react';
 import { Link } from 'react-router-dom';
+import api from '../../lib/api';
+import Swal from '../../lib/sweetalertConfig';
 
 const Footer = () => {
+  const [email, setEmail] = useState('');
+  const [isSubmitting, setIsSubmitting] = useState(false);
+
+  const handleNewsletterSubmit = async (e) => {
+    e.preventDefault();
+    if (!email) {
+      Swal.fire({
+        icon: 'error',
+        title: 'Email Required',
+        text: 'Please enter your email address.',
+      });
+      return;
+    }
+
+    setIsSubmitting(true);
+    try {
+      await api.post('/api/newsletter/subscribe', { email });
+      Swal.fire({
+        icon: 'success',
+        title: 'Subscribed!',
+        text: 'Thank you for subscribing to our newsletter.',
+        timer: 2000,
+        showConfirmButton: false
+      });
+      setEmail('');
+    } catch (error) {
+      Swal.fire({
+        icon: 'error',
+        title: 'Subscription Failed',
+        text: error.response?.data?.error || 'Failed to subscribe. Please try again.',
+      });
+    } finally {
+      setIsSubmitting(false);
+    }
+  };
+
   return (
     <footer className="w-full border-t border-gray-200 dark:border-border-dark bg-white dark:bg-[#0e1210] pt-16 pb-8">
       <div className="max-w-[1280px] mx-auto px-4 sm:px-6 lg:px-8 flex flex-col gap-12">

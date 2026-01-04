@@ -138,6 +138,21 @@ const Home = () => {
     }
   });
 
+  // Fetch platform statistics
+  const { data: statsData, isLoading: statsLoading } = useQuery({
+    queryKey: ['public-stats'],
+    queryFn: async () => {
+      try {
+        const response = await api.get('/api/public/stats');
+        return response.data;
+      } catch (error) {
+        console.error('Error fetching stats:', error);
+        return { totalClubs: 0, totalMembers: 0, totalEvents: 0, totalUsers: 0 };
+      }
+    },
+    staleTime: 5 * 60 * 1000, // Cache for 5 minutes
+  });
+
   const featuredClubs = clubsData?.clubs || [];
   const upcomingEvents = eventsData?.events || [];
 
