@@ -10,6 +10,88 @@ import Loader from '../components/ui/Loader';
 import Swal from '../lib/sweetalertConfig';
 import { useAuth } from '../context/AuthContext';
 
+const NewsletterSection = () => {
+  const [email, setEmail] = useState('');
+  const [isSubmitting, setIsSubmitting] = useState(false);
+
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+    if (!email) {
+      Swal.fire({
+        icon: 'error',
+        title: 'Email Required',
+        text: 'Please enter your email address.',
+      });
+      return;
+    }
+
+    setIsSubmitting(true);
+    try {
+      await api.post('/api/newsletter/subscribe', { email });
+      Swal.fire({
+        icon: 'success',
+        title: 'Subscribed!',
+        text: 'Thank you for subscribing to our newsletter.',
+        timer: 2000,
+        showConfirmButton: false
+      });
+      setEmail('');
+    } catch (error) {
+      Swal.fire({
+        icon: 'error',
+        title: 'Subscription Failed',
+        text: error.response?.data?.error || 'Failed to subscribe. Please try again.',
+      });
+    } finally {
+      setIsSubmitting(false);
+    }
+  };
+
+  return (
+    <section className="w-full px-4 sm:px-6 lg:px-8 py-20 flex justify-center bg-gray-900 dark:bg-card-dark text-white border-y border-gray-800 dark:border-border-dark">
+      <div className="w-full max-w-[960px] text-center flex flex-col gap-8">
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          whileInView={{ opacity: 1, y: 0 }}
+          viewport={{ once: true }}
+          transition={{ duration: 0.5 }}
+        >
+          <h2 className="text-3xl md:text-4xl font-bold leading-tight mb-4">
+            Stay in the Loop
+          </h2>
+          <p className="text-gray-300 dark:text-text-secondary text-lg max-w-2xl mx-auto">
+            Get the latest updates on new clubs, events, and community features delivered straight to your inbox.
+          </p>
+        </motion.div>
+        <motion.form
+          initial={{ opacity: 0, y: 20 }}
+          whileInView={{ opacity: 1, y: 0 }}
+          viewport={{ once: true }}
+          transition={{ duration: 0.5, delay: 0.2 }}
+          onSubmit={handleSubmit}
+          className="flex flex-col sm:flex-row gap-4 max-w-md mx-auto w-full"
+        >
+          <input
+            className="flex-1 px-6 py-4 rounded-full bg-white/10 dark:bg-white/5 border border-white/20 text-white placeholder:text-gray-400 focus:ring-2 focus:ring-primary focus:border-primary outline-none transition-all"
+            placeholder="Enter your email"
+            type="email"
+            value={email}
+            onChange={(e) => setEmail(e.target.value)}
+            disabled={isSubmitting}
+          />
+          <button
+            type="submit"
+            disabled={isSubmitting}
+            className="px-8 py-4 bg-primary hover:bg-primary-hover text-[#111714] font-bold rounded-full transition-colors disabled:opacity-50 disabled:cursor-not-allowed whitespace-nowrap"
+          >
+            {isSubmitting ? 'Subscribing...' : 'Subscribe'}
+          </button>
+        </motion.form>
+      </div>
+    </section>
+  );
+};
+
 const Home = () => {
   const navigate = useNavigate();
   const { isAuthenticated } = useAuth();
@@ -487,6 +569,9 @@ const Home = () => {
             </div>
           </div>
         </section>
+
+        {/* Newsletter Section */}
+        <NewsletterSection />
       </main>
       <Footer />
     </div>

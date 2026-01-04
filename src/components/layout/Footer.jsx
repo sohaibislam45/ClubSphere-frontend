@@ -40,9 +40,22 @@ const Footer = () => {
             </div>
             <div className="flex flex-col gap-3 col-span-2 md:col-span-1">
               <h4 className="text-gray-900 dark:text-white font-bold">Stay Updated</h4>
-              <form className="flex w-full">
-                <input className="bg-gray-50 dark:bg-card-dark border border-gray-200 dark:border-border-dark text-gray-900 dark:text-white text-sm rounded-l-full px-4 py-2 w-full focus:ring-1 focus:ring-primary focus:border-primary outline-none" placeholder="Email address" type="email"/>
-                <button className="bg-primary hover:bg-primary-hover text-[#111714] rounded-r-full px-4 font-bold text-sm transition-colors" type="submit">Join</button>
+              <form className="flex w-full" onSubmit={handleNewsletterSubmit}>
+                <input 
+                  className="bg-gray-50 dark:bg-card-dark border border-gray-200 dark:border-border-dark text-gray-900 dark:text-white text-sm rounded-l-full px-4 py-2 w-full focus:ring-1 focus:ring-primary focus:border-primary outline-none" 
+                  placeholder="Email address" 
+                  type="email"
+                  value={email}
+                  onChange={(e) => setEmail(e.target.value)}
+                  disabled={isSubmitting}
+                />
+                <button 
+                  className="bg-primary hover:bg-primary-hover text-[#111714] rounded-r-full px-4 font-bold text-sm transition-colors disabled:opacity-50 disabled:cursor-not-allowed" 
+                  type="submit"
+                  disabled={isSubmitting}
+                >
+                  {isSubmitting ? '...' : 'Join'}
+                </button>
               </form>
             </div>
           </div>
@@ -50,9 +63,9 @@ const Footer = () => {
         <div className="border-t border-gray-100 dark:border-border-dark pt-8 flex flex-col md:flex-row justify-between items-center gap-4 text-xs text-text-muted dark:text-text-secondary">
           <p>© 2024 ClubSphere Inc. All rights reserved.</p>
           <div className="flex gap-6">
-            <a className="hover:text-primary dark:hover:text-white" href="#">Privacy Policy</a>
-            <a className="hover:text-primary dark:hover:text-white" href="#">Terms of Service</a>
-            <a className="hover:text-primary dark:hover:text-white" href="#">Cookie Settings</a>
+            <Link to="/privacy" className="hover:text-primary dark:hover:text-white">Privacy Policy</Link>
+            <Link to="/terms" className="hover:text-primary dark:hover:text-white">Terms of Service</Link>
+            <Link to="/contact" className="hover:text-primary dark:hover:text-white">Contact</Link>
           </div>
         </div>
       </div>
