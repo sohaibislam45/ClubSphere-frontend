@@ -289,9 +289,9 @@ const AdminDashboard = () => {
   const chartData = calculateChartData();
 
   return (
-    <div className="flex h-screen w-full overflow-hidden bg-background-light dark:bg-background-dark font-display text-slate-900 dark:text-white">
+    <div className="flex h-screen w-full overflow-hidden bg-dashboard-background dark:bg-background-dark font-display text-dashboard-text-main dark:text-white">
       {/* Sidebar */}
-      <aside className="w-20 lg:w-64 flex flex-col justify-between border-r border-surface-highlight bg-background-dark transition-all duration-300">
+      <aside className="w-20 lg:w-64 flex flex-col justify-between border-r border-dashboard-border dark:border-surface-highlight bg-dashboard-sidebar dark:bg-background-dark transition-all duration-300 shadow-sm">
         <div className="flex flex-col gap-4 p-4">
           {/* Brand */}
           <div className="flex items-center gap-3 px-2">
@@ -302,35 +302,35 @@ const AdminDashboard = () => {
                 backgroundColor: '#1c2620'
               }}
             ></div>
-            <h1 className="text-white text-lg font-bold leading-normal hidden lg:block tracking-wide">ClubSphere</h1>
+            <h1 className="text-dashboard-text-main dark:text-white text-lg font-bold leading-normal hidden lg:block tracking-wide">ClubSphere</h1>
           </div>
           {/* Nav Links */}
           <nav className="flex flex-col gap-2 mt-4">
-            <Link to="/" className="flex items-center gap-3 px-3 py-3 rounded-full text-gray-400 hover:bg-surface-highlight hover:text-white transition-colors">
+            <Link to="/" className="flex items-center gap-3 px-3 py-3 rounded-full text-dashboard-text-muted dark:text-gray-400 hover:bg-dashboard-surface-hover dark:hover:bg-surface-highlight hover:text-dashboard-text-main dark:hover:text-white transition-colors">
               <span className="material-symbols-outlined">home</span>
               <p className="text-sm font-medium leading-normal hidden lg:block">Home</p>
             </Link>
-            <Link to="/dashboard/admin" className={`flex items-center gap-3 px-3 py-3 rounded-full transition-colors ${location.pathname === '/dashboard/admin' ? 'bg-primary text-background-dark' : 'text-gray-400 hover:bg-surface-highlight hover:text-white'}`}>
+            <Link to="/dashboard/admin" className={`flex items-center gap-3 px-3 py-3 rounded-full transition-colors ${location.pathname === '/dashboard/admin' ? 'bg-dashboard-primary dark:bg-primary text-white font-bold' : 'text-dashboard-text-muted dark:text-gray-400 hover:bg-dashboard-surface-hover dark:hover:bg-surface-highlight hover:text-dashboard-text-main dark:hover:text-white'}`}>
               <span className="material-symbols-outlined">dashboard</span>
               <p className={`text-sm leading-normal hidden lg:block ${location.pathname === '/dashboard/admin' ? 'font-bold' : 'font-medium'}`}>Dashboard</p>
             </Link>
-            <Link to="/dashboard/admin/users" className={`flex items-center gap-3 px-3 py-3 rounded-full transition-colors ${location.pathname === '/dashboard/admin/users' ? 'bg-primary text-background-dark' : 'text-gray-400 hover:bg-surface-highlight hover:text-white'}`}>
+            <Link to="/dashboard/admin/users" className={`flex items-center gap-3 px-3 py-3 rounded-full transition-colors ${location.pathname === '/dashboard/admin/users' ? 'bg-dashboard-primary dark:bg-primary text-white font-bold' : 'text-dashboard-text-muted dark:text-gray-400 hover:bg-dashboard-surface-hover dark:hover:bg-surface-highlight hover:text-dashboard-text-main dark:hover:text-white'}`}>
               <span className="material-symbols-outlined">group</span>
               <p className={`text-sm leading-normal hidden lg:block ${location.pathname === '/dashboard/admin/users' ? 'font-bold' : 'font-medium'}`}>Users</p>
             </Link>
-            <Link to="/dashboard/admin/clubs" className={`flex items-center gap-3 px-3 py-3 rounded-full transition-colors ${location.pathname === '/dashboard/admin/clubs' ? 'bg-primary text-background-dark' : 'text-gray-400 hover:bg-surface-highlight hover:text-white'}`}>
+            <Link to="/dashboard/admin/clubs" className={`flex items-center gap-3 px-3 py-3 rounded-full transition-colors ${location.pathname === '/dashboard/admin/clubs' ? 'bg-dashboard-primary dark:bg-primary text-white font-bold' : 'text-dashboard-text-muted dark:text-gray-400 hover:bg-dashboard-surface-hover dark:hover:bg-surface-highlight hover:text-dashboard-text-main dark:hover:text-white'}`}>
               <span className="material-symbols-outlined">diversity_3</span>
               <p className={`text-sm leading-normal hidden lg:block ${location.pathname === '/dashboard/admin/clubs' ? 'font-bold' : 'font-medium'}`}>Clubs</p>
             </Link>
-            <Link to="/dashboard/admin/events" className={`flex items-center gap-3 px-3 py-3 rounded-full transition-colors ${location.pathname === '/dashboard/admin/events' ? 'bg-primary text-background-dark' : 'text-gray-400 hover:bg-surface-highlight hover:text-white'}`}>
+            <Link to="/dashboard/admin/events" className={`flex items-center gap-3 px-3 py-3 rounded-full transition-colors ${location.pathname === '/dashboard/admin/events' ? 'bg-dashboard-primary dark:bg-primary text-white font-bold' : 'text-dashboard-text-muted dark:text-gray-400 hover:bg-dashboard-surface-hover dark:hover:bg-surface-highlight hover:text-dashboard-text-main dark:hover:text-white'}`}>
               <span className="material-symbols-outlined">calendar_today</span>
               <p className={`text-sm leading-normal hidden lg:block ${location.pathname === '/dashboard/admin/events' ? 'font-bold' : 'font-medium'}`}>Events</p>
             </Link>
-            <Link to="/dashboard/admin/finances" className={`flex items-center gap-3 px-3 py-3 rounded-full transition-colors ${location.pathname === '/dashboard/admin/finances' ? 'bg-primary text-background-dark' : 'text-gray-400 hover:bg-surface-highlight hover:text-white'}`}>
+            <Link to="/dashboard/admin/finances" className={`flex items-center gap-3 px-3 py-3 rounded-full transition-colors ${location.pathname === '/dashboard/admin/finances' ? 'bg-dashboard-primary dark:bg-primary text-white font-bold' : 'text-dashboard-text-muted dark:text-gray-400 hover:bg-dashboard-surface-hover dark:hover:bg-surface-highlight hover:text-dashboard-text-main dark:hover:text-white'}`}>
               <span className="material-symbols-outlined">payments</span>
               <p className={`text-sm leading-normal hidden lg:block ${location.pathname === '/dashboard/admin/finances' ? 'font-bold' : 'font-medium'}`}>Finances</p>
             </Link>
-            <Link to="/dashboard/admin/categories" className={`flex items-center gap-3 px-3 py-3 rounded-full transition-colors ${location.pathname === '/dashboard/admin/categories' ? 'bg-primary text-background-dark' : 'text-gray-400 hover:bg-surface-highlight hover:text-white'}`}>
+            <Link to="/dashboard/admin/categories" className={`flex items-center gap-3 px-3 py-3 rounded-full transition-colors ${location.pathname === '/dashboard/admin/categories' ? 'bg-dashboard-primary dark:bg-primary text-white font-bold' : 'text-dashboard-text-muted dark:text-gray-400 hover:bg-dashboard-surface-hover dark:hover:bg-surface-highlight hover:text-dashboard-text-main dark:hover:text-white'}`}>
               <span className="material-symbols-outlined">category</span>
               <p className={`text-sm leading-normal hidden lg:block ${location.pathname === '/dashboard/admin/categories' ? 'font-bold' : 'font-medium'}`}>Categories</p>
             </Link>
@@ -340,7 +340,7 @@ const AdminDashboard = () => {
         <div className="p-4">
           <button 
             onClick={logout}
-            className="flex items-center gap-3 px-3 py-3 rounded-full text-gray-400 hover:bg-surface-highlight hover:text-white transition-colors w-full"
+            className="flex items-center gap-3 px-3 py-3 rounded-full text-dashboard-text-muted dark:text-gray-400 hover:bg-dashboard-surface-hover dark:hover:bg-surface-highlight hover:text-dashboard-text-main dark:hover:text-white transition-colors w-full"
           >
             <span className="material-symbols-outlined">settings</span>
             <p className="text-sm font-medium leading-normal hidden lg:block">Settings</p>
@@ -349,17 +349,17 @@ const AdminDashboard = () => {
       </aside>
 
       {/* Main Content */}
-      <main className="flex-1 flex flex-col h-full relative overflow-hidden bg-background-light dark:bg-background-dark">
+      <main className="flex-1 flex flex-col h-full relative overflow-hidden bg-dashboard-background dark:bg-background-dark">
         {/* Top Bar */}
-        <header className="flex items-center justify-between whitespace-nowrap border-b border-surface-highlight px-6 py-4 bg-background-dark/50 backdrop-blur-md z-10">
+        <header className="flex items-center justify-between whitespace-nowrap border-b border-dashboard-border dark:border-surface-highlight px-6 py-4 bg-white/80 dark:bg-background-dark/50 backdrop-blur-md z-10">
           <div className="flex items-center gap-8 w-full max-w-2xl">
-            <h2 className="text-white text-xl font-bold leading-tight hidden md:block">Admin Console</h2>
+            <h2 className="text-dashboard-text-main dark:text-white text-xl font-bold leading-tight hidden md:block">Admin Console</h2>
             {/* Search Bar */}
             <label className="flex flex-col w-full max-w-md h-11">
-              <div className="flex w-full flex-1 items-center rounded-full bg-surface-dark border border-transparent focus-within:border-primary/50 transition-colors px-4">
-                <span className="material-symbols-outlined text-gray-400">search</span>
+              <div className="flex w-full flex-1 items-center rounded-full bg-dashboard-surface-hover dark:bg-surface-dark border border-dashboard-border dark:border-transparent focus-within:border-dashboard-primary dark:focus-within:border-primary/50 focus-within:bg-white dark:focus-within:bg-surface-dark focus-within:ring-2 focus-within:ring-dashboard-primary/10 dark:focus-within:ring-primary/10 transition-colors px-4">
+                <span className="material-symbols-outlined text-dashboard-text-muted dark:text-gray-400">search</span>
                 <input 
-                  className="w-full bg-transparent border-none text-white placeholder-gray-500 focus:ring-0 text-sm font-normal ml-2" 
+                  className="w-full bg-transparent border-none text-dashboard-text-main dark:text-white placeholder-dashboard-text-muted dark:placeholder-gray-500 focus:ring-0 text-sm font-normal ml-2" 
                   placeholder="Search users, clubs, or events..." 
                 />
               </div>
@@ -367,11 +367,11 @@ const AdminDashboard = () => {
           </div>
           {/* Right Actions */}
           <div className="flex items-center gap-3">
-            <button className="flex items-center justify-center size-10 rounded-full bg-surface-dark hover:bg-surface-highlight text-white transition-colors relative">
+            <button className="flex items-center justify-center size-10 rounded-full bg-white dark:bg-surface-dark border border-dashboard-border dark:border-surface-highlight hover:bg-dashboard-surface-hover dark:hover:bg-surface-highlight text-dashboard-text-muted dark:text-gray-400 hover:text-dashboard-primary dark:hover:text-white transition-colors relative shadow-sm">
               <span className="material-symbols-outlined text-[20px]">notifications</span>
-              <span className="absolute top-2 right-2 size-2 bg-primary rounded-full border border-surface-dark"></span>
+              <span className="absolute top-2 right-2 size-2 bg-red-500 rounded-full border-2 border-white dark:border-surface-dark"></span>
             </button>
-            <div className="h-8 w-px bg-surface-highlight mx-1"></div>
+            <div className="h-8 w-px bg-dashboard-border dark:bg-surface-highlight mx-1"></div>
             <div className="relative" ref={dropdownRef}>
               <button 
                 onClick={() => setDropdownOpen(!dropdownOpen)}
@@ -436,20 +436,20 @@ const AdminDashboard = () => {
           <div className="max-w-[1400px] mx-auto flex flex-col gap-8">
             {/* Page Heading */}
             <div className="flex flex-col gap-2">
-              <h1 className="text-white text-3xl font-bold tracking-tight">Admin Overview</h1>
-              <p className="text-gray-400 text-sm">Welcome back. Here is what needs your attention today.</p>
+              <h1 className="text-dashboard-text-main dark:text-white text-3xl font-bold tracking-tight">Admin Overview</h1>
+              <p className="text-dashboard-text-muted dark:text-gray-400 text-sm">Welcome back. Here is what needs your attention today.</p>
             </div>
 
             {/* Stats Grid */}
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
                 {/* Total Users */}
-                <div className="flex flex-col gap-4 rounded-[2rem] p-6 bg-surface-dark border border-surface-highlight hover:border-primary/30 transition-colors group">
+                <div className="flex flex-col gap-4 rounded-[2rem] p-6 bg-white dark:bg-surface-dark border border-dashboard-border dark:border-surface-highlight hover:border-dashboard-primary/30 dark:hover:border-primary/30 transition-colors group shadow-sm">
                   <div className="flex items-center justify-between">
                     <p className="text-gray-400 text-sm font-medium">Total Users</p>
                     <span className="material-symbols-outlined text-gray-500 group-hover:text-primary transition-colors">group</span>
                   </div>
                   <div>
-                    <p className="text-white text-3xl font-bold">
+                    <p className="text-dashboard-text-main dark:text-white text-3xl font-bold">
                       {dashboardStats?.totalUsers?.toLocaleString() || '0'}
                     </p>
                     <div className="flex items-center gap-1 mt-1">
@@ -475,7 +475,7 @@ const AdminDashboard = () => {
                     <span className="material-symbols-outlined text-white bg-primary/20 p-1 rounded-full text-[18px]">priority_high</span>
                   </div>
                   <div className="relative z-10">
-                    <p className="text-white text-3xl font-bold">{dashboardStats?.pendingClubs || 0}</p>
+                    <p className="text-dashboard-text-main dark:text-white text-3xl font-bold">{dashboardStats?.pendingClubs || 0}</p>
                     <div className="flex items-center gap-1 mt-1">
                       {dashboardStats?.pendingClubsNew > 0 && (
                         <p className="text-primary text-xs font-bold">
@@ -487,13 +487,13 @@ const AdminDashboard = () => {
                 </div>
 
                 {/* Total Revenue */}
-                <div className="flex flex-col gap-4 rounded-[2rem] p-6 bg-surface-dark border border-surface-highlight hover:border-primary/30 transition-colors group">
+                <div className="flex flex-col gap-4 rounded-[2rem] p-6 bg-white dark:bg-surface-dark border border-dashboard-border dark:border-surface-highlight hover:border-dashboard-primary/30 dark:hover:border-primary/30 transition-colors group shadow-sm">
                   <div className="flex items-center justify-between">
                     <p className="text-gray-400 text-sm font-medium">Total Revenue</p>
                     <span className="material-symbols-outlined text-gray-500 group-hover:text-primary transition-colors">payments</span>
                   </div>
                   <div>
-                    <p className="text-white text-3xl font-bold">
+                    <p className="text-dashboard-text-main dark:text-white text-3xl font-bold">
                       ৳{dashboardStats?.totalRevenue?.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 }) || '0.00'}
                     </p>
                     <div className="flex items-center gap-1 mt-1">
@@ -512,13 +512,13 @@ const AdminDashboard = () => {
                 </div>
 
                 {/* Active Events */}
-                <div className="flex flex-col gap-4 rounded-[2rem] p-6 bg-surface-dark border border-surface-highlight hover:border-primary/30 transition-colors group">
+                <div className="flex flex-col gap-4 rounded-[2rem] p-6 bg-white dark:bg-surface-dark border border-dashboard-border dark:border-surface-highlight hover:border-dashboard-primary/30 dark:hover:border-primary/30 transition-colors group shadow-sm">
                   <div className="flex items-center justify-between">
                     <p className="text-gray-400 text-sm font-medium">Active Events</p>
                     <span className="material-symbols-outlined text-gray-500 group-hover:text-primary transition-colors">event_available</span>
                   </div>
                   <div>
-                    <p className="text-white text-3xl font-bold">{dashboardStats?.activeEvents || 0}</p>
+                    <p className="text-dashboard-text-main dark:text-white text-3xl font-bold">{dashboardStats?.activeEvents || 0}</p>
                     <div className="flex items-center gap-1 mt-1">
                       <p className="text-primary text-xs font-bold">Upcoming events</p>
                     </div>

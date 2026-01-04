@@ -230,24 +230,24 @@ const ClubManagerDashboard = () => {
   }, [dropdownOpen]);
 
   return (
-    <div className="flex h-screen w-full overflow-hidden bg-background-light dark:bg-background-dark font-display text-slate-900 dark:text-white antialiased">
+    <div className="flex h-screen w-full overflow-hidden bg-dashboard-background dark:bg-background-dark font-display text-dashboard-text-main dark:text-white antialiased">
       {/* Sidebar */}
       <ManagerSidebar />
 
       {/* Main Content */}
       <main className="flex-1 flex flex-col h-full overflow-hidden relative">
         {/* Top Header */}
-        <header className="h-20 flex items-center justify-between px-8 py-4 border-b border-white/10 shrink-0 bg-background-light dark:bg-background-dark z-20">
-          <div className="lg:hidden flex items-center gap-3 text-slate-900 dark:text-white">
+        <header className="h-20 flex items-center justify-between px-8 py-4 border-b border-dashboard-border dark:border-white/10 shrink-0 bg-white/80 dark:bg-background-dark/80 backdrop-blur-md z-20">
+          <div className="lg:hidden flex items-center gap-3 text-dashboard-text-main dark:text-white">
             <button className="p-2"><span className="material-symbols-outlined">menu</span></button>
             <span className="font-bold text-lg">ClubSphere</span>
           </div>
           {/* Search */}
           <div className="hidden md:flex flex-1 max-w-lg mx-auto">
             <div className="relative w-full group">
-              <span className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400 group-focus-within:text-primary transition-colors material-symbols-outlined">search</span>
+              <span className="absolute left-4 top-1/2 -translate-y-1/2 text-dashboard-text-muted dark:text-slate-400 group-focus-within:text-dashboard-primary dark:group-focus-within:text-primary transition-colors material-symbols-outlined">search</span>
               <input 
-                className="w-full h-12 bg-white dark:bg-surface-dark border-none rounded-full pl-12 pr-4 text-sm text-slate-900 dark:text-white placeholder-slate-500 focus:ring-2 focus:ring-primary/50 transition-all shadow-sm" 
+                className="w-full h-12 bg-dashboard-surface-hover dark:bg-surface-dark border border-dashboard-border dark:border-white/10 rounded-full pl-12 pr-4 text-sm text-dashboard-text-main dark:text-white placeholder-dashboard-text-muted dark:placeholder-slate-500 focus:ring-2 focus:ring-dashboard-primary/50 dark:focus:ring-primary/50 focus:bg-white dark:focus:bg-surface-dark transition-all shadow-sm" 
                 placeholder="Search clubs, members, or events..." 
                 type="text"
               />
@@ -255,22 +255,22 @@ const ClubManagerDashboard = () => {
           </div>
           {/* Right Actions */}
           <div className="flex items-center gap-4 ml-auto pl-4">
-            <button className="size-10 rounded-full bg-white dark:bg-surface-dark text-slate-600 dark:text-slate-300 hover:text-primary flex items-center justify-center transition-colors relative">
+            <button className="size-10 rounded-full bg-white dark:bg-surface-dark border border-dashboard-border dark:border-white/10 text-dashboard-text-muted dark:text-slate-300 hover:text-dashboard-primary dark:hover:text-primary hover:bg-dashboard-surface-hover dark:hover:bg-surface-dark-hover flex items-center justify-center transition-colors relative shadow-sm">
               <span className="material-symbols-outlined text-[20px]">notifications</span>
-              <span className="absolute top-2.5 right-2.5 size-2 bg-primary rounded-full border-2 border-surface-dark"></span>
+              <span className="absolute top-2.5 right-2.5 size-2 bg-red-500 rounded-full border-2 border-white dark:border-surface-dark"></span>
             </button>
             <button 
               onClick={() => navigate('/dashboard/club-manager/events')}
-              className="hidden sm:flex h-10 px-4 rounded-full bg-primary hover:bg-green-400 text-background-dark font-bold text-sm items-center gap-2 transition-colors"
+              className="hidden sm:flex h-10 px-4 rounded-full bg-dashboard-primary dark:bg-primary hover:bg-dashboard-primary-dark dark:hover:bg-primary-hover text-white font-bold text-sm items-center gap-2 transition-colors"
             >
               <span className="material-symbols-outlined text-lg">add</span>
               <span>Create Event</span>
             </button>
-            <div className="h-8 w-px bg-white/10 dark:bg-slate-700"></div>
+            <div className="h-8 w-px bg-dashboard-border dark:bg-slate-700"></div>
             <div className="relative" ref={dropdownRef}>
               <button 
                 onClick={() => setDropdownOpen(!dropdownOpen)}
-                className="flex items-center gap-2 rounded-full pl-1 pr-3 py-1 bg-white dark:bg-surface-dark hover:bg-gray-100 dark:hover:bg-surface-highlight transition-colors border border-gray-200 dark:border-surface-highlight"
+                className="flex items-center gap-2 rounded-full pl-1 pr-3 py-1 bg-white dark:bg-surface-dark hover:bg-dashboard-surface-hover dark:hover:bg-surface-highlight transition-colors border border-dashboard-border dark:border-surface-highlight shadow-sm"
               >
                 {user?.photoURL ? (
                   <img
@@ -292,24 +292,24 @@ const ClubManagerDashboard = () => {
                     backgroundColor: '#1c2620'
                   }}
                 ></div>
-                <span className="text-sm font-medium text-slate-900 dark:text-white hidden sm:block">{user?.name || 'Club Manager'}</span>
-                <span className={`material-symbols-outlined text-slate-600 dark:text-gray-400 text-[18px] hidden sm:block transition-transform ${dropdownOpen ? 'rotate-180' : ''}`}>expand_more</span>
+                <span className="text-sm font-medium text-dashboard-text-main dark:text-white hidden sm:block">{user?.name || 'Club Manager'}</span>
+                <span className={`material-symbols-outlined text-dashboard-text-muted dark:text-gray-400 text-[18px] hidden sm:block transition-transform ${dropdownOpen ? 'rotate-180' : ''}`}>expand_more</span>
               </button>
               
               {/* Dropdown Menu */}
               {dropdownOpen && (
-                <div className="absolute right-0 mt-2 w-48 bg-white dark:bg-surface-dark rounded-xl border border-gray-200 dark:border-white/10 shadow-lg z-50 overflow-hidden">
+                <div className="absolute right-0 mt-2 w-48 bg-white dark:bg-surface-dark rounded-xl border border-dashboard-border dark:border-white/10 shadow-lg z-50 overflow-hidden">
                   <div className="py-1">
-                    <div className="px-4 py-3 border-b border-gray-200 dark:border-white/5">
-                      <p className="text-sm font-bold text-slate-900 dark:text-white">{user?.name || 'Club Manager'}</p>
-                      <p className="text-xs text-slate-500 dark:text-gray-400 mt-0.5">{user?.email || ''}</p>
+                    <div className="px-4 py-3 border-b border-dashboard-border dark:border-white/5">
+                      <p className="text-sm font-bold text-dashboard-text-main dark:text-white">{user?.name || 'Club Manager'}</p>
+                      <p className="text-xs text-dashboard-text-muted dark:text-gray-400 mt-0.5">{user?.email || ''}</p>
                     </div>
                     <button
                       onClick={() => {
                         logout();
                         setDropdownOpen(false);
                       }}
-                      className="w-full px-4 py-3 text-left text-sm text-slate-900 dark:text-white hover:bg-gray-100 dark:hover:bg-white/5 transition-colors flex items-center gap-3"
+                      className="w-full px-4 py-3 text-left text-sm text-dashboard-text-main dark:text-white hover:bg-gray-100 dark:hover:bg-white/5 transition-colors flex items-center gap-3"
                     >
                       <span className="material-symbols-outlined text-lg">logout</span>
                       <span>Log out</span>
@@ -332,11 +332,11 @@ const ClubManagerDashboard = () => {
             {/* Welcome Section */}
             <div className="flex flex-col md:flex-row md:items-end justify-between gap-4">
               <div>
-                <h2 className="text-3xl md:text-4xl font-bold tracking-tight mb-2 text-slate-900 dark:text-white">Welcome back, {user?.name?.split(' ')[0] || 'Manager'} 👋</h2>
-                <p className="text-slate-500 dark:text-slate-400 max-w-2xl">Here is the latest performance overview for your managed clubs and recent activity.</p>
+                <h2 className="text-3xl md:text-4xl font-bold tracking-tight mb-2 text-dashboard-text-main dark:text-white">Welcome back, {user?.name?.split(' ')[0] || 'Manager'} 👋</h2>
+                <p className="text-dashboard-text-muted dark:text-slate-400 max-w-2xl">Here is the latest performance overview for your managed clubs and recent activity.</p>
               </div>
               <div className="text-right hidden md:block">
-                <p className="text-sm font-medium text-slate-500 dark:text-slate-400">
+                <p className="text-sm font-medium text-dashboard-text-muted dark:text-slate-400">
                   Last updated: {new Date().toLocaleTimeString('en-US', { hour: 'numeric', minute: '2-digit' })}
                 </p>
               </div>
@@ -345,7 +345,7 @@ const ClubManagerDashboard = () => {
             {/* Stats Grid */}
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
               {/* Stat Card 1 */}
-              <div className="bg-white dark:bg-surface-dark p-6 rounded-xl shadow-sm flex flex-col justify-between h-40 group hover:ring-1 hover:ring-primary/30 transition-all">
+              <div className="bg-white dark:bg-surface-dark p-6 rounded-xl shadow-sm border border-dashboard-border dark:border-white/5 flex flex-col justify-between h-40 group hover:border-dashboard-primary/20 dark:hover:border-primary/30 transition-all">
                 <div className="flex justify-between items-start">
                   <div className="size-10 rounded-full bg-indigo-500/20 text-indigo-400 flex items-center justify-center">
                     <span className="material-symbols-outlined">flag</span>
@@ -353,13 +353,13 @@ const ClubManagerDashboard = () => {
                   <span className="text-xs font-medium px-2 py-1 rounded-full bg-white/5 text-slate-400">Active</span>
                 </div>
                 <div>
-                  <p className="text-slate-500 dark:text-slate-400 text-sm font-medium mb-1">Managed Clubs</p>
-                  <h3 className="text-3xl font-bold text-slate-900 dark:text-white">{stats.totalClubs}</h3>
+                  <p className="text-dashboard-text-muted dark:text-slate-400 text-sm font-medium mb-1">Managed Clubs</p>
+                  <h3 className="text-3xl font-bold text-dashboard-text-main dark:text-white">{stats.totalClubs}</h3>
                 </div>
               </div>
 
               {/* Stat Card 2 */}
-              <div className="bg-white dark:bg-surface-dark p-6 rounded-xl shadow-sm flex flex-col justify-between h-40 group hover:ring-1 hover:ring-primary/30 transition-all">
+              <div className="bg-white dark:bg-surface-dark p-6 rounded-xl shadow-sm border border-dashboard-border dark:border-white/5 flex flex-col justify-between h-40 group hover:border-dashboard-primary/20 dark:hover:border-primary/30 transition-all">
                 <div className="flex justify-between items-start">
                   <div className="size-10 rounded-full bg-primary/20 text-primary flex items-center justify-center">
                     <span className="material-symbols-outlined">groups</span>
@@ -370,15 +370,15 @@ const ClubManagerDashboard = () => {
                   </div>
                 </div>
                 <div>
-                  <p className="text-slate-500 dark:text-slate-400 text-sm font-medium mb-1">Total Members</p>
-                  <h3 className="text-3xl font-bold text-slate-900 dark:text-white">
+                  <p className="text-dashboard-text-muted dark:text-slate-400 text-sm font-medium mb-1">Total Members</p>
+                  <h3 className="text-3xl font-bold text-dashboard-text-main dark:text-white">
                     {stats.totalMembers.toLocaleString()}
                   </h3>
                 </div>
               </div>
 
               {/* Stat Card 3 */}
-              <div className="bg-white dark:bg-surface-dark p-6 rounded-xl shadow-sm flex flex-col justify-between h-40 group hover:ring-1 hover:ring-primary/30 transition-all">
+              <div className="bg-white dark:bg-surface-dark p-6 rounded-xl shadow-sm border border-dashboard-border dark:border-white/5 flex flex-col justify-between h-40 group hover:border-dashboard-primary/20 dark:hover:border-primary/30 transition-all">
                 <div className="flex justify-between items-start">
                   <div className="size-10 rounded-full bg-orange-500/20 text-orange-400 flex items-center justify-center">
                     <span className="material-symbols-outlined">calendar_month</span>
@@ -389,13 +389,13 @@ const ClubManagerDashboard = () => {
                   </div>
                 </div>
                 <div>
-                  <p className="text-slate-500 dark:text-slate-400 text-sm font-medium mb-1">Events Created</p>
-                  <h3 className="text-3xl font-bold text-slate-900 dark:text-white">{stats.totalEvents}</h3>
+                  <p className="text-dashboard-text-muted dark:text-slate-400 text-sm font-medium mb-1">Events Created</p>
+                  <h3 className="text-3xl font-bold text-dashboard-text-main dark:text-white">{stats.totalEvents}</h3>
                 </div>
               </div>
 
               {/* Stat Card 4 */}
-              <div className="bg-white dark:bg-surface-dark p-6 rounded-xl shadow-sm flex flex-col justify-between h-40 group hover:ring-1 hover:ring-primary/30 transition-all">
+              <div className="bg-white dark:bg-surface-dark p-6 rounded-xl shadow-sm border border-dashboard-border dark:border-white/5 flex flex-col justify-between h-40 group hover:border-dashboard-primary/20 dark:hover:border-primary/30 transition-all">
                 <div className="flex justify-between items-start">
                   <div className="size-10 rounded-full bg-emerald-500/20 text-emerald-400 flex items-center justify-center">
                     <span className="material-symbols-outlined">payments</span>
@@ -408,8 +408,8 @@ const ClubManagerDashboard = () => {
                   )}
                 </div>
                 <div>
-                  <p className="text-slate-500 dark:text-slate-400 text-sm font-medium mb-1">Total Revenue</p>
-                  <h3 className="text-3xl font-bold text-slate-900 dark:text-white">
+                  <p className="text-dashboard-text-muted dark:text-slate-400 text-sm font-medium mb-1">Total Revenue</p>
+                  <h3 className="text-3xl font-bold text-dashboard-text-main dark:text-white">
                     ৳{stats.revenue.toLocaleString('en-US', { minimumFractionDigits: 0, maximumFractionDigits: 0 })}
                   </h3>
                 </div>
@@ -423,7 +423,7 @@ const ClubManagerDashboard = () => {
                 {/* Active Clubs Section */}
                 <div className="flex flex-col gap-4">
                   <div className="flex items-center justify-between">
-                    <h3 className="text-xl font-bold text-slate-900 dark:text-white">Your Clubs</h3>
+                    <h3 className="text-xl font-bold text-dashboard-text-main dark:text-white">Your Clubs</h3>
                     <Link to="/dashboard/club-manager/clubs" className="text-primary text-sm font-bold hover:underline">
                       View All
                     </Link>
@@ -441,10 +441,10 @@ const ClubManagerDashboard = () => {
                           ></div>
                           <div className="flex flex-col flex-1 min-w-0">
                             <div className="flex justify-between items-start">
-                              <h4 className="font-bold text-lg text-slate-900 dark:text-white truncate">{club.name}</h4>
+                              <h4 className="font-bold text-lg text-dashboard-text-main dark:text-white truncate">{club.name}</h4>
                               <span className="material-symbols-outlined text-slate-500 hover:text-primary transition-colors">more_horiz</span>
                             </div>
-                            <p className="text-sm text-slate-500 dark:text-slate-400 mb-2 truncate">{club.description || 'No description'}</p>
+                            <p className="text-sm text-dashboard-text-muted dark:text-slate-400 mb-2 truncate">{club.description || 'No description'}</p>
                             <div className="flex items-center gap-2">
                               <span className="text-xs font-medium text-slate-400">{club.memberCount || 0} members</span>
                             </div>
@@ -464,7 +464,7 @@ const ClubManagerDashboard = () => {
                 {/* Upcoming Events Table */}
                 <div className="bg-white dark:bg-surface-dark rounded-xl overflow-hidden shadow-sm">
                   <div className="p-6 border-b border-white/5 flex items-center justify-between">
-                    <h3 className="text-lg font-bold text-slate-900 dark:text-white">Upcoming Events</h3>
+                    <h3 className="text-lg font-bold text-dashboard-text-main dark:text-white">Upcoming Events</h3>
                     <button className="flex items-center gap-1 text-sm font-medium text-slate-500 hover:text-white transition-colors">
                       <span className="material-symbols-outlined text-base">filter_list</span> Filter
                     </button>
@@ -494,7 +494,7 @@ const ClubManagerDashboard = () => {
                             const club = clubs.find(c => (c.id || c._id) === event.clubId || (c.id || c._id) === event.clubId?.toString());
                             return (
                               <tr key={event.id || event._id} className="hover:bg-white/5 transition-colors">
-                                <td className="px-6 py-4 font-medium text-slate-900 dark:text-white">{event.name}</td>
+                                <td className="px-6 py-4 font-medium text-dashboard-text-main dark:text-white">{event.name}</td>
                                 <td className="px-6 py-4 text-slate-500">{club?.name || 'Unknown Club'}</td>
                                 <td className="px-6 py-4 text-slate-500">{formatDate(event.date)}</td>
                                 <td className="px-6 py-4">
@@ -527,7 +527,7 @@ const ClubManagerDashboard = () => {
               {/* Right Column: Recent Activity Feed */}
               <div className="xl:col-span-1 space-y-6">
                 <div className="bg-white dark:bg-surface-dark rounded-xl p-6 h-full shadow-sm">
-                  <h3 className="text-lg font-bold text-slate-900 dark:text-white mb-6">Recent Activity</h3>
+                  <h3 className="text-lg font-bold text-dashboard-text-main dark:text-white mb-6">Recent Activity</h3>
                   <div className="relative pl-4 border-l border-white/10 space-y-8">
                     {activityData?.activity && activityData.activity.length > 0 ? (
                       activityData.activity.slice(0, 6).map((activity, index) => (
@@ -611,7 +611,7 @@ const ClubManagerDashboard = () => {
           >
             {/* Modal Header */}
             <div className="flex items-center justify-between p-6 border-b border-white/10">
-              <h2 className="text-2xl font-bold text-slate-900 dark:text-white">All Activities</h2>
+              <h2 className="text-2xl font-bold text-dashboard-text-main dark:text-white">All Activities</h2>
               <button
                 onClick={() => setActivityModalOpen(false)}
                 className="size-8 rounded-full bg-white dark:bg-surface-highlight text-slate-600 dark:text-slate-300 hover:bg-gray-100 dark:hover:bg-white/10 flex items-center justify-center transition-colors"

@@ -11,13 +11,21 @@ export default {
         primary: "#38e07b",
         "primary-hover": "#2ccb6a",
         "primary-dark": "#2ec268",
+        "dashboard-primary": "#10b981", // Dashboard light mode primary
+        "dashboard-primary-dark": "#059669", // Dashboard light mode primary dark
         "background-light": "#f6f8f7",
         "background-dark": "#111714", // Home/Login pages
         "background-dark-alt": "#122017", // Club Details/Events/Register pages
+        "dashboard-background": "#f8fafc", // Dashboard light mode background
+        "dashboard-sidebar": "#ffffff", // Dashboard light mode sidebar
+        "dashboard-surface": "#ffffff", // Dashboard light mode surface
+        "dashboard-surface-hover": "#f1f5f9", // Dashboard light mode surface hover
+        "dashboard-text-main": "#0f172a", // Dashboard light mode text main
         "card-dark": "#1c2620",
         "card-light": "#ffffff",
         "border-dark": "#29382f",
         "border-light": "#e2e8f0",
+        "dashboard-border": "#e2e8f0", // Dashboard light mode border
         "border-dark-alt": "#3d5245", // Login page
         "text-main": "#111714", // Light mode primary text
         "text-secondary": "#9eb7a8", // Dark mode secondary text

@@ -123,38 +123,38 @@ const MemberDashboard = () => {
   const displayEvents = upcomingEvents.slice(0, 3);
 
   return (
-    <div className="bg-background-light dark:bg-background-dark text-slate-900 dark:text-white font-display overflow-hidden h-screen flex">
+    <div className="bg-dashboard-background dark:bg-background-dark text-dashboard-text-main dark:text-white font-display overflow-hidden h-screen flex">
       <MemberSidebar />
 
       {/* Main Content */}
-      <main className="flex-1 flex flex-col h-full relative overflow-hidden bg-background-light dark:bg-background-dark">
+      <main className="flex-1 flex flex-col h-full relative overflow-hidden bg-dashboard-background dark:bg-background-dark">
         {/* Top Navigation Bar */}
-        <header className="h-20 shrink-0 border-b border-white/5 bg-background-dark/80 backdrop-blur-md z-10 sticky top-0 px-8 flex items-center justify-between">
+        <header className="h-20 shrink-0 border-b border-dashboard-border dark:border-white/5 bg-white/80 dark:bg-background-dark/80 backdrop-blur-md z-10 sticky top-0 px-8 flex items-center justify-between">
           <div className="flex items-center gap-4 lg:hidden">
-            <button className="text-white">
+            <button className="text-dashboard-text-main dark:text-white">
               <span className="material-symbols-outlined">menu</span>
             </button>
-            <h2 className="text-white text-lg font-bold">Dashboard</h2>
+            <h2 className="text-dashboard-text-main dark:text-white text-lg font-bold">Dashboard</h2>
           </div>
           <div className="hidden lg:flex flex-col">
-            <h2 className="text-white text-xl font-bold tracking-tight">Dashboard</h2>
-            <p className="text-gray-400 text-xs">Overview</p>
+            <h2 className="text-dashboard-text-main dark:text-white text-xl font-bold tracking-tight">Dashboard</h2>
+            <p className="text-dashboard-text-muted dark:text-gray-400 text-xs">Overview</p>
           </div>
           <div className="flex items-center gap-6">
-            <div className="hidden md:flex items-center bg-surface-dark h-12 rounded-full px-4 w-80 border border-white/5 focus-within:border-primary/50 transition-colors">
-              <span className="material-symbols-outlined text-gray-400">search</span>
+            <div className="hidden md:flex items-center bg-dashboard-surface-hover dark:bg-surface-dark h-12 rounded-full px-4 w-80 border border-dashboard-border dark:border-white/5 focus-within:border-dashboard-primary dark:focus-within:border-primary/50 focus-within:bg-white dark:focus-within:bg-surface-dark focus-within:ring-2 focus-within:ring-dashboard-primary/10 dark:focus-within:ring-primary/10 transition-all">
+              <span className="material-symbols-outlined text-dashboard-text-muted dark:text-gray-400">search</span>
               <input 
-                className="bg-transparent border-none focus:ring-0 text-white placeholder-gray-500 w-full ml-2 text-sm font-medium" 
+                className="bg-transparent border-none focus:ring-0 text-dashboard-text-main dark:text-white placeholder-dashboard-text-muted dark:placeholder-gray-500 w-full ml-2 text-sm font-medium" 
                 placeholder="Search clubs, events..." 
                 type="text"
               />
             </div>
             <div className="flex items-center gap-4">
-              <button className="size-10 rounded-full bg-surface-dark text-white flex items-center justify-center hover:bg-surface-dark-hover transition-colors relative">
+              <button className="size-10 rounded-full bg-white dark:bg-surface-dark border border-dashboard-border dark:border-white/10 text-dashboard-text-muted dark:text-gray-400 hover:text-dashboard-primary dark:hover:text-white hover:bg-dashboard-surface-hover dark:hover:bg-surface-dark-hover flex items-center justify-center transition-colors relative shadow-sm">
                 <span className="material-symbols-outlined" style={{ fontSize: '20px' }}>notifications</span>
-                <span className="absolute top-2.5 right-2.5 size-2 bg-primary rounded-full border border-surface-dark"></span>
+                <span className="absolute top-2.5 right-2.5 size-2 bg-red-500 rounded-full border border-white dark:border-surface-dark"></span>
               </button>
-              <div className="h-8 w-px bg-white/10"></div>
+              <div className="h-8 w-px bg-dashboard-border dark:bg-white/10"></div>
               <div className="relative" ref={dropdownRef}>
                 <button 
                   onClick={() => setDropdownOpen(!dropdownOpen)}
@@ -187,25 +187,25 @@ const MemberDashboard = () => {
                     ></div>
                   )}
                   <div className="hidden md:flex flex-col items-start">
-                    <span className="text-sm font-bold text-white leading-none group-hover:text-primary transition-colors">{user?.name || 'Member'}</span>
+                    <span className="text-sm font-bold text-dashboard-text-main dark:text-white leading-none group-hover:text-dashboard-primary dark:group-hover:text-primary transition-colors">{user?.name || 'Member'}</span>
                   </div>
-                  <span className={`material-symbols-outlined text-gray-400 group-hover:text-white transition-all hidden md:block ${dropdownOpen ? 'rotate-180' : ''}`}>expand_more</span>
+                  <span className={`material-symbols-outlined text-dashboard-text-muted dark:text-gray-400 group-hover:text-dashboard-text-main dark:group-hover:text-white transition-all hidden md:block ${dropdownOpen ? 'rotate-180' : ''}`}>expand_more</span>
                 </button>
                 
                 {/* Dropdown Menu */}
                 {dropdownOpen && (
-                  <div className="absolute right-0 mt-2 w-48 bg-surface-dark rounded-xl border border-white/10 shadow-lg z-50 overflow-hidden">
+                  <div className="absolute right-0 mt-2 w-48 bg-white dark:bg-surface-dark rounded-xl border border-dashboard-border dark:border-white/10 shadow-lg z-50 overflow-hidden">
                     <div className="py-1">
-                      <div className="px-4 py-3 border-b border-white/5">
-                        <p className="text-sm font-bold text-white">{user?.name || 'Member'}</p>
-                        <p className="text-xs text-gray-400 mt-0.5">{user?.email || ''}</p>
+                      <div className="px-4 py-3 border-b border-dashboard-border dark:border-white/5">
+                        <p className="text-sm font-bold text-dashboard-text-main dark:text-white">{user?.name || 'Member'}</p>
+                        <p className="text-xs text-dashboard-text-muted dark:text-gray-400 mt-0.5">{user?.email || ''}</p>
                       </div>
                       <button
                         onClick={() => {
                           logout();
                           setDropdownOpen(false);
                         }}
-                        className="w-full px-4 py-3 text-left text-sm text-white hover:bg-white/5 transition-colors flex items-center gap-3"
+                        className="w-full px-4 py-3 text-left text-sm text-dashboard-text-main dark:text-white hover:bg-gray-100 dark:hover:bg-white/5 transition-colors flex items-center gap-3"
                       >
                         <span className="material-symbols-outlined text-lg">logout</span>
                         <span>Log out</span>
@@ -229,10 +229,10 @@ const MemberDashboard = () => {
             {/* Welcome Section */}
             <section className="flex flex-col md:flex-row gap-6 items-start md:items-end justify-between">
               <div>
-                <h1 className="text-3xl md:text-4xl font-black text-white mb-2 tracking-tight">
-                  Welcome back, <span className="text-primary">{user?.name?.split(' ')[0] || 'Member'}!</span>
+                <h1 className="text-3xl md:text-4xl font-black text-dashboard-text-main dark:text-white mb-2 tracking-tight">
+                  Welcome back, <span className="text-dashboard-primary dark:text-primary">{user?.name?.split(' ')[0] || 'Member'}!</span>
                 </h1>
-                <p className="text-gray-400 text-lg max-w-2xl">
+                <p className="text-dashboard-text-muted dark:text-gray-400 text-lg max-w-2xl">
                   {registeredEvents.length > 0 
                     ? `You have ${registeredEvents.length} registered event${registeredEvents.length > 1 ? 's' : ''} coming up. Ready to explore what's new in your area?`
                     : 'Ready to explore what\'s new in your area?'
@@ -241,7 +241,7 @@ const MemberDashboard = () => {
               </div>
               <Link
                 to="/dashboard/member/discover"
-                className="bg-primary hover:bg-primary/90 text-background-dark font-bold py-3 px-6 rounded-full flex items-center gap-2 transition-all shadow-lg shadow-primary/20 shrink-0"
+                className="bg-dashboard-primary dark:bg-primary hover:bg-dashboard-primary-dark dark:hover:bg-primary-hover text-white font-bold py-3 px-6 rounded-full flex items-center gap-2 transition-all shadow-lg shadow-dashboard-primary/30 dark:shadow-primary/20 shrink-0"
               >
                 <span className="material-symbols-outlined">add_circle</span>
                 Find New Clubs
@@ -250,46 +250,46 @@ const MemberDashboard = () => {
 
             {/* Stats Grid */}
             <section className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
-              <div className="bg-surface-dark p-6 rounded-2xl border border-white/5 flex flex-col gap-1 relative overflow-hidden">
+              <div className="bg-white dark:bg-surface-dark p-6 rounded-2xl border border-dashboard-border dark:border-white/5 shadow-sm flex flex-col gap-1 relative overflow-hidden group hover:border-dashboard-primary/20 dark:hover:border-primary/20 transition-all">
                 <div className="flex justify-between items-start mb-2">
-                  <div className="bg-blue-500/20 text-blue-400 p-2 rounded-lg">
+                  <div className="bg-blue-50 dark:bg-blue-500/20 text-blue-500 dark:text-blue-400 p-2 rounded-lg border border-blue-100 dark:border-transparent">
                     <span className="material-symbols-outlined">groups</span>
                   </div>
-                  <span className="text-primary text-sm font-bold bg-primary/10 px-2 py-1 rounded-md">+1 this month</span>
+                  <span className="text-dashboard-primary dark:text-primary text-sm font-bold bg-dashboard-primary/10 dark:bg-primary/10 px-2 py-1 rounded-md border border-dashboard-primary/10 dark:border-primary/10">+1 this month</span>
                 </div>
-                <h3 className="text-gray-400 text-sm font-medium">Total Clubs Joined</h3>
-                <p className="text-3xl font-bold text-white">{stats.totalClubs}</p>
+                <h3 className="text-dashboard-text-muted dark:text-gray-400 text-sm font-medium">Total Clubs Joined</h3>
+                <p className="text-3xl font-bold text-dashboard-text-main dark:text-white">{stats.totalClubs}</p>
               </div>
-              <div className="bg-surface-dark p-6 rounded-2xl border border-white/5 flex flex-col gap-1">
+              <div className="bg-white dark:bg-surface-dark p-6 rounded-2xl border border-dashboard-border dark:border-white/5 shadow-sm flex flex-col gap-1 group hover:border-dashboard-primary/20 dark:hover:border-primary/20 transition-all">
                 <div className="flex justify-between items-start mb-2">
-                  <div className="bg-purple-500/20 text-purple-400 p-2 rounded-lg">
+                  <div className="bg-purple-50 dark:bg-purple-500/20 text-purple-500 dark:text-purple-400 p-2 rounded-lg border border-purple-100 dark:border-transparent">
                     <span className="material-symbols-outlined">event_available</span>
                   </div>
-                  <span className="text-primary text-sm font-bold bg-primary/10 px-2 py-1 rounded-md">+2 this week</span>
+                  <span className="text-dashboard-primary dark:text-primary text-sm font-bold bg-dashboard-primary/10 dark:bg-primary/10 px-2 py-1 rounded-md border border-dashboard-primary/10 dark:border-primary/10">+2 this week</span>
                 </div>
-                <h3 className="text-gray-400 text-sm font-medium">Events Registered</h3>
-                <p className="text-3xl font-bold text-white">{stats.eventsRegistered}</p>
+                <h3 className="text-dashboard-text-muted dark:text-gray-400 text-sm font-medium">Events Registered</h3>
+                <p className="text-3xl font-bold text-dashboard-text-main dark:text-white">{stats.eventsRegistered}</p>
               </div>
-              <div className="bg-surface-dark p-6 rounded-2xl border border-white/5 flex flex-col gap-1">
+              <div className="bg-white dark:bg-surface-dark p-6 rounded-2xl border border-dashboard-border dark:border-white/5 shadow-sm flex flex-col gap-1 group hover:border-dashboard-primary/20 dark:hover:border-primary/20 transition-all">
                 <div className="flex justify-between items-start mb-2">
-                  <div className="bg-orange-500/20 text-orange-400 p-2 rounded-lg">
+                  <div className="bg-orange-50 dark:bg-orange-500/20 text-orange-500 dark:text-orange-400 p-2 rounded-lg border border-orange-100 dark:border-transparent">
                     <span className="material-symbols-outlined">history</span>
                   </div>
                 </div>
-                <h3 className="text-gray-400 text-sm font-medium">Events Attended</h3>
-                <p className="text-3xl font-bold text-white">{stats.eventsAttended}</p>
+                <h3 className="text-dashboard-text-muted dark:text-gray-400 text-sm font-medium">Events Attended</h3>
+                <p className="text-3xl font-bold text-dashboard-text-main dark:text-white">{stats.eventsAttended}</p>
               </div>
-              <div className="bg-surface-dark p-6 rounded-2xl border border-white/5 flex flex-col gap-1">
+              <div className="bg-white dark:bg-surface-dark p-6 rounded-2xl border border-dashboard-border dark:border-white/5 shadow-sm flex flex-col gap-1 group hover:border-dashboard-primary/20 dark:hover:border-primary/20 transition-all">
                 <div className="flex justify-between items-start mb-2">
-                  <div className="bg-pink-500/20 text-pink-400 p-2 rounded-lg">
+                  <div className="bg-pink-50 dark:bg-pink-500/20 text-pink-500 dark:text-pink-400 p-2 rounded-lg border border-pink-100 dark:border-transparent">
                     <span className="material-symbols-outlined">savings</span>
                   </div>
                 </div>
-                <h3 className="text-gray-400 text-sm font-medium">Next Payment</h3>
+                <h3 className="text-dashboard-text-muted dark:text-gray-400 text-sm font-medium">Next Payment</h3>
                 {stats.nextPayment ? (
-                  <p className="text-xl font-bold text-white mt-auto">{stats.nextPayment.date.split(',')[0]}</p>
+                  <p className="text-xl font-bold text-dashboard-text-main dark:text-white mt-auto">{stats.nextPayment.date.split(',')[0]}</p>
                 ) : (
-                  <p className="text-lg font-medium text-gray-400 mt-auto">No upcoming</p>
+                  <p className="text-lg font-medium text-dashboard-text-muted dark:text-gray-400 mt-auto">No upcoming</p>
                 )}
               </div>
             </section>
@@ -299,22 +299,22 @@ const MemberDashboard = () => {
               {/* Upcoming Events */}
               <div className="xl:col-span-2 flex flex-col gap-6">
                 <div className="flex items-center justify-between">
-                  <h2 className="text-xl font-bold text-white flex items-center gap-2">
-                    <span className="material-symbols-outlined text-primary">calendar_clock</span>
+                  <h2 className="text-xl font-bold text-dashboard-text-main dark:text-white flex items-center gap-2">
+                    <span className="material-symbols-outlined text-dashboard-primary dark:text-primary">calendar_clock</span>
                     Upcoming Events
                   </h2>
-                  <Link to="/dashboard/member/events" className="text-sm font-bold text-primary hover:underline">
+                  <Link to="/dashboard/member/events" className="text-sm font-bold text-dashboard-primary dark:text-primary hover:text-dashboard-primary-dark dark:hover:text-primary-hover hover:underline">
                     View Calendar
                   </Link>
                 </div>
                 {displayEvents.length === 0 ? (
-                  <div className="bg-surface-dark border border-white/5 rounded-2xl p-12 text-center">
-                    <span className="material-symbols-outlined text-6xl text-gray-600 mb-4 block">event_busy</span>
-                    <h3 className="text-xl font-bold text-white mb-2">No upcoming events</h3>
-                    <p className="text-gray-400 mb-6">Check out the upcoming tab to see all available events.</p>
+                  <div className="bg-white dark:bg-surface-dark border border-dashboard-border dark:border-white/5 rounded-2xl p-12 text-center shadow-sm">
+                    <span className="material-symbols-outlined text-6xl text-gray-400 dark:text-gray-600 mb-4 block">event_busy</span>
+                    <h3 className="text-xl font-bold text-dashboard-text-main dark:text-white mb-2">No upcoming events</h3>
+                    <p className="text-dashboard-text-muted dark:text-gray-400 mb-6">Check out the upcoming tab to see all available events.</p>
                     <Link
                       to="/dashboard/member/events"
-                      className="inline-flex items-center gap-2 bg-primary hover:bg-primary/90 text-background-dark font-bold py-2 px-4 rounded-full transition-all"
+                      className="inline-flex items-center gap-2 bg-dashboard-primary dark:bg-primary hover:bg-dashboard-primary-dark dark:hover:bg-primary-hover text-white font-bold py-2 px-4 rounded-full transition-all"
                     >
                       Browse Events
                     </Link>
@@ -328,19 +328,19 @@ const MemberDashboard = () => {
                       <div 
                         key={event.id || event.eventId} 
                         onClick={() => navigate(`/events/${event.eventId || event.id}`)}
-                        className="bg-surface-dark hover:bg-surface-dark-hover border border-white/5 hover:border-primary/30 rounded-2xl p-4 flex flex-col sm:flex-row gap-6 transition-all group cursor-pointer"
+                        className="bg-white dark:bg-surface-dark hover:bg-slate-50 dark:hover:bg-surface-dark-hover border border-dashboard-border dark:border-white/5 hover:border-dashboard-primary/30 dark:hover:border-primary/30 rounded-2xl p-4 flex flex-col sm:flex-row gap-6 transition-all group cursor-pointer shadow-sm hover:shadow-md"
                       >
                         <div 
                           className="w-full sm:w-48 h-32 shrink-0 rounded-xl bg-cover bg-center relative overflow-hidden bg-gray-700"
                           style={{ backgroundImage: event.image ? `url("${event.image}")` : 'none' }}
                         >
-                          <div className={`absolute top-2 left-2 backdrop-blur-sm text-white text-xs font-bold px-2 py-1 rounded-md border border-white/10 ${
-                            eventDate === 'TODAY' ? 'bg-background-dark/80' : 'bg-white/20'
+                          <div className={`absolute top-2 left-2 bg-white/90 dark:bg-background-dark/80 backdrop-blur-sm text-dashboard-text-main dark:text-white text-xs font-bold px-2 py-1 rounded-md border border-black/5 dark:border-white/10 shadow-sm ${
+                            eventDate === 'TODAY' ? '' : ''
                           }`}>
                             {eventDate}
                           </div>
                           {isRegistered && (
-                            <div className="absolute top-2 right-2 backdrop-blur-sm bg-primary/90 text-background-dark text-xs font-bold px-2 py-1 rounded-md">
+                            <div className="absolute top-2 right-2 backdrop-blur-sm bg-dashboard-primary dark:bg-primary/90 text-white text-xs font-bold px-2 py-1 rounded-md">
                               Registered
                             </div>
                           )}
@@ -348,27 +348,27 @@ const MemberDashboard = () => {
                         <div className="flex flex-col justify-between flex-1 py-1">
                           <div>
                             <div className="flex justify-between items-start">
-                              <p className="text-xs font-bold uppercase tracking-wider mb-1 text-primary">{event.clubName || 'Event'}</p>
+                              <p className="text-xs font-bold uppercase tracking-wider mb-1 text-dashboard-primary dark:text-primary">{event.clubName || 'Event'}</p>
                               {event.time && (
-                                <span className="text-gray-400 text-xs flex items-center gap-1">
+                                <span className="text-dashboard-text-muted dark:text-gray-400 text-xs flex items-center gap-1">
                                   <span className="material-symbols-outlined text-[16px]">schedule</span> {event.time}
                                 </span>
                               )}
                             </div>
-                            <h3 className="text-lg font-bold text-white mb-1 group-hover:text-primary transition-colors">{event.name || event.title}</h3>
+                            <h3 className="text-lg font-bold text-dashboard-text-main dark:text-white mb-1 group-hover:text-dashboard-primary dark:group-hover:text-primary transition-colors">{event.name || event.title}</h3>
                             {event.clubName && (
-                              <p className="text-gray-400 text-sm">Hosted by <span className="text-white">{event.clubName}</span></p>
+                              <p className="text-dashboard-text-muted dark:text-gray-400 text-sm">Hosted by <span className="text-dashboard-text-main dark:text-white font-semibold">{event.clubName}</span></p>
                             )}
                           </div>
                           {event.location ? (
-                            <div className="flex items-center gap-2 mt-4 sm:mt-0 text-gray-400 text-xs">
+                            <div className="flex items-center gap-2 mt-4 sm:mt-0 text-dashboard-text-muted dark:text-gray-400 text-xs">
                               <span className="material-symbols-outlined text-[16px]">location_on</span> {event.location}
                             </div>
                           ) : (
                             <div className="mt-4 sm:mt-0">
                               {event.statusLabel && (
                                 <span className={`inline-flex items-center px-2 py-1 rounded-full text-xs font-bold ${
-                                  event.statusColor === 'primary' ? 'bg-primary/20 text-primary' :
+                                  event.statusColor === 'primary' ? 'bg-dashboard-primary/20 dark:bg-primary/20 text-dashboard-primary dark:text-primary' :
                                   event.statusColor === 'yellow' ? 'bg-yellow-500/20 text-yellow-500' :
                                   'bg-blue-500/20 text-blue-400'
                                 }`}>
@@ -387,26 +387,26 @@ const MemberDashboard = () => {
               {/* My Clubs List */}
               <div className="flex flex-col gap-6">
                 <div className="flex items-center justify-between">
-                  <h2 className="text-xl font-bold text-white flex items-center gap-2">
-                    <span className="material-symbols-outlined text-primary">diversity_3</span>
+                  <h2 className="text-xl font-bold text-dashboard-text-main dark:text-white flex items-center gap-2">
+                    <span className="material-symbols-outlined text-dashboard-primary dark:text-primary">diversity_3</span>
                     My Clubs
                   </h2>
                   <Link
                     to="/dashboard/member/clubs"
-                    className="size-8 rounded-full bg-surface-dark border border-white/10 flex items-center justify-center text-primary hover:bg-primary hover:text-background-dark transition-all"
+                    className="size-8 rounded-full bg-white dark:bg-surface-dark border border-dashboard-border dark:border-white/10 flex items-center justify-center text-dashboard-primary dark:text-primary hover:bg-dashboard-primary dark:hover:bg-primary hover:text-white transition-all shadow-sm"
                   >
                     <span className="material-symbols-outlined" style={{ fontSize: '20px' }}>add</span>
                   </Link>
                 </div>
-                <div className="bg-surface-dark rounded-2xl border border-white/5 overflow-hidden">
+                <div className="bg-white dark:bg-surface-dark rounded-2xl border border-dashboard-border dark:border-white/5 overflow-hidden shadow-sm">
                     {clubs.length === 0 ? (
                       <div className="p-12 text-center">
-                        <span className="material-symbols-outlined text-6xl text-gray-600 mb-4 block">groups</span>
-                        <h3 className="text-lg font-bold text-white mb-2">No clubs yet</h3>
-                        <p className="text-gray-400 mb-4">Start exploring and join your first club!</p>
+                        <span className="material-symbols-outlined text-6xl text-gray-400 dark:text-gray-600 mb-4 block">groups</span>
+                        <h3 className="text-lg font-bold text-dashboard-text-main dark:text-white mb-2">No clubs yet</h3>
+                        <p className="text-dashboard-text-muted dark:text-gray-400 mb-4">Start exploring and join your first club!</p>
                         <Link
                           to="/dashboard/member/discover"
-                          className="inline-flex items-center gap-2 bg-primary hover:bg-primary/90 text-background-dark font-bold py-2 px-4 rounded-full transition-all text-sm"
+                          className="inline-flex items-center gap-2 bg-dashboard-primary dark:bg-primary hover:bg-dashboard-primary-dark dark:hover:bg-primary-hover text-white font-bold py-2 px-4 rounded-full transition-all text-sm"
                         >
                           Discover Clubs
                         </Link>
@@ -416,25 +416,25 @@ const MemberDashboard = () => {
                         <div 
                           key={club.id || club.clubId} 
                           onClick={() => navigate(`/clubs/${club.clubId || club.id}`)}
-                          className={`p-4 flex items-center gap-4 hover:bg-white/5 transition-colors cursor-pointer ${
-                            index < Math.min(clubs.length, 5) - 1 ? 'border-b border-white/5' : ''
+                          className={`p-4 flex items-center gap-4 hover:bg-slate-50 dark:hover:bg-white/5 transition-colors cursor-pointer ${
+                            index < Math.min(clubs.length, 5) - 1 ? 'border-b border-dashboard-border dark:border-white/5' : ''
                           }`}
                         >
                           <div 
-                            className={`size-12 rounded-xl bg-cover bg-center bg-gray-700 ${club.status === 'pending' || club.statusLabel === 'Pending' ? 'grayscale opacity-70' : ''}`}
+                            className={`size-12 rounded-xl bg-cover bg-center bg-gray-700 shadow-sm ${club.status === 'pending' || club.statusLabel === 'Pending' ? 'grayscale opacity-70 border border-dashboard-border dark:border-gray-700' : ''}`}
                             style={{ backgroundImage: club.image ? `url("${club.image}")` : 'none' }}
                           ></div>
                           <div className="flex-1 min-w-0">
-                            <h4 className={`font-bold text-sm truncate ${club.status === 'pending' || club.statusLabel === 'Pending' ? 'text-gray-300' : 'text-white'}`}>{club.name}</h4>
-                            <p className={`text-xs truncate ${club.status === 'pending' || club.statusLabel === 'Pending' ? 'text-gray-500' : 'text-gray-400'}`}>
+                            <h4 className={`font-bold text-sm truncate ${club.status === 'pending' || club.statusLabel === 'Pending' ? 'text-dashboard-text-muted dark:text-gray-300' : 'text-dashboard-text-main dark:text-white'}`}>{club.name}</h4>
+                            <p className={`text-xs truncate ${club.status === 'pending' || club.statusLabel === 'Pending' ? 'text-dashboard-text-muted dark:text-gray-500' : 'text-dashboard-text-muted dark:text-gray-400'}`}>
                               {club.joinDate ? `Member since ${club.joinDate.split(',')[1]?.trim() || club.joinDate}` : 'Member'}
                             </p>
                           </div>
                           <span className={`px-2 py-1 rounded-md text-xs font-bold border shrink-0 ${
                             club.status === 'active' || club.statusLabel === 'Active'
-                              ? 'bg-green-500/10 text-green-500 border-green-500/20'
+                              ? 'bg-green-50 dark:bg-green-500/10 text-green-600 dark:text-green-500 border-green-100 dark:border-green-500/20'
                               : club.status === 'pending' || club.statusLabel === 'Pending'
-                              ? 'bg-yellow-500/10 text-yellow-500 border-yellow-500/20'
+                              ? 'bg-yellow-50 dark:bg-yellow-500/10 text-yellow-600 dark:text-yellow-500 border-yellow-100 dark:border-yellow-500/20'
                               : 'bg-gray-500/10 text-gray-500 border-gray-500/20'
                           }`}>{club.statusLabel || club.status || 'Active'}</span>
                         </div>
@@ -447,18 +447,18 @@ const MemberDashboard = () => {
             {/* Recent Payments Section */}
             <section className="flex flex-col gap-6">
               <div className="flex items-center justify-between">
-                <h2 className="text-xl font-bold text-white flex items-center gap-2">
-                  <span className="material-symbols-outlined text-primary">receipt_long</span>
+                <h2 className="text-xl font-bold text-dashboard-text-main dark:text-white flex items-center gap-2">
+                  <span className="material-symbols-outlined text-dashboard-primary dark:text-primary">receipt_long</span>
                   Payment History
                 </h2>
-                <Link to="/dashboard/member/payments" className="text-sm text-gray-400 hover:text-white transition-colors">
+                <Link to="/dashboard/member/payments" className="text-sm text-dashboard-text-muted dark:text-gray-400 hover:text-dashboard-text-main dark:hover:text-white transition-colors font-medium">
                   See all
                 </Link>
               </div>
-              <div className="bg-surface-dark rounded-2xl border border-white/5 overflow-x-auto">
+              <div className="bg-white dark:bg-surface-dark rounded-2xl border border-dashboard-border dark:border-white/5 overflow-x-auto shadow-sm">
                 <table className="w-full text-left text-sm whitespace-nowrap">
                   <thead>
-                    <tr className="text-gray-400 border-b border-white/5">
+                    <tr className="text-dashboard-text-muted dark:text-gray-400 border-b border-dashboard-border dark:border-white/5 bg-slate-50 dark:bg-slate-800/50">
                       <th className="px-6 py-4 font-medium">Description</th>
                       <th className="px-6 py-4 font-medium">Club</th>
                       <th className="px-6 py-4 font-medium">Date</th>
@@ -466,12 +466,12 @@ const MemberDashboard = () => {
                       <th className="px-6 py-4 font-medium text-right">Status</th>
                     </tr>
                   </thead>
-                  <tbody className="text-white divide-y divide-white/5">
+                  <tbody className="text-dashboard-text-main dark:text-white divide-y divide-dashboard-border dark:divide-white/5">
                     {payments.length === 0 ? (
                       <tr>
                         <td colSpan="5" className="px-6 py-12 text-center">
-                          <span className="material-symbols-outlined text-6xl text-gray-600 mb-4 block">receipt_long</span>
-                          <p className="text-gray-400">No payment history</p>
+                          <span className="material-symbols-outlined text-6xl text-gray-400 dark:text-gray-600 mb-4 block">receipt_long</span>
+                          <p className="text-dashboard-text-muted dark:text-gray-400">No payment history</p>
                         </td>
                       </tr>
                     ) : (
@@ -486,25 +486,25 @@ const MemberDashboard = () => {
                           : payment.description;
 
                         return (
-                          <tr key={payment.id} className="hover:bg-white/5 transition-colors">
+                          <tr key={payment.id} className="hover:bg-slate-50 dark:hover:bg-white/5 transition-colors">
                             <td className="px-6 py-4 font-bold flex items-center gap-3">
-                              <div className="bg-white/10 p-2 rounded-lg">
+                              <div className="bg-slate-100 dark:bg-white/10 text-dashboard-text-muted dark:text-gray-400 p-2 rounded-lg">
                                 <span className="material-symbols-outlined text-sm">{payment.icon || 'receipt_long'}</span>
                               </div>
                               {descriptionOnly}
                             </td>
-                            <td className="px-6 py-4 text-gray-300">{clubName || '-'}</td>
-                            <td className="px-6 py-4 text-gray-400">{payment.date}</td>
-                            <td className="px-6 py-4 font-mono">৳{payment.amount}</td>
+                            <td className="px-6 py-4 text-dashboard-text-muted dark:text-gray-400">{clubName || '-'}</td>
+                            <td className="px-6 py-4 text-dashboard-text-muted dark:text-gray-400">{payment.date}</td>
+                            <td className="px-6 py-4 font-mono font-medium">{payment.amount}</td>
                             <td className="px-6 py-4 text-right">
-                              <span className={`inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-medium border ${
+                              <span className={`inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-medium bg-green-50 dark:bg-green-500/10 text-green-600 dark:text-green-400 border border-green-100 dark:border-green-500/20 ${
                                 payment.status === 'success' || payment.status === 'Paid'
-                                  ? 'bg-green-500/10 text-green-400 border-green-500/20'
+                                  ? ''
                                   : payment.status === 'pending' || payment.status === 'Pending'
-                                  ? 'bg-yellow-500/10 text-yellow-400 border-yellow-500/20'
-                                  : 'bg-red-500/10 text-red-400 border-red-500/20'
+                                  ? 'bg-yellow-50 dark:bg-yellow-500/10 text-yellow-600 dark:text-yellow-400 border-yellow-100 dark:border-yellow-500/20'
+                                  : 'bg-red-50 dark:bg-red-500/10 text-red-600 dark:text-red-400 border-red-100 dark:border-red-500/20'
                               }`}>
-                                {payment.status === 'success' && <span className="size-1.5 rounded-full bg-green-400"></span>}
+                                {payment.status === 'success' && <span className="size-1.5 rounded-full bg-green-500"></span>}
                                 {payment.statusLabel || payment.status}
                               </span>
                             </td>
@@ -517,7 +517,7 @@ const MemberDashboard = () => {
               </div>
             </section>
 
-            <footer className="pt-10 pb-4 text-center text-xs text-gray-500">
+            <footer className="pt-10 pb-4 text-center text-xs text-dashboard-text-muted dark:text-gray-500">
               © 2023 ClubSphere. All rights reserved.
             </footer>
           </div>
