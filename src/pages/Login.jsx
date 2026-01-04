@@ -11,8 +11,38 @@ const Login = () => {
   const [showPassword, setShowPassword] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
   const [isGoogleLoading, setIsGoogleLoading] = useState(false);
-  const { register, handleSubmit, formState: { errors } } = useForm();
+  const { register, handleSubmit, formState: { errors }, setValue } = useForm();
   const { login, loginWithGoogle } = useAuth();
+
+  const handleDemoLogin = async (email, password) => {
+    setIsLoading(true);
+    try {
+      const result = await login(email, password);
+      if (result.success) {
+        Swal.fire({
+          icon: 'success',
+          title: 'Login Successful!',
+          text: 'Welcome back!',
+          timer: 2000,
+          showConfirmButton: false
+        });
+      } else {
+        Swal.fire({
+          icon: 'error',
+          title: 'Login Failed',
+          text: result.error || 'Invalid email or password',
+        });
+      }
+    } catch (error) {
+      Swal.fire({
+        icon: 'error',
+        title: 'Login Failed',
+        text: error.message || 'Something went wrong. Please try again.',
+      });
+    } finally {
+      setIsLoading(false);
+    }
+  };
 
   const onSubmit = async (data) => {
     setIsLoading(true);
@@ -258,6 +288,35 @@ const Login = () => {
               </svg>
               {isGoogleLoading ? 'Signing in...' : 'Continue with Google'}
             </button>
+
+            {/* Divider */}
+            <div className="relative flex items-center py-2">
+              <div className="flex-grow border-t border-border-dark-alt"></div>
+              <span className="flex-shrink-0 mx-4 text-text-muted text-xs font-medium uppercase tracking-wider">Or</span>
+              <div className="flex-grow border-t border-border-dark-alt"></div>
+            </div>
+
+            {/* Demo Credentials Buttons */}
+            <div className="flex flex-col gap-3">
+              <button
+                type="button"
+                onClick={() => handleDemoLogin('demo@clubsphere.com', 'demo123')}
+                disabled={isLoading || isGoogleLoading}
+                className="flex w-full cursor-pointer items-center justify-center gap-2 rounded-full h-12 px-5 bg-green-600 hover:bg-green-700 transition-colors text-white text-base font-bold leading-normal tracking-[0.015em] disabled:opacity-50 disabled:cursor-not-allowed"
+              >
+                <span className="material-symbols-outlined text-lg">person</span>
+                Login as Demo User
+              </button>
+              <button
+                type="button"
+                onClick={() => handleDemoLogin('admin@clubsphere.com', 'admin123')}
+                disabled={isLoading || isGoogleLoading}
+                className="flex w-full cursor-pointer items-center justify-center gap-2 rounded-full h-12 px-5 bg-purple-600 hover:bg-purple-700 transition-colors text-white text-base font-bold leading-normal tracking-[0.015em] disabled:opacity-50 disabled:cursor-not-allowed"
+              >
+                <span className="material-symbols-outlined text-lg">admin_panel_settings</span>
+                Login as Demo Admin
+              </button>
+            </div>
           </form>
 
           {/* Footer */}

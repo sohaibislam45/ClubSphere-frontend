@@ -6,6 +6,7 @@ import Navbar from '../components/layout/Navbar';
 import Footer from '../components/layout/Footer';
 import ClubCard from '../components/ui/ClubCard';
 import Loader from '../components/ui/Loader';
+import Pagination from '../components/ui/Pagination';
 import api from '../lib/api';
 
 const Clubs = () => {
@@ -14,6 +15,8 @@ const Clubs = () => {
   const [searchTerm, setSearchTerm] = useState(searchParams.get('search') || '');
   const [selectedCategory, setSelectedCategory] = useState('all');
   const [sortBy, setSortBy] = useState('newest');
+  const [currentPage, setCurrentPage] = useState(1);
+  const itemsPerPage = 12;
 
   useEffect(() => {
     document.title = 'Discover Clubs - ClubSphere';
@@ -27,12 +30,20 @@ const Clubs = () => {
     setSearchTerm(urlSearch);
   }, [searchParams]);
 
+  // Reset to page 1 when filters change
+  useEffect(() => {
+    setCurrentPage(1);
+  }, [searchTerm, selectedCategory, sortBy]);
+
   // Fetch clubs from API
-  const { data: clubs = [], isLoading } = useQuery({
-    queryKey: ['clubs', searchTerm, selectedCategory, sortBy],
+  const { data, isLoading } = useQuery({
+    queryKey: ['clubs', searchTerm, selectedCategory, sortBy, currentPage],
     queryFn: async () => {
       try {
-        const params = {};
+        const params = {
+          page: currentPage,
+          limit: itemsPerPage
+        };
         if (searchTerm) {
           params.search = searchTerm;
         }
@@ -43,14 +54,22 @@ const Clubs = () => {
           params.sortBy = sortBy;
         }
         const response = await api.get('/api/clubs', { params });
-        return response.data || [];
+        return response.data || { clubs: [], pagination: { page: 1, limit: itemsPerPage, total: 0, totalPages: 0 } };
       } catch (error) {
         console.error('Error fetching clubs:', error);
-        // Return empty array on error instead of throwing
-        return [];
+        // Return empty structure on error instead of throwing
+        return { clubs: [], pagination: { page: 1, limit: itemsPerPage, total: 0, totalPages: 0 } };
       }
     },
   });
+
+  const clubs = data?.clubs || [];
+  const pagination = data?.pagination || { page: 1, limit: itemsPerPage, total: 0, totalPages: 0 };
+
+  const handlePageChange = (page) => {
+    setCurrentPage(page);
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  };
 
   const categories = ['all', 'Fitness', 'Tech', 'Lifestyle', 'Arts', 'Sports', 'Social'];
 
@@ -142,6 +161,15 @@ const Clubs = () => {
               <div className="text-center py-12">
                 <p className="text-text-muted dark:text-text-secondary text-lg">{t('clubs.noClubsFound')}</p>
               </div>
+            )}
+            {pagination.totalPages > 1 && (
+              <Pagination
+                currentPage={pagination.page}
+                totalPages={pagination.totalPages}
+                onPageChange={handlePageChange}
+                totalItems={pagination.total}
+                itemsPerPage={itemsPerPage}
+              />
             )}
           </>
         )}

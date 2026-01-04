@@ -503,6 +503,55 @@ const Home = () => {
           </div>
         </section>
 
+        {/* Statistics Section */}
+        <section className="w-full px-4 sm:px-6 lg:px-8 py-16 flex justify-center bg-white dark:bg-card-dark/20 border-y border-gray-200 dark:border-border-dark/50">
+          <div className="w-full max-w-[1280px]">
+            <div className="grid grid-cols-2 md:grid-cols-4 gap-6">
+              {[
+                { 
+                  label: 'Active Clubs', 
+                  value: statsLoading ? '...' : (statsData?.totalClubs || 0).toLocaleString(),
+                  icon: 'groups',
+                  color: 'text-primary'
+                },
+                { 
+                  label: 'Total Members', 
+                  value: statsLoading ? '...' : (statsData?.totalMembers || 0).toLocaleString(),
+                  icon: 'people',
+                  color: 'text-blue-500'
+                },
+                { 
+                  label: 'Upcoming Events', 
+                  value: statsLoading ? '...' : (statsData?.totalEvents || 0).toLocaleString(),
+                  icon: 'event',
+                  color: 'text-purple-500'
+                },
+                { 
+                  label: 'Total Users', 
+                  value: statsLoading ? '...' : (statsData?.totalUsers || 0).toLocaleString(),
+                  icon: 'person',
+                  color: 'text-green-500'
+                }
+              ].map((stat, index) => (
+                <motion.div
+                  key={stat.label}
+                  initial={{ opacity: 0, y: 20 }}
+                  whileInView={{ opacity: 1, y: 0 }}
+                  viewport={{ once: true }}
+                  transition={{ duration: 0.5, delay: index * 0.1 }}
+                  className="flex flex-col items-center gap-3 p-6 rounded-2xl bg-white dark:bg-card-dark border border-gray-200 dark:border-border-dark"
+                >
+                  <span className={`material-symbols-outlined text-4xl ${stat.color}`}>{stat.icon}</span>
+                  <div className="text-center">
+                    <p className="text-3xl md:text-4xl font-black text-gray-900 dark:text-white">{stat.value}</p>
+                    <p className="text-sm font-medium text-text-muted dark:text-text-secondary mt-1">{stat.label}</p>
+                  </div>
+                </motion.div>
+              ))}
+            </div>
+          </div>
+        </section>
+
         {/* Why Join (Bento Grid) Section */}
         <section className="w-full px-4 sm:px-6 lg:px-8 py-20 flex justify-center">
           <div className="w-full max-w-[1280px]">

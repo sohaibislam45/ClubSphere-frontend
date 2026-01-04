@@ -5,6 +5,7 @@ import Navbar from '../components/layout/Navbar';
 import Footer from '../components/layout/Footer';
 import EventCard from '../components/ui/EventCard';
 import Loader from '../components/ui/Loader';
+import Pagination from '../components/ui/Pagination';
 import api from '../lib/api';
 
 const Events = () => {
@@ -17,21 +18,38 @@ const Events = () => {
   const [searchTerm, setSearchTerm] = useState('');
   const [selectedFilter, setSelectedFilter] = useState('all');
   const [sortBy, setSortBy] = useState('oldest');
+  const [currentPage, setCurrentPage] = useState(1);
+  const itemsPerPage = 12;
+
+  // Reset to page 1 when filters change
+  useEffect(() => {
+    setCurrentPage(1);
+  }, [searchTerm, selectedFilter, sortBy]);
 
   // Fetch events from API
-  const { data: events = [], isLoading } = useQuery({
-    queryKey: ['events', searchTerm, selectedFilter, sortBy],
+  const { data, isLoading } = useQuery({
+    queryKey: ['events', searchTerm, selectedFilter, sortBy, currentPage],
     queryFn: async () => {
       const response = await api.get('/api/events', { 
         params: { 
           search: searchTerm, 
           filter: selectedFilter,
-          sortBy: sortBy
+          sortBy: sortBy,
+          page: currentPage,
+          limit: itemsPerPage
         } 
       });
-      return response.data;
+      return response.data || { events: [], pagination: { page: 1, limit: itemsPerPage, total: 0, totalPages: 0 } };
     },
   });
+
+  const events = data?.events || [];
+  const pagination = data?.pagination || { page: 1, limit: itemsPerPage, total: 0, totalPages: 0 };
+
+  const handlePageChange = (page) => {
+    setCurrentPage(page);
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  };
 
   return (
     <div className="flex flex-col min-h-screen bg-background-light dark:bg-background-dark-alt text-slate-900 dark:text-white font-display">
@@ -142,13 +160,14 @@ const Events = () => {
                 <p className="text-text-muted dark:text-text-secondary text-lg">{t('events.noEventsFound')}</p>
               </div>
             )}
-            {events.length > 0 && events.length >= 9 && (
-              <div className="flex justify-center mt-12 pb-12">
-                <button className="group flex items-center justify-center gap-2 h-12 px-8 rounded-full bg-white dark:bg-surface-dark-alt2 border border-slate-200 dark:border-border-dark text-slate-900 dark:text-white font-bold hover:bg-primary dark:hover:bg-primary hover:text-black dark:hover:text-black hover:border-primary dark:hover:border-primary transition-all duration-300 shadow-sm">
-                  {t('events.loadMoreEvents')}
-                  <span className="material-symbols-outlined group-hover:translate-y-1 transition-transform">keyboard_arrow_down</span>
-                </button>
-              </div>
+            {pagination.totalPages > 1 && (
+              <Pagination
+                currentPage={pagination.page}
+                totalPages={pagination.totalPages}
+                onPageChange={handlePageChange}
+                totalItems={pagination.total}
+                itemsPerPage={itemsPerPage}
+              />
             )}
           </>
         )}
