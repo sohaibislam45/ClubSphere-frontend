@@ -9,6 +9,7 @@ import api from '../lib/api';
 import Loader from '../components/ui/Loader';
 import Swal from '../lib/sweetalertConfig';
 import { useAuth } from '../context/AuthContext';
+import ReviewCard from '../components/ui/ReviewCard';
 
 const NewsletterSection = () => {
   const [email, setEmail] = useState('');
