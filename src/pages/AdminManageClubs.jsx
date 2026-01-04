@@ -247,8 +247,8 @@ const AdminManageClubs = () => {
             {/* Page Heading */}
             <div className="flex flex-wrap justify-between items-end gap-4">
               <div className="flex flex-col gap-2">
-                <h1 className="text-white text-3xl md:text-4xl font-black leading-tight tracking-tight">Club Management</h1>
-                <p className="text-[#9eb7a8] text-base font-normal">Manage club approvals, statuses, and details.</p>
+                <h1 className="text-dashboard-text-main dark:text-white text-3xl md:text-4xl font-black leading-tight tracking-tight">Club Management</h1>
+                <p className="text-dashboard-text-muted dark:text-[#9eb7a8] text-base font-normal">Manage club approvals, statuses, and details.</p>
               </div>
               <button 
                 onClick={() => setIsAddClubModalOpen(true)}
@@ -261,19 +261,19 @@ const AdminManageClubs = () => {
 
             {/* Stats */}
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
-              <div className="flex flex-col gap-1 rounded-xl p-5 border border-[#3d5245] bg-[#1a231f]">
+              <div className="flex flex-col gap-1 rounded-xl p-5 border border-dashboard-border dark:border-[#3d5245] bg-white dark:bg-[#1a231f] shadow-sm">
                 <div className="flex justify-between items-start">
                   <p className="text-[#9eb7a8] text-sm font-medium">Pending Reviews</p>
                   <div className="bg-yellow-500/10 p-1.5 rounded-md text-yellow-500">
                     <span className="material-symbols-outlined text-[20px]">pending_actions</span>
                   </div>
                 </div>
-                <p className="text-white text-3xl font-bold mt-2">{stats.pending}</p>
+                <p className="text-dashboard-text-main dark:text-white text-3xl font-bold mt-2">{stats.pending}</p>
                 <p className="text-yellow-500 text-xs font-medium">Requires attention</p>
               </div>
-              <div className="flex flex-col gap-1 rounded-xl p-5 border border-[#3d5245] bg-[#1a231f]">
+              <div className="flex flex-col gap-1 rounded-xl p-5 border border-dashboard-border dark:border-[#3d5245] bg-white dark:bg-[#1a231f] shadow-sm">
                 <div className="flex justify-between items-start">
-                  <p className="text-[#9eb7a8] text-sm font-medium">Active Clubs</p>
+                  <p className="text-dashboard-text-muted dark:text-[#9eb7a8] text-sm font-medium">Active Clubs</p>
                   <div className="bg-primary/10 p-1.5 rounded-md text-primary">
                     <span className="material-symbols-outlined text-[20px]">check_circle</span>
                   </div>
@@ -281,9 +281,9 @@ const AdminManageClubs = () => {
                 <p className="text-white text-3xl font-bold mt-2">{stats.active}</p>
                 <p className="text-primary text-xs font-medium">+{stats.activeGrowth}% from last month</p>
               </div>
-              <div className="flex flex-col gap-1 rounded-xl p-5 border border-[#3d5245] bg-[#1a231f]">
+              <div className="flex flex-col gap-1 rounded-xl p-5 border border-dashboard-border dark:border-[#3d5245] bg-white dark:bg-[#1a231f] shadow-sm">
                 <div className="flex justify-between items-start">
-                  <p className="text-[#9eb7a8] text-sm font-medium">New This Month</p>
+                  <p className="text-dashboard-text-muted dark:text-[#9eb7a8] text-sm font-medium">New This Month</p>
                   <div className="bg-blue-500/10 p-1.5 rounded-md text-blue-500">
                     <span className="material-symbols-outlined text-[20px]">trending_up</span>
                   </div>
@@ -294,12 +294,12 @@ const AdminManageClubs = () => {
             </div>
 
             {/* Search and Filter Bar */}
-            <div className="flex flex-col md:flex-row gap-4 items-stretch md:items-center justify-between bg-[#1a231f] border border-[#3d5245] rounded-xl p-4">
+            <div className="flex flex-col md:flex-row gap-4 items-stretch md:items-center justify-between bg-white dark:bg-[#1a231f] border border-dashboard-border dark:border-[#3d5245] rounded-xl p-4 shadow-sm">
               <div className="flex-1 max-w-md">
-                <label className="flex w-full items-center rounded-lg bg-[#29382f] border border-transparent focus-within:border-primary/50 transition-colors h-10 px-3 gap-2">
-                  <span className="material-symbols-outlined text-[#9eb7a8] text-[20px]">search</span>
+                <label className="flex w-full items-center rounded-lg bg-dashboard-surface-hover dark:bg-[#29382f] border border-dashboard-border dark:border-transparent focus-within:border-primary/50 transition-colors h-10 px-3 gap-2">
+                  <span className="material-symbols-outlined text-dashboard-text-muted dark:text-[#9eb7a8] text-[20px]">search</span>
                   <input
-                    className="bg-transparent border-none text-white text-sm placeholder:text-[#9eb7a8] focus:ring-0 w-full p-0"
+                    className="bg-transparent border-none text-dashboard-text-main dark:text-white text-sm placeholder:text-dashboard-text-muted dark:placeholder:text-[#9eb7a8] focus:ring-0 w-full p-0"
                     placeholder="Search by club name or manager email..."
                     value={search}
                     onChange={(e) => setSearch(e.target.value)}
@@ -310,7 +310,7 @@ const AdminManageClubs = () => {
                 <div className="relative group">
                   <button
                     onClick={() => setStatusFilter(statusFilter === 'all' ? 'pending' : statusFilter === 'pending' ? 'active' : statusFilter === 'active' ? 'rejected' : 'all')}
-                    className="flex items-center gap-2 h-10 px-4 rounded-lg bg-[#29382f] border border-transparent text-[#9eb7a8] hover:text-white hover:bg-[#3d5245] transition-colors text-sm font-medium"
+                    className="flex items-center gap-2 h-10 px-4 rounded-lg bg-dashboard-surface-hover dark:bg-[#29382f] border border-dashboard-border dark:border-transparent text-dashboard-text-muted dark:text-[#9eb7a8] hover:text-dashboard-text-main dark:hover:text-white hover:bg-dashboard-surface-hover/80 dark:hover:bg-[#3d5245] transition-colors text-sm font-medium"
                   >
                     <span className="material-symbols-outlined text-[18px]">filter_list</span>
                     <span>Filter Status: {statusFilter === 'all' ? 'All' : statusFilter.charAt(0).toUpperCase() + statusFilter.slice(1)}</span>
@@ -324,23 +324,23 @@ const AdminManageClubs = () => {
             </div>
 
             {/* Data Table */}
-            <div className="w-full overflow-hidden rounded-xl border border-[#3d5245] bg-[#1a231f]">
+            <div className="w-full overflow-hidden rounded-xl border border-dashboard-border dark:border-[#3d5245] bg-white dark:bg-[#1a231f]">
               <div className="overflow-x-auto">
                 <table className="w-full text-left border-collapse">
                   <thead>
-                    <tr className="bg-[#29382f] border-b border-[#3d5245]">
-                      <th className="p-4 pl-6 text-xs font-semibold tracking-wide text-[#9eb7a8] uppercase">Club Name</th>
-                      <th className="p-4 text-xs font-semibold tracking-wide text-[#9eb7a8] uppercase">Manager</th>
-                      <th className="p-4 text-xs font-semibold tracking-wide text-[#9eb7a8] uppercase">Stats</th>
-                      <th className="p-4 text-xs font-semibold tracking-wide text-[#9eb7a8] uppercase">Fee</th>
-                      <th className="p-4 text-xs font-semibold tracking-wide text-[#9eb7a8] uppercase">Status</th>
-                      <th className="p-4 pr-6 text-right text-xs font-semibold tracking-wide text-[#9eb7a8] uppercase">Actions</th>
+                    <tr className="bg-dashboard-surface-hover dark:bg-[#29382f] border-b border-dashboard-border dark:border-[#3d5245]">
+                      <th className="p-4 pl-6 text-xs font-semibold tracking-wide text-dashboard-text-muted dark:text-[#9eb7a8] uppercase">Club Name</th>
+                      <th className="p-4 text-xs font-semibold tracking-wide text-dashboard-text-muted dark:text-[#9eb7a8] uppercase">Manager</th>
+                      <th className="p-4 text-xs font-semibold tracking-wide text-dashboard-text-muted dark:text-[#9eb7a8] uppercase">Stats</th>
+                      <th className="p-4 text-xs font-semibold tracking-wide text-dashboard-text-muted dark:text-[#9eb7a8] uppercase">Fee</th>
+                      <th className="p-4 text-xs font-semibold tracking-wide text-dashboard-text-muted dark:text-[#9eb7a8] uppercase">Status</th>
+                      <th className="p-4 pr-6 text-right text-xs font-semibold tracking-wide text-dashboard-text-muted dark:text-[#9eb7a8] uppercase">Actions</th>
                     </tr>
                   </thead>
-                  <tbody className="divide-y divide-[#29382f]">
+                  <tbody className="divide-y divide-dashboard-border dark:divide-[#29382f]">
                     {clubs.length === 0 ? (
                       <tr>
-                        <td colSpan="6" className="p-4 text-center text-[#9eb7a8]">No clubs found</td>
+                        <td colSpan="6" className="p-4 text-center text-dashboard-text-muted dark:text-[#9eb7a8]">No clubs found</td>
                       </tr>
                     ) : (
                       clubs.map((club) => {
@@ -348,7 +348,7 @@ const AdminManageClubs = () => {
                         const joinedText = club.joinedDate || 'Recently';
 
                         return (
-                          <tr key={club.id} className={`group hover:bg-[#202b25] transition-colors ${club.status === 'rejected' ? 'opacity-75' : ''}`}>
+                          <tr key={club.id} className={`group hover:bg-dashboard-surface-hover dark:hover:bg-[#202b25] transition-colors bg-white dark:bg-[#1a231f] ${club.status === 'rejected' ? 'opacity-75' : ''}`}>
                             <td className="p-4 pl-6">
                               <div className="flex items-center gap-3">
                                 {club.image ? (
@@ -366,28 +366,28 @@ const AdminManageClubs = () => {
                                   </div>
                                 )}
                                 <div>
-                                  <p className="text-white text-sm font-semibold">{club.name}</p>
-                                  <p className="text-[#9eb7a8] text-xs">{joinedText}</p>
+                                  <p className="text-dashboard-text-main dark:text-white text-sm font-semibold">{club.name}</p>
+                                  <p className="text-dashboard-text-muted dark:text-[#9eb7a8] text-xs">{joinedText}</p>
                                 </div>
                               </div>
                             </td>
                             <td className="p-4">
-                              <div className="flex items-center gap-2 text-sm text-[#d1dcd6]">
-                                <span className="material-symbols-outlined text-[16px] text-[#9eb7a8]">mail</span>
+                              <div className="flex items-center gap-2 text-sm text-dashboard-text-muted dark:text-[#d1dcd6]">
+                                <span className="material-symbols-outlined text-[16px] text-dashboard-text-muted dark:text-[#9eb7a8]">mail</span>
                                 {club.managerEmail}
                               </div>
                             </td>
                             <td className="p-4">
                               <div className="flex gap-2">
-                                <span className="inline-flex items-center gap-1 rounded bg-[#29382f] px-2 py-1 text-xs font-medium text-[#9eb7a8]">
+                                <span className="inline-flex items-center gap-1 rounded bg-dashboard-surface-hover dark:bg-[#29382f] px-2 py-1 text-xs font-medium text-dashboard-text-muted dark:text-[#9eb7a8]">
                                   <span className="material-symbols-outlined text-[14px]">group</span> {club.memberCount}
                                 </span>
-                                <span className="inline-flex items-center gap-1 rounded bg-[#29382f] px-2 py-1 text-xs font-medium text-[#9eb7a8]">
+                                <span className="inline-flex items-center gap-1 rounded bg-dashboard-surface-hover dark:bg-[#29382f] px-2 py-1 text-xs font-medium text-dashboard-text-muted dark:text-[#9eb7a8]">
                                   <span className="material-symbols-outlined text-[14px]">event</span> {club.eventCount}
                                 </span>
                               </div>
                             </td>
-                            <td className="p-4 text-sm text-white font-medium">{club.fee}</td>
+                            <td className="p-4 text-sm text-dashboard-text-main dark:text-white font-medium">{club.fee}</td>
                             <td className="p-4">
                               {(club.status === 'active' || club.status === 'inactive') ? (
                                 <button
@@ -501,13 +501,13 @@ const AdminManageClubs = () => {
               </div>
 
               {/* Pagination */}
-              <div className="flex items-center justify-between border-t border-[#3d5245] px-6 py-4">
-                <p className="text-sm text-[#9eb7a8]">Showing <span className="text-white font-semibold">{((page - 1) * limit) + 1}-{Math.min(page * limit, pagination.total)}</span> of <span className="text-white font-semibold">{pagination.total}</span> clubs</p>
+              <div className="flex items-center justify-between border-t border-dashboard-border dark:border-[#3d5245] px-6 py-4">
+                <p className="text-sm text-dashboard-text-muted dark:text-[#9eb7a8]">Showing <span className="text-dashboard-text-main dark:text-white font-semibold">{((page - 1) * limit) + 1}-{Math.min(page * limit, pagination.total)}</span> of <span className="text-dashboard-text-main dark:text-white font-semibold">{pagination.total}</span> clubs</p>
                 <div className="flex gap-2">
                   <button
                     onClick={() => setPage(p => Math.max(1, p - 1))}
                     disabled={page === 1}
-                    className="flex h-8 w-8 items-center justify-center rounded-lg border border-[#3d5245] bg-[#1a231f] text-white disabled:opacity-50 hover:bg-[#29382f] transition-colors"
+                    className="flex h-8 w-8 items-center justify-center rounded-lg border border-dashboard-border dark:border-[#3d5245] bg-dashboard-surface-hover dark:bg-[#1a231f] text-dashboard-text-main dark:text-white disabled:opacity-50 hover:bg-dashboard-surface-hover/80 dark:hover:bg-[#29382f] transition-colors"
                   >
                     <span className="material-symbols-outlined text-[20px]">chevron_left</span>
                   </button>
@@ -520,7 +520,7 @@ const AdminManageClubs = () => {
                         className={`flex h-8 w-8 items-center justify-center rounded-lg border text-sm ${
                           page === pageNum
                             ? 'border-primary bg-primary text-black font-bold'
-                            : 'border-[#3d5245] bg-[#1a231f] text-white hover:bg-[#29382f] transition-colors'
+                            : 'border-dashboard-border dark:border-[#3d5245] bg-dashboard-surface-hover dark:bg-[#1a231f] text-dashboard-text-main dark:text-white hover:bg-dashboard-surface-hover/80 dark:hover:bg-[#29382f] transition-colors'
                         }`}
                       >
                         {pageNum}
@@ -530,7 +530,7 @@ const AdminManageClubs = () => {
                   <button
                     onClick={() => setPage(p => Math.min(pagination.totalPages, p + 1))}
                     disabled={page >= pagination.totalPages}
-                    className="flex h-8 w-8 items-center justify-center rounded-lg border border-[#3d5245] bg-[#1a231f] text-white hover:bg-[#29382f] transition-colors"
+                    className="flex h-8 w-8 items-center justify-center rounded-lg border border-dashboard-border dark:border-[#3d5245] bg-dashboard-surface-hover dark:bg-[#1a231f] text-dashboard-text-main dark:text-white hover:bg-dashboard-surface-hover/80 dark:hover:bg-[#29382f] transition-colors"
                   >
                     <span className="material-symbols-outlined text-[20px]">chevron_right</span>
                   </button>

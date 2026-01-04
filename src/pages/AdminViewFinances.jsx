@@ -105,8 +105,8 @@ const AdminViewFinances = () => {
         <header className="w-full px-6 py-6 md:px-10 flex flex-col gap-6 flex-shrink-0">
           <div className="flex flex-wrap items-center justify-between gap-4">
             <div className="flex flex-col gap-1">
-              <h2 className="text-white text-3xl font-black leading-tight tracking-tight">Financial Records</h2>
-              <p className="text-[#9eb7a8] text-base font-normal">Audit and manage all platform transactions</p>
+              <h2 className="text-dashboard-text-main dark:text-white text-3xl font-black leading-tight tracking-tight">Financial Records</h2>
+              <p className="text-dashboard-text-muted dark:text-[#9eb7a8] text-base font-normal">Audit and manage all platform transactions</p>
             </div>
             <button className="flex items-center justify-center gap-2 rounded-full h-10 px-5 bg-primary text-black text-sm font-bold leading-normal tracking-wide hover:bg-[#2bc468] transition-colors shadow-lg shadow-primary/20">
               <span className="material-symbols-outlined text-[20px]">download</span>
@@ -117,7 +117,7 @@ const AdminViewFinances = () => {
           {/* Stats Cards */}
           <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
             {/* Card 1 */}
-            <div className="flex flex-col gap-1 rounded-xl p-5 border border-[#3d5245] bg-[#1c2620] shadow-sm">
+            <div className="flex flex-col gap-1 rounded-xl p-5 border border-dashboard-border dark:border-[#3d5245] bg-white dark:bg-[#1c2620] shadow-sm">
               <div className="flex items-center gap-2">
                 <div className="p-1.5 bg-primary/10 rounded-full text-primary">
                   <span className="material-symbols-outlined text-[20px]">payments</span>
@@ -125,7 +125,7 @@ const AdminViewFinances = () => {
                 <p className="text-[#9eb7a8] text-sm font-medium">Total Revenue</p>
               </div>
               <div className="flex items-end gap-3 mt-2">
-                <p className="text-white text-3xl font-bold leading-none tracking-tight">৳{stats.totalRevenue.toLocaleString()}</p>
+                <p className="text-dashboard-text-main dark:text-white text-3xl font-bold leading-none tracking-tight">৳{stats.totalRevenue.toLocaleString()}</p>
                 <div className="flex items-center text-primary text-sm font-bold bg-primary/10 px-2 py-0.5 rounded-full">
                   <span className="material-symbols-outlined text-[16px]">trending_up</span>
                   <span className="ml-1">12%</span>
@@ -133,15 +133,15 @@ const AdminViewFinances = () => {
               </div>
             </div>
             {/* Card 2 */}
-            <div className="flex flex-col gap-1 rounded-xl p-5 border border-[#3d5245] bg-[#1c2620] shadow-sm">
+            <div className="flex flex-col gap-1 rounded-xl p-5 border border-dashboard-border dark:border-[#3d5245] bg-white dark:bg-[#1c2620] shadow-sm">
               <div className="flex items-center gap-2">
                 <div className="p-1.5 bg-yellow-500/10 rounded-full text-yellow-500">
                   <span className="material-symbols-outlined text-[20px]">pending</span>
                 </div>
-                <p className="text-[#9eb7a8] text-sm font-medium">Pending Payments</p>
+                <p className="text-dashboard-text-muted dark:text-[#9eb7a8] text-sm font-medium">Pending Payments</p>
               </div>
               <div className="flex items-end gap-3 mt-2">
-                <p className="text-white text-3xl font-bold leading-none tracking-tight">{stats.pendingPayments}</p>
+                <p className="text-dashboard-text-main dark:text-white text-3xl font-bold leading-none tracking-tight">{stats.pendingPayments}</p>
                 <div className="flex items-center text-yellow-500 text-sm font-bold bg-yellow-500/10 px-2 py-0.5 rounded-full">
                   <span className="material-symbols-outlined text-[16px]">trending_up</span>
                   <span className="ml-1">2%</span>
@@ -149,15 +149,15 @@ const AdminViewFinances = () => {
               </div>
             </div>
             {/* Card 3 */}
-            <div className="flex flex-col gap-1 rounded-xl p-5 border border-[#3d5245] bg-[#1c2620] shadow-sm">
+            <div className="flex flex-col gap-1 rounded-xl p-5 border border-dashboard-border dark:border-[#3d5245] bg-white dark:bg-[#1c2620] shadow-sm">
               <div className="flex items-center gap-2">
                 <div className="p-1.5 bg-blue-400/10 rounded-full text-blue-400">
                   <span className="material-symbols-outlined text-[20px]">receipt_long</span>
                 </div>
-                <p className="text-[#9eb7a8] text-sm font-medium">Transactions (30d)</p>
+                <p className="text-dashboard-text-muted dark:text-[#9eb7a8] text-sm font-medium">Transactions (30d)</p>
               </div>
               <div className="flex items-end gap-3 mt-2">
-                <p className="text-white text-3xl font-bold leading-none tracking-tight">{stats.transactions30d}</p>
+                <p className="text-dashboard-text-main dark:text-white text-3xl font-bold leading-none tracking-tight">{stats.transactions30d}</p>
                 <div className="flex items-center text-primary text-sm font-bold bg-primary/10 px-2 py-0.5 rounded-full">
                   <span className="material-symbols-outlined text-[16px]">trending_up</span>
                   <span className="ml-1">5%</span>
@@ -171,18 +171,18 @@ const AdminViewFinances = () => {
         <div className="flex-1 overflow-y-auto px-6 md:px-10 pb-10 scroll-smooth">
           <div className="flex flex-col gap-4 h-full">
             {/* Filters Toolbar */}
-            <div className="flex flex-col xl:flex-row gap-4 justify-between items-start xl:items-center bg-[#1c2620]/50 p-4 rounded-xl border border-[#3d5245] backdrop-blur-sm sticky top-0 z-10">
+            <div className="flex flex-col xl:flex-row gap-4 justify-between items-start xl:items-center bg-white dark:bg-[#1c2620]/50 p-4 rounded-xl border border-dashboard-border dark:border-[#3d5245] backdrop-blur-sm sticky top-0 z-10 shadow-sm">
               <div className="flex flex-1 w-full xl:w-auto items-stretch gap-3">
                 {/* Search */}
                 <div className="relative flex-1 min-w-[240px] max-w-[400px]">
                   <input
-                    className="w-full h-10 pl-10 pr-4 rounded-full bg-[#122017] border border-[#3d5245] text-white placeholder-[#9eb7a8] focus:outline-none focus:border-primary focus:ring-1 focus:ring-primary text-sm transition-all"
+                    className="w-full h-10 pl-10 pr-4 rounded-full bg-dashboard-surface-hover dark:bg-[#122017] border border-dashboard-border dark:border-[#3d5245] text-dashboard-text-main dark:text-white placeholder-dashboard-text-muted dark:placeholder-[#9eb7a8] focus:outline-none focus:border-primary focus:ring-1 focus:ring-primary text-sm transition-all"
                     placeholder="Search by User Email..."
                     type="text"
                     value={search}
                     onChange={(e) => setSearch(e.target.value)}
                   />
-                  <span className="material-symbols-outlined absolute left-3 top-1/2 -translate-y-1/2 text-[#9eb7a8] text-[20px]">search</span>
+                  <span className="material-symbols-outlined absolute left-3 top-1/2 -translate-y-1/2 text-dashboard-text-muted dark:text-[#9eb7a8] text-[20px]">search</span>
                 </div>
               </div>
               <div className="flex flex-wrap items-center gap-3 w-full xl:w-auto">
@@ -224,11 +224,11 @@ const AdminViewFinances = () => {
             </div>
 
             {/* Table Container */}
-            <div className="w-full overflow-hidden rounded-xl border border-[#3d5245] bg-[#1c2620] flex flex-col flex-1 min-h-[400px]">
+            <div className="w-full overflow-hidden rounded-xl border border-dashboard-border dark:border-[#3d5245] bg-white dark:bg-[#1c2620] flex flex-col flex-1 min-h-[400px]">
               <div className="overflow-x-auto flex-1">
                 <table className="w-full text-left border-collapse">
                   <thead>
-                    <tr className="border-b border-[#3d5245] bg-[#122017]/50 text-xs uppercase tracking-wider text-[#9eb7a8]">
+                    <tr className="border-b border-dashboard-border dark:border-[#3d5245] bg-dashboard-surface-hover dark:bg-[#122017]/50 text-xs uppercase tracking-wider text-dashboard-text-muted dark:text-[#9eb7a8]">
                       <th className="p-5 font-semibold">User Email</th>
                       <th className="p-5 font-semibold text-right">Amount</th>
                       <th className="p-5 font-semibold">Type</th>
@@ -238,10 +238,10 @@ const AdminViewFinances = () => {
                       <th className="p-5 font-semibold w-[60px]"></th>
                     </tr>
                   </thead>
-                  <tbody className="text-sm divide-y divide-[#3d5245]">
+                  <tbody className="text-sm divide-y divide-dashboard-border dark:divide-[#3d5245]">
                     {transactions.length === 0 ? (
                       <tr>
-                        <td colSpan="7" className="p-5 text-center text-[#9eb7a8]">No transactions found</td>
+                        <td colSpan="7" className="p-5 text-center text-dashboard-text-muted dark:text-[#9eb7a8]">No transactions found</td>
                       </tr>
                     ) : (
                       transactions.map((transaction) => {
@@ -250,7 +250,7 @@ const AdminViewFinances = () => {
                         const colorClass = getInitialsColor(initials);
 
                         return (
-                          <tr key={transaction.id} className="group hover:bg-white/5 transition-colors">
+                          <tr key={transaction.id} className="group hover:bg-dashboard-surface-hover dark:hover:bg-white/5 transition-colors bg-white dark:bg-[#1c2620]">
                             <td className="p-5">
                               <div className="flex items-center gap-3">
                                 {transaction.userPhotoURL ? (
@@ -267,24 +267,24 @@ const AdminViewFinances = () => {
                                 <div className={`size-8 rounded-full ${colorClass} flex items-center justify-center text-xs font-bold ${transaction.userPhotoURL ? 'hidden' : 'flex'}`}>
                                   {initials}
                                 </div>
-                                <span className="text-white font-medium">{transaction.userEmail}</span>
+                                <span className="text-dashboard-text-main dark:text-white font-medium">{transaction.userEmail}</span>
                               </div>
                             </td>
                             <td className="p-5 text-right">
                               {transaction.status === 'failed' ? (
-                                <span className="text-[#9eb7a8]">-</span>
+                                <span className="text-dashboard-text-muted dark:text-[#9eb7a8]">-</span>
                               ) : (
-                                <span className="text-white font-mono font-medium">{transaction.amount}</span>
+                                <span className="text-dashboard-text-main dark:text-white font-mono font-medium">{transaction.amount}</span>
                               )}
                             </td>
                             <td className="p-5">
-                              <span className="text-[#9eb7a8]">{transaction.type}</span>
+                              <span className="text-dashboard-text-muted dark:text-[#9eb7a8]">{transaction.type}</span>
                             </td>
                             <td className="p-5">
-                              <span className="text-white">{transaction.associatedItem || '-'}</span>
+                              <span className="text-dashboard-text-main dark:text-white">{transaction.associatedItem || '-'}</span>
                             </td>
                             <td className="p-5">
-                              <span className="text-[#9eb7a8]">{transaction.date}</span>
+                              <span className="text-dashboard-text-muted dark:text-[#9eb7a8]">{transaction.date}</span>
                             </td>
                             <td className="p-5">
                               <span className={`inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-bold ${statusBadge.bg} ${statusBadge.text} border ${statusBadge.border}`}>
@@ -294,7 +294,7 @@ const AdminViewFinances = () => {
                               </span>
                             </td>
                             <td className="p-5 text-right">
-                              <button className="text-[#9eb7a8] hover:text-white p-1 rounded hover:bg-white/10 transition-colors">
+                              <button className="text-dashboard-text-muted dark:text-[#9eb7a8] hover:text-dashboard-text-main dark:hover:text-white p-1 rounded hover:bg-dashboard-surface-hover dark:hover:bg-white/10 transition-colors">
                                 <span className="material-symbols-outlined">more_vert</span>
                               </button>
                             </td>
@@ -307,10 +307,10 @@ const AdminViewFinances = () => {
               </div>
 
               {/* Pagination */}
-              <div className="p-4 border-t border-[#3d5245] flex items-center justify-between bg-[#122017]/30">
-                <div className="text-sm text-[#9eb7a8]">
-                  Showing <span className="text-white font-medium">{((page - 1) * limit) + 1}-{Math.min(page * limit, pagination.total)}</span> of{' '}
-                  <span className="text-white font-medium">{pagination.total}</span>
+              <div className="p-4 border-t border-dashboard-border dark:border-[#3d5245] flex items-center justify-between bg-dashboard-surface-hover/50 dark:bg-[#122017]/30">
+                <div className="text-sm text-dashboard-text-muted dark:text-[#9eb7a8]">
+                  Showing <span className="text-dashboard-text-main dark:text-white font-medium">{((page - 1) * limit) + 1}-{Math.min(page * limit, pagination.total)}</span> of{' '}
+                  <span className="text-dashboard-text-main dark:text-white font-medium">{pagination.total}</span>
                 </div>
                 <div className="flex items-center gap-2">
                   <button

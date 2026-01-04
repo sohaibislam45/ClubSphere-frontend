@@ -710,10 +710,10 @@ const AdminDashboard = () => {
                               <td className="px-6 py-4 whitespace-nowrap text-center">
                                 <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${
                                   transaction.status === 'paid' || transaction.status === 'Completed'
-                                    ? 'bg-green-900/50 text-green-400 border border-green-800'
+                                    ? 'bg-green-100 dark:bg-green-900/50 text-green-800 dark:text-green-400 border border-green-300 dark:border-green-800'
                                     : transaction.status === 'pending' || transaction.status === 'Processing'
-                                    ? 'bg-yellow-900/30 text-yellow-500 border border-yellow-800'
-                                    : 'bg-gray-900/50 text-gray-400 border border-gray-800'
+                                    ? 'bg-yellow-100 dark:bg-yellow-900/30 text-yellow-800 dark:text-yellow-500 border border-yellow-300 dark:border-yellow-800'
+                                    : 'bg-gray-100 dark:bg-gray-900/50 text-gray-800 dark:text-gray-400 border border-gray-300 dark:border-gray-800'
                                 }`}>
                                   {transaction.status === 'paid' ? 'Completed' : transaction.status === 'pending' ? 'Processing' : transaction.status || 'Pending'}
                                 </span>

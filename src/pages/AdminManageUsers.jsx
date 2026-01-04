@@ -197,8 +197,8 @@ const AdminManageUsers = () => {
             {/* Page Heading & Actions */}
             <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
               <div>
-                <h2 className="text-white text-3xl md:text-4xl font-black leading-tight tracking-[-0.033em]">User Management</h2>
-                <p className="text-[#9eb7a8] mt-2 text-base">Manage access, roles, and user details across the platform.</p>
+                <h2 className="text-dashboard-text-main dark:text-white text-3xl md:text-4xl font-black leading-tight tracking-[-0.033em]">User Management</h2>
+                <p className="text-dashboard-text-muted dark:text-[#9eb7a8] mt-2 text-base">Manage access, roles, and user details across the platform.</p>
               </div>
               <button className="flex shrink-0 cursor-pointer items-center justify-center gap-2 rounded-full h-12 px-6 bg-primary text-[#122017] text-sm font-bold hover:brightness-110 transition-all shadow-[0_0_20px_rgba(56,224,123,0.2)]">
                 <span className="material-symbols-outlined text-[20px]">add</span>
@@ -208,39 +208,39 @@ const AdminManageUsers = () => {
 
             {/* Stats Overview */}
             <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-              <div className="flex flex-col gap-1 rounded-xl p-6 bg-[#1a2620] border border-[#29382f] relative overflow-hidden group">
+              <div className="flex flex-col gap-1 rounded-xl p-6 bg-white dark:bg-[#1a2620] border border-dashboard-border dark:border-[#29382f] relative overflow-hidden group shadow-sm">
                 <div className="absolute right-0 top-0 p-6 opacity-10 group-hover:opacity-20 transition-opacity">
                   <span className="material-symbols-outlined text-6xl text-primary">group</span>
                 </div>
-                <p className="text-[#9eb7a8] text-sm font-medium">Total Users</p>
+                <p className="text-dashboard-text-muted dark:text-[#9eb7a8] text-sm font-medium">Total Users</p>
                 <div className="flex items-baseline gap-2">
-                  <p className="text-white text-3xl font-bold">{pagination.total || 0}</p>
+                  <p className="text-dashboard-text-main dark:text-white text-3xl font-bold">{pagination.total || 0}</p>
                   <span className="text-primary text-sm font-bold flex items-center bg-primary/10 px-2 py-0.5 rounded-full">
                     <span className="material-symbols-outlined text-xs mr-1">trending_up</span>
                     +12%
                   </span>
                 </div>
               </div>
-              <div className="flex flex-col gap-1 rounded-xl p-6 bg-[#1a2620] border border-[#29382f] relative overflow-hidden group">
+              <div className="flex flex-col gap-1 rounded-xl p-6 bg-white dark:bg-[#1a2620] border border-dashboard-border dark:border-[#29382f] relative overflow-hidden group shadow-sm">
                 <div className="absolute right-0 top-0 p-6 opacity-10 group-hover:opacity-20 transition-opacity">
                   <span className="material-symbols-outlined text-6xl text-primary">person_add</span>
                 </div>
-                <p className="text-[#9eb7a8] text-sm font-medium">New (This Week)</p>
+                <p className="text-dashboard-text-muted dark:text-[#9eb7a8] text-sm font-medium">New (This Week)</p>
                 <div className="flex items-baseline gap-2">
-                  <p className="text-white text-3xl font-bold">45</p>
+                  <p className="text-dashboard-text-main dark:text-white text-3xl font-bold">45</p>
                   <span className="text-primary text-sm font-bold flex items-center bg-primary/10 px-2 py-0.5 rounded-full">
                     <span className="material-symbols-outlined text-xs mr-1">trending_up</span>
                     +5%
                   </span>
                 </div>
               </div>
-              <div className="flex flex-col gap-1 rounded-xl p-6 bg-[#1a2620] border border-[#29382f] relative overflow-hidden group">
+              <div className="flex flex-col gap-1 rounded-xl p-6 bg-white dark:bg-[#1a2620] border border-dashboard-border dark:border-[#29382f] relative overflow-hidden group shadow-sm">
                 <div className="absolute right-0 top-0 p-6 opacity-10 group-hover:opacity-20 transition-opacity">
                   <span className="material-symbols-outlined text-6xl text-primary">verified_user</span>
                 </div>
-                <p className="text-[#9eb7a8] text-sm font-medium">Active Club Managers</p>
+                <p className="text-dashboard-text-muted dark:text-[#9eb7a8] text-sm font-medium">Active Club Managers</p>
                 <div className="flex items-baseline gap-2">
-                  <p className="text-white text-3xl font-bold">
+                  <p className="text-dashboard-text-main dark:text-white text-3xl font-bold">
                     {users.filter(u => u.role === 'clubManager').length}
                   </p>
                 </div>
@@ -248,12 +248,12 @@ const AdminManageUsers = () => {
             </div>
 
             {/* Filters & Search */}
-            <div className="flex flex-col lg:flex-row gap-4 items-start lg:items-center justify-between bg-[#1a2620] p-2 rounded-xl border border-[#29382f]">
+            <div className="flex flex-col lg:flex-row gap-4 items-start lg:items-center justify-between bg-white dark:bg-[#1a2620] p-2 rounded-xl border border-dashboard-border dark:border-[#29382f] shadow-sm">
               {/* Search */}
-              <label className="flex items-center gap-3 px-4 h-12 w-full lg:w-96 rounded-lg bg-[#122017] border border-[#29382f] focus-within:border-primary/50 focus-within:ring-1 focus-within:ring-primary/50 transition-all">
-                <span className="material-symbols-outlined text-[#9eb7a8]">search</span>
+              <label className="flex items-center gap-3 px-4 h-12 w-full lg:w-96 rounded-lg bg-dashboard-surface-hover dark:bg-[#122017] border border-dashboard-border dark:border-[#29382f] focus-within:border-primary/50 focus-within:ring-1 focus-within:ring-primary/50 transition-all">
+                <span className="material-symbols-outlined text-dashboard-text-muted dark:text-[#9eb7a8]">search</span>
                 <input
-                  className="bg-transparent border-none text-white placeholder-[#9eb7a8] w-full focus:ring-0 text-sm"
+                  className="bg-transparent border-none text-dashboard-text-main dark:text-white placeholder-dashboard-text-muted dark:placeholder-[#9eb7a8] w-full focus:ring-0 text-sm"
                   placeholder="Search users by name or email..."
                   type="text"
                   value={search}
@@ -264,37 +264,37 @@ const AdminManageUsers = () => {
               <div className="flex items-center gap-2 overflow-x-auto w-full lg:w-auto pb-2 lg:pb-0 scrollbar-hide px-2">
                 <button
                   onClick={() => setRoleFilter(roleFilter === 'all' ? 'admin' : roleFilter === 'admin' ? 'clubManager' : roleFilter === 'clubManager' ? 'member' : 'all')}
-                  className="flex h-9 shrink-0 items-center gap-2 rounded-full bg-[#29382f] px-4 hover:bg-white/10 transition-colors"
+                  className="flex h-9 shrink-0 items-center gap-2 rounded-full bg-dashboard-surface-hover dark:bg-[#29382f] px-4 hover:bg-dashboard-surface-hover/80 dark:hover:bg-white/10 transition-colors border border-dashboard-border dark:border-transparent"
                 >
-                  <span className="text-white text-sm font-medium">Role: {roleFilter === 'all' ? 'All' : roleFilter.charAt(0).toUpperCase() + roleFilter.slice(1)}</span>
-                  <span className="material-symbols-outlined text-[#9eb7a8] text-[18px]">keyboard_arrow_down</span>
+                  <span className="text-dashboard-text-main dark:text-white text-sm font-medium">Role: {roleFilter === 'all' ? 'All' : roleFilter.charAt(0).toUpperCase() + roleFilter.slice(1)}</span>
+                  <span className="material-symbols-outlined text-dashboard-text-muted dark:text-[#9eb7a8] text-[18px]">keyboard_arrow_down</span>
                 </button>
               </div>
             </div>
 
             {/* Data Table */}
-            <div className="rounded-xl border border-[#29382f] bg-[#1a2620] overflow-hidden flex flex-col shadow-xl">
+            <div className="rounded-xl border border-dashboard-border dark:border-[#29382f] bg-white dark:bg-[#1a2620] overflow-hidden flex flex-col shadow-xl">
               <div className="overflow-x-auto">
                 <table className="w-full text-left border-collapse">
                   <thead>
-                    <tr className="border-b border-[#29382f] bg-[#122017]/50">
-                      <th className="p-5 text-xs font-semibold uppercase tracking-wider text-[#9eb7a8]">User</th>
-                      <th className="p-5 text-xs font-semibold uppercase tracking-wider text-[#9eb7a8]">Email</th>
-                      <th className="p-5 text-xs font-semibold uppercase tracking-wider text-[#9eb7a8]">Role</th>
-                      <th className="p-5 text-xs font-semibold uppercase tracking-wider text-[#9eb7a8]">Joined Date</th>
-                      <th className="p-5 text-xs font-semibold uppercase tracking-wider text-[#9eb7a8] text-right">Actions</th>
+                    <tr className="border-b border-dashboard-border dark:border-[#29382f] bg-dashboard-surface-hover dark:bg-[#122017]/50">
+                      <th className="p-5 text-xs font-semibold uppercase tracking-wider text-dashboard-text-muted dark:text-[#9eb7a8]">User</th>
+                      <th className="p-5 text-xs font-semibold uppercase tracking-wider text-dashboard-text-muted dark:text-[#9eb7a8]">Email</th>
+                      <th className="p-5 text-xs font-semibold uppercase tracking-wider text-dashboard-text-muted dark:text-[#9eb7a8]">Role</th>
+                      <th className="p-5 text-xs font-semibold uppercase tracking-wider text-dashboard-text-muted dark:text-[#9eb7a8]">Joined Date</th>
+                      <th className="p-5 text-xs font-semibold uppercase tracking-wider text-dashboard-text-muted dark:text-[#9eb7a8] text-right">Actions</th>
                     </tr>
                   </thead>
-                  <tbody className="divide-y divide-[#29382f]">
+                  <tbody className="divide-y divide-dashboard-border dark:divide-[#29382f]">
                     {users.length === 0 ? (
                       <tr>
-                        <td colSpan="5" className="p-5 text-center text-[#9eb7a8]">No users found</td>
+                        <td colSpan="5" className="p-5 text-center text-dashboard-text-muted dark:text-[#9eb7a8]">No users found</td>
                       </tr>
                     ) : (
                       users.map((userItem) => {
                         const roleBadge = getRoleBadge(userItem.role);
                         return (
-                          <tr key={userItem.id} className="group hover:bg-[#29382f]/30 transition-colors">
+                          <tr key={userItem.id} className="group hover:bg-dashboard-surface-hover dark:hover:bg-[#29382f]/30 transition-colors bg-white dark:bg-[#1a2620]">
                             <td className="p-5">
                               <div className="flex items-center gap-3">
                                 {userItem.photoURL ? (
@@ -318,25 +318,25 @@ const AdminManageUsers = () => {
                                   {getUserInitials(userItem.name)}
                                 </div>
                                 <div>
-                                  <p className="text-white font-medium text-sm">{userItem.name}</p>
-                                  <p className="text-[#9eb7a8] text-xs md:hidden">{userItem.email}</p>
+                                  <p className="text-dashboard-text-main dark:text-white font-medium text-sm">{userItem.name}</p>
+                                  <p className="text-dashboard-text-muted dark:text-[#9eb7a8] text-xs md:hidden">{userItem.email}</p>
                                 </div>
                               </div>
                             </td>
-                            <td className="p-5 text-sm text-[#9eb7a8] max-w-[200px] truncate">{userItem.email}</td>
+                            <td className="p-5 text-sm text-dashboard-text-muted dark:text-[#9eb7a8] max-w-[200px] truncate">{userItem.email}</td>
                             <td className="p-5">
                               <span className={`inline-flex items-center gap-1.5 rounded-full ${roleBadge.bg} px-3 py-1 text-xs font-bold ${roleBadge.text} border ${roleBadge.border}`}>
                                 <span className="material-symbols-outlined text-[14px]">{roleBadge.icon}</span>
                                 {roleBadge.label}
                               </span>
                             </td>
-                            <td className="p-5 text-sm text-[#9eb7a8] whitespace-nowrap">{userItem.joinedDate}</td>
+                            <td className="p-5 text-sm text-dashboard-text-muted dark:text-[#9eb7a8] whitespace-nowrap">{userItem.joinedDate}</td>
                             <td className="p-5 text-right">
                               <div className="flex items-center justify-end gap-2">
                                 <button
                                   onClick={() => handleEditUser(userItem)}
                                   disabled={updateUserMutation.isPending}
-                                  className="size-8 flex items-center justify-center rounded-full hover:bg-white/10 text-[#9eb7a8] hover:text-white transition-colors disabled:opacity-50"
+                                  className="size-8 flex items-center justify-center rounded-full hover:bg-dashboard-surface-hover dark:hover:bg-white/10 text-dashboard-text-muted dark:text-[#9eb7a8] hover:text-dashboard-text-main dark:hover:text-white transition-colors disabled:opacity-50"
                                   title="Edit User"
                                 >
                                   <span className="material-symbols-outlined text-[20px]">edit</span>
@@ -358,7 +358,7 @@ const AdminManageUsers = () => {
                                     });
                                   }}
                                   disabled={deleteUserMutation.isPending}
-                                  className="size-8 flex items-center justify-center rounded-full hover:bg-red-500/20 text-[#9eb7a8] hover:text-red-400 transition-colors disabled:opacity-50"
+                                  className="size-8 flex items-center justify-center rounded-full hover:bg-red-500/20 text-dashboard-text-muted dark:text-[#9eb7a8] hover:text-red-400 transition-colors disabled:opacity-50"
                                   title="Delete User"
                                 >
                                   <span className="material-symbols-outlined text-[20px]">delete</span>
@@ -374,29 +374,29 @@ const AdminManageUsers = () => {
               </div>
 
               {/* Pagination */}
-              <div className="flex items-center justify-between border-t border-[#29382f] px-4 py-3 sm:px-6">
+              <div className="flex items-center justify-between border-t border-dashboard-border dark:border-[#29382f] px-4 py-3 sm:px-6">
                 <div className="flex flex-1 justify-between sm:hidden">
                   <button
                     onClick={() => setPage(p => Math.max(1, p - 1))}
                     disabled={page === 1}
-                    className="relative inline-flex items-center rounded-md border border-[#29382f] bg-[#122017] px-4 py-2 text-sm font-medium text-[#9eb7a8] hover:bg-white/5 disabled:opacity-50"
+                    className="relative inline-flex items-center rounded-md border border-dashboard-border dark:border-[#29382f] bg-dashboard-surface-hover dark:bg-[#122017] px-4 py-2 text-sm font-medium text-dashboard-text-muted dark:text-[#9eb7a8] hover:bg-dashboard-surface-hover/80 dark:hover:bg-white/5 disabled:opacity-50"
                   >
                     Previous
                   </button>
                   <button
                     onClick={() => setPage(p => Math.min(pagination.totalPages, p + 1))}
                     disabled={page >= pagination.totalPages}
-                    className="relative ml-3 inline-flex items-center rounded-md border border-[#29382f] bg-[#122017] px-4 py-2 text-sm font-medium text-[#9eb7a8] hover:bg-white/5 disabled:opacity-50"
+                    className="relative ml-3 inline-flex items-center rounded-md border border-dashboard-border dark:border-[#29382f] bg-dashboard-surface-hover dark:bg-[#122017] px-4 py-2 text-sm font-medium text-dashboard-text-muted dark:text-[#9eb7a8] hover:bg-dashboard-surface-hover/80 dark:hover:bg-white/5 disabled:opacity-50"
                   >
                     Next
                   </button>
                 </div>
                 <div className="hidden sm:flex sm:flex-1 sm:items-center sm:justify-between">
                   <div>
-                    <p className="text-sm text-[#9eb7a8]">
-                      Showing <span className="font-medium text-white">{((page - 1) * limit) + 1}</span> to{' '}
-                      <span className="font-medium text-white">{Math.min(page * limit, pagination.total)}</span> of{' '}
-                      <span className="font-medium text-white">{pagination.total}</span> results
+                    <p className="text-sm text-dashboard-text-muted dark:text-[#9eb7a8]">
+                      Showing <span className="font-medium text-dashboard-text-main dark:text-white">{((page - 1) * limit) + 1}</span> to{' '}
+                      <span className="font-medium text-dashboard-text-main dark:text-white">{Math.min(page * limit, pagination.total)}</span> of{' '}
+                      <span className="font-medium text-dashboard-text-main dark:text-white">{pagination.total}</span> results
                     </p>
                   </div>
                   <div>

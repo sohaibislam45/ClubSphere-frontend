@@ -92,8 +92,8 @@ const AdminManageCategories = () => {
             {/* Page Heading */}
             <div className="flex flex-wrap justify-between items-end gap-4">
               <div className="flex flex-col gap-2">
-                <h1 className="text-white text-3xl md:text-4xl font-black leading-tight tracking-tight">Category Management</h1>
-                <p className="text-[#9eb7a8] text-base font-normal">Manage club categories for better organization.</p>
+                <h1 className="text-dashboard-text-main dark:text-white text-3xl md:text-4xl font-black leading-tight tracking-tight">Category Management</h1>
+                <p className="text-dashboard-text-muted dark:text-[#9eb7a8] text-base font-normal">Manage club categories for better organization.</p>
               </div>
               <button 
                 onClick={() => setIsAddCategoryModalOpen(true)}
@@ -115,10 +115,10 @@ const AdminManageCategories = () => {
                 {categories.map((category) => (
                   <div 
                     key={category._id || category.id} 
-                    className="bg-[#1a231f] border border-[#3d5245] rounded-xl p-6 flex items-center justify-between hover:border-primary/50 transition-colors"
+                    className="bg-white dark:bg-[#1a231f] border border-dashboard-border dark:border-[#3d5245] rounded-xl p-6 flex items-center justify-between hover:border-primary/50 transition-colors shadow-sm"
                   >
                     <div className="flex flex-col gap-1">
-                      <h3 className="text-white text-lg font-bold">{category.displayName}</h3>
+                      <h3 className="text-dashboard-text-main dark:text-white text-lg font-bold">{category.displayName}</h3>
                       <p className="text-[#9eb7a8] text-sm">ID: {category.name}</p>
                     </div>
                     <button
