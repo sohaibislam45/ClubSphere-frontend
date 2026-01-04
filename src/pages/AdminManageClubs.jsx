@@ -812,10 +812,10 @@ const AddClubModal = ({ isOpen, onClose, onSubmit, isLoading }) => {
           <form onSubmit={handleSubmit} className="flex flex-col gap-6">
             {/* Banner Image */}
             <div className="flex flex-col gap-2">
-              <label className="text-[#9eb7a8] text-sm font-medium flex gap-1">
+              <label className="text-text-muted dark:text-[#9eb7a8] text-sm font-medium flex gap-1">
                 Banner Image <span className="text-red-400">*</span>
               </label>
-              <div className="group border-2 border-dashed border-[#3d5245] rounded-xl p-8 flex flex-col items-center justify-center text-center hover:bg-[#202b25] hover:border-primary/50 transition-all cursor-pointer relative bg-[#29382f]/30">
+              <div className="group border-2 border-dashed border-border-light dark:border-[#3d5245] rounded-xl p-8 flex flex-col items-center justify-center text-center hover:bg-gray-50 dark:hover:bg-[#202b25] hover:border-primary/50 transition-all cursor-pointer relative bg-gray-50/50 dark:bg-[#29382f]/30">
                 <input
                   accept="image/*"
                   className="absolute inset-0 w-full h-full opacity-0 cursor-pointer"
@@ -826,11 +826,11 @@ const AddClubModal = ({ isOpen, onClose, onSubmit, isLoading }) => {
                   <img src={bannerPreview} alt="Banner preview" className="w-full h-48 object-cover rounded-lg mb-3" />
                 ) : (
                   <>
-                    <div className="bg-[#29382f] p-3 rounded-full mb-3 text-[#9eb7a8] group-hover:text-white transition-colors shadow-sm">
+                    <div className="bg-gray-100 dark:bg-[#29382f] p-3 rounded-full mb-3 text-text-muted dark:text-[#9eb7a8] group-hover:text-text-main dark:group-hover:text-white transition-colors shadow-sm">
                       <span className="material-symbols-outlined text-[24px]">cloud_upload</span>
                     </div>
-                    <p className="text-white font-medium text-sm">Click to upload or drag and drop</p>
-                    <p className="text-[#9eb7a8] text-xs mt-1">SVG, PNG, JPG or GIF (max. 1920x400px)</p>
+                    <p className="text-text-main dark:text-white font-medium text-sm">Click to upload or drag and drop</p>
+                    <p className="text-text-muted dark:text-[#9eb7a8] text-xs mt-1">SVG, PNG, JPG or GIF (max. 1920x400px)</p>
                   </>
                 )}
               </div>
@@ -838,11 +838,11 @@ const AddClubModal = ({ isOpen, onClose, onSubmit, isLoading }) => {
 
             {/* Club Name */}
             <div className="flex flex-col gap-2">
-              <label className="text-[#9eb7a8] text-sm font-medium flex gap-1" htmlFor="clubName">
+              <label className="text-text-muted dark:text-[#9eb7a8] text-sm font-medium flex gap-1" htmlFor="clubName">
                 Club Name <span className="text-red-400">*</span>
               </label>
               <input
-                className="bg-[#29382f] border border-transparent focus:border-primary/50 focus:ring-0 rounded-lg text-white placeholder:text-[#5c7266] h-12 px-4 w-full transition-colors"
+                className="bg-gray-50 dark:bg-[#29382f] border border-border-light dark:border-transparent focus:border-primary/50 focus:ring-0 rounded-lg text-text-main dark:text-white placeholder:text-text-muted dark:placeholder:text-[#5c7266] h-12 px-4 w-full transition-colors"
                 id="clubName"
                 name="name"
                 placeholder="e.g. Downtown Runners"
@@ -855,11 +855,11 @@ const AddClubModal = ({ isOpen, onClose, onSubmit, isLoading }) => {
 
             {/* Description */}
             <div className="flex flex-col gap-2">
-              <label className="text-[#9eb7a8] text-sm font-medium flex gap-1" htmlFor="description">
+              <label className="text-text-muted dark:text-[#9eb7a8] text-sm font-medium flex gap-1" htmlFor="description">
                 Description <span className="text-red-400">*</span>
               </label>
               <textarea
-                className="bg-[#29382f] border border-transparent focus:border-primary/50 focus:ring-0 rounded-lg text-white placeholder:text-[#5c7266] p-4 w-full transition-colors resize-none"
+                className="bg-gray-50 dark:bg-[#29382f] border border-border-light dark:border-transparent focus:border-primary/50 focus:ring-0 rounded-lg text-text-main dark:text-white placeholder:text-text-muted dark:placeholder:text-[#5c7266] p-4 w-full transition-colors resize-none"
                 id="description"
                 name="description"
                 placeholder="Describe the club's mission, activities, and who should join..."
@@ -873,12 +873,12 @@ const AddClubModal = ({ isOpen, onClose, onSubmit, isLoading }) => {
             {/* Category and Location */}
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
               <div className="flex flex-col gap-2">
-                <label className="text-[#9eb7a8] text-sm font-medium flex gap-1" htmlFor="category">
+                <label className="text-text-muted dark:text-[#9eb7a8] text-sm font-medium flex gap-1" htmlFor="category">
                   Category <span className="text-red-400">*</span>
                 </label>
                 <div className="relative">
                   <select
-                    className="bg-[#29382f] border border-transparent focus:border-primary/50 focus:ring-0 rounded-lg text-white h-12 px-4 w-full transition-colors appearance-none cursor-pointer"
+                    className="bg-gray-50 dark:bg-[#29382f] border border-border-light dark:border-transparent focus:border-primary/50 focus:ring-0 rounded-lg text-text-main dark:text-white h-12 px-4 w-full transition-colors appearance-none cursor-pointer"
                     id="category"
                     name="category"
                     value={formData.category}
@@ -892,17 +892,17 @@ const AddClubModal = ({ isOpen, onClose, onSubmit, isLoading }) => {
                       </option>
                     ))}
                   </select>
-                  <span className="material-symbols-outlined absolute right-4 top-1/2 -translate-y-1/2 text-[#9eb7a8] pointer-events-none">expand_more</span>
+                  <span className="material-symbols-outlined absolute right-4 top-1/2 -translate-y-1/2 text-text-muted dark:text-[#9eb7a8] pointer-events-none">expand_more</span>
                 </div>
               </div>
               <div className="flex flex-col gap-2">
-                <label className="text-[#9eb7a8] text-sm font-medium flex gap-1" htmlFor="location">
+                <label className="text-text-muted dark:text-[#9eb7a8] text-sm font-medium flex gap-1" htmlFor="location">
                   Location <span className="text-red-400">*</span>
                 </label>
                 <div className="relative">
-                  <span className="material-symbols-outlined absolute left-4 top-1/2 -translate-y-1/2 text-[#5c7266]">location_on</span>
+                  <span className="material-symbols-outlined absolute left-4 top-1/2 -translate-y-1/2 text-text-muted dark:text-[#5c7266]">location_on</span>
                   <input
-                    className="bg-[#29382f] border border-transparent focus:border-primary/50 focus:ring-0 rounded-lg text-white placeholder:text-[#5c7266] h-12 pl-12 pr-4 w-full transition-colors"
+                    className="bg-gray-50 dark:bg-[#29382f] border border-border-light dark:border-transparent focus:border-primary/50 focus:ring-0 rounded-lg text-text-main dark:text-white placeholder:text-text-muted dark:placeholder:text-[#5c7266] h-12 pl-12 pr-4 w-full transition-colors"
                     id="location"
                     name="location"
                     placeholder="e.g. New York, NY"
@@ -918,13 +918,13 @@ const AddClubModal = ({ isOpen, onClose, onSubmit, isLoading }) => {
             {/* Fee and Manager Email */}
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
               <div className="flex flex-col gap-2">
-                <label className="text-[#9eb7a8] text-sm font-medium flex gap-1" htmlFor="fee">
+                <label className="text-text-muted dark:text-[#9eb7a8] text-sm font-medium flex gap-1" htmlFor="fee">
                   Membership Fee (Monthly)
                 </label>
                 <div className="relative">
-                  <span className="absolute left-4 top-1/2 -translate-y-1/2 text-[#5c7266] font-bold">৳</span>
+                  <span className="absolute left-4 top-1/2 -translate-y-1/2 text-text-muted dark:text-[#5c7266] font-bold">৳</span>
                   <input
-                    className="bg-[#29382f] border border-transparent focus:border-primary/50 focus:ring-0 rounded-lg text-white placeholder:text-[#5c7266] h-12 pl-10 pr-4 w-full transition-colors"
+                    className="bg-gray-50 dark:bg-[#29382f] border border-border-light dark:border-transparent focus:border-primary/50 focus:ring-0 rounded-lg text-text-main dark:text-white placeholder:text-text-muted dark:placeholder:text-[#5c7266] h-12 pl-10 pr-4 w-full transition-colors"
                     id="fee"
                     name="fee"
                     min="0"
@@ -935,16 +935,16 @@ const AddClubModal = ({ isOpen, onClose, onSubmit, isLoading }) => {
                     onChange={handleInputChange}
                   />
                 </div>
-                <p className="text-xs text-[#5c7266] mt-1">Enter 0 for free clubs.</p>
+                <p className="text-xs text-text-muted dark:text-[#5c7266] mt-1">Enter 0 for free clubs.</p>
               </div>
               <div className="flex flex-col gap-2">
-                <label className="text-[#9eb7a8] text-sm font-medium flex gap-1" htmlFor="managerEmail">
+                <label className="text-text-muted dark:text-[#9eb7a8] text-sm font-medium flex gap-1" htmlFor="managerEmail">
                   Manager Email <span className="text-red-400">*</span>
                 </label>
                 <div className="relative">
-                  <span className="material-symbols-outlined absolute left-4 top-1/2 -translate-y-1/2 text-[#5c7266]">person</span>
+                  <span className="material-symbols-outlined absolute left-4 top-1/2 -translate-y-1/2 text-text-muted dark:text-[#5c7266]">person</span>
                   <input
-                    className="bg-[#29382f] border border-transparent focus:border-primary/50 focus:ring-0 rounded-lg text-white placeholder:text-[#5c7266] h-12 pl-12 pr-4 w-full transition-colors"
+                    className="bg-gray-50 dark:bg-[#29382f] border border-border-light dark:border-transparent focus:border-primary/50 focus:ring-0 rounded-lg text-text-main dark:text-white placeholder:text-text-muted dark:placeholder:text-[#5c7266] h-12 pl-12 pr-4 w-full transition-colors"
                     id="managerEmail"
                     name="managerEmail"
                     placeholder="user@example.com"
@@ -954,16 +954,16 @@ const AddClubModal = ({ isOpen, onClose, onSubmit, isLoading }) => {
                     required
                   />
                 </div>
-                <p className="text-xs text-[#5c7266] mt-1">Must be an existing registered user.</p>
+                <p className="text-xs text-text-muted dark:text-[#5c7266] mt-1">Must be an existing registered user.</p>
               </div>
             </div>
 
             {/* Form Actions */}
-            <div className="flex items-center justify-end gap-4 mt-6 pt-6 border-t border-[#3d5245]">
+            <div className="flex items-center justify-end gap-4 mt-6 pt-6 border-t border-border-light dark:border-[#3d5245]">
               <button
                 type="button"
                 onClick={onClose}
-                className="text-[#9eb7a8] font-semibold hover:text-white px-6 py-2.5 transition-colors rounded-lg hover:bg-[#29382f]"
+                className="text-text-muted dark:text-[#9eb7a8] font-semibold hover:text-text-main dark:hover:text-white px-6 py-2.5 transition-colors rounded-lg hover:bg-gray-100 dark:hover:bg-[#29382f]"
                 disabled={isLoading || isUploadingImage}
               >
                 Cancel
@@ -1008,14 +1008,14 @@ const ViewClubDetailsModal = ({ isOpen, onClose, clubId }) => {
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/50 backdrop-blur-sm overflow-y-auto">
-      <div className="bg-[#1a231f] border border-[#3d5245] rounded-xl w-full max-w-2xl my-8 max-h-[90vh] overflow-y-auto">
+      <div className="bg-white dark:bg-[#1a231f] border border-border-light dark:border-[#3d5245] rounded-xl w-full max-w-2xl my-8 max-h-[90vh] overflow-y-auto">
         <div className="p-6 md:p-8">
           {/* Header */}
           <div className="flex items-center justify-between mb-6">
-            <h2 className="text-white text-2xl font-bold">Club Details</h2>
+            <h2 className="text-text-main dark:text-white text-2xl font-bold">Club Details</h2>
             <button
               onClick={onClose}
-              className="text-[#9eb7a8] hover:text-white transition-colors p-2 rounded-lg hover:bg-[#29382f]"
+              className="text-text-muted dark:text-[#9eb7a8] hover:text-text-main dark:hover:text-white transition-colors p-2 rounded-lg hover:bg-gray-100 dark:hover:bg-[#29382f]"
             >
               <span className="material-symbols-outlined text-[24px]">close</span>
             </button>
@@ -1037,79 +1037,79 @@ const ViewClubDetailsModal = ({ isOpen, onClose, clubId }) => {
               {/* Club Info */}
               <div className="flex flex-col gap-4">
                 <div>
-                  <label className="text-[#9eb7a8] text-sm font-medium">Club Name</label>
-                  <p className="text-white text-lg font-bold mt-1">{club.name}</p>
+                  <label className="text-text-muted dark:text-[#9eb7a8] text-sm font-medium">Club Name</label>
+                  <p className="text-text-main dark:text-white text-lg font-bold mt-1">{club.name}</p>
                 </div>
 
                 {club.description && (
                   <div>
-                    <label className="text-[#9eb7a8] text-sm font-medium">Description</label>
-                    <p className="text-white text-sm mt-1 whitespace-pre-wrap">{club.description}</p>
+                    <label className="text-text-muted dark:text-[#9eb7a8] text-sm font-medium">Description</label>
+                    <p className="text-text-main dark:text-white text-sm mt-1 whitespace-pre-wrap">{club.description}</p>
                   </div>
                 )}
 
                 <div className="grid grid-cols-2 gap-4">
                   {club.category && (
                     <div>
-                      <label className="text-[#9eb7a8] text-sm font-medium">Category</label>
-                      <p className="text-white text-sm mt-1 capitalize">{club.category}</p>
+                      <label className="text-text-muted dark:text-[#9eb7a8] text-sm font-medium">Category</label>
+                      <p className="text-text-main dark:text-white text-sm mt-1 capitalize">{club.category}</p>
                     </div>
                   )}
                   {club.location && (
                     <div>
-                      <label className="text-[#9eb7a8] text-sm font-medium">Location</label>
-                      <p className="text-white text-sm mt-1">{club.location}</p>
+                      <label className="text-text-muted dark:text-[#9eb7a8] text-sm font-medium">Location</label>
+                      <p className="text-text-main dark:text-white text-sm mt-1">{club.location}</p>
                     </div>
                   )}
                 </div>
 
                 <div className="grid grid-cols-2 gap-4">
                   <div>
-                    <label className="text-[#9eb7a8] text-sm font-medium">Membership Fee</label>
-                    <p className="text-white text-sm mt-1">{club.fee === 0 || club.fee === 'Free' ? 'Free' : `৳${club.fee}`}</p>
+                    <label className="text-text-muted dark:text-[#9eb7a8] text-sm font-medium">Membership Fee</label>
+                    <p className="text-text-main dark:text-white text-sm mt-1">{club.fee === 0 || club.fee === 'Free' ? 'Free' : `৳${club.fee}`}</p>
                   </div>
                   <div>
-                    <label className="text-[#9eb7a8] text-sm font-medium">Status</label>
-                    <p className="text-white text-sm mt-1 capitalize">{club.status}</p>
+                    <label className="text-text-muted dark:text-[#9eb7a8] text-sm font-medium">Status</label>
+                    <p className="text-text-main dark:text-white text-sm mt-1 capitalize">{club.status}</p>
                   </div>
                 </div>
 
                 <div>
-                  <label className="text-[#9eb7a8] text-sm font-medium">Manager Email</label>
-                  <p className="text-white text-sm mt-1">{club.managerEmail}</p>
+                  <label className="text-text-muted dark:text-[#9eb7a8] text-sm font-medium">Manager Email</label>
+                  <p className="text-text-main dark:text-white text-sm mt-1">{club.managerEmail}</p>
                 </div>
 
                 <div className="grid grid-cols-2 gap-4">
                   <div>
-                    <label className="text-[#9eb7a8] text-sm font-medium">Members</label>
-                    <p className="text-white text-sm mt-1">{club.memberCount || 0}</p>
+                    <label className="text-text-muted dark:text-[#9eb7a8] text-sm font-medium">Members</label>
+                    <p className="text-text-main dark:text-white text-sm mt-1">{club.memberCount || 0}</p>
                   </div>
                   <div>
-                    <label className="text-[#9eb7a8] text-sm font-medium">Events</label>
-                    <p className="text-white text-sm mt-1">{club.eventCount || 0}</p>
+                    <label className="text-text-muted dark:text-[#9eb7a8] text-sm font-medium">Events</label>
+                    <p className="text-text-main dark:text-white text-sm mt-1">{club.eventCount || 0}</p>
                   </div>
                 </div>
 
                 {club.joinedDate && (
                   <div>
-                    <label className="text-[#9eb7a8] text-sm font-medium">Created Date</label>
-                    <p className="text-white text-sm mt-1">{club.joinedDate}</p>
+                    <label className="text-text-muted dark:text-[#9eb7a8] text-sm font-medium">Created Date</label>
+                    <p className="text-text-main dark:text-white text-sm mt-1">{club.joinedDate}</p>
                   </div>
                 )}
               </div>
 
               {/* Close Button */}
-              <div className="flex justify-end pt-4 border-t border-[#3d5245]">
+              <div className="flex justify-end pt-4 border-t border-border-light dark:border-[#3d5245]">
                 <button
                   onClick={onClose}
-                  className="text-[#9eb7a8] font-semibold hover:text-white px-6 py-2.5 transition-colors rounded-lg hover:bg-[#29382f]"
+                  className="text-text-muted dark:text-[#9eb7a8] font-semibold hover:text-text-main dark:hover:text-white px-6 py-2.5 transition-colors rounded-lg hover:bg-gray-100 dark:hover:bg-[#29382f]"
                 >
                   Close
                 </button>
               </div>
             </div>
           ) : (
-            <div className="text-center py-12 text-[#9eb7a8]">Club not found</div>
+            <div className="text-center py-12 text-text-muted dark:text-[#9eb7a8]">Club not found</div>
           )}
         </div>
       </div>
@@ -1308,16 +1308,16 @@ const EditClubModal = ({ isOpen, onClose, clubId, onSubmit, isLoading }) => {
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/50 backdrop-blur-sm overflow-y-auto">
-      <div className="bg-[#1a231f] border border-[#3d5245] rounded-xl w-full max-w-[800px] my-8 max-h-[90vh] overflow-y-auto">
+      <div className="bg-white dark:bg-[#1a231f] border border-border-light dark:border-[#3d5245] rounded-xl w-full max-w-[800px] my-8 max-h-[90vh] overflow-y-auto">
         <div className="p-6 md:p-8">
           <div className="flex items-center justify-between mb-6">
             <div className="flex flex-col gap-2">
-              <h1 className="text-white text-3xl md:text-4xl font-black leading-tight tracking-tight">Edit Club</h1>
-              <p className="text-[#9eb7a8] text-base font-normal">Update club information and details.</p>
+              <h1 className="text-text-main dark:text-white text-3xl md:text-4xl font-black leading-tight tracking-tight">Edit Club</h1>
+              <p className="text-text-muted dark:text-[#9eb7a8] text-base font-normal">Update club information and details.</p>
             </div>
             <button
               onClick={onClose}
-              className="text-[#9eb7a8] hover:text-white transition-colors p-2 rounded-lg hover:bg-[#29382f]"
+              className="text-text-muted dark:text-[#9eb7a8] hover:text-text-main dark:hover:text-white transition-colors p-2 rounded-lg hover:bg-gray-100 dark:hover:bg-[#29382f]"
             >
               <span className="material-symbols-outlined text-[24px]">close</span>
             </button>
@@ -1331,10 +1331,10 @@ const EditClubModal = ({ isOpen, onClose, clubId, onSubmit, isLoading }) => {
             <form onSubmit={handleSubmit} className="flex flex-col gap-6">
               {/* Banner Image */}
               <div className="flex flex-col gap-2">
-                <label className="text-[#9eb7a8] text-sm font-medium flex gap-1">
+                <label className="text-text-muted dark:text-[#9eb7a8] text-sm font-medium flex gap-1">
                   Banner Image
                 </label>
-                <div className="group border-2 border-dashed border-[#3d5245] rounded-xl p-8 flex flex-col items-center justify-center text-center hover:bg-[#202b25] hover:border-primary/50 transition-all cursor-pointer relative bg-[#29382f]/30">
+                <div className="group border-2 border-dashed border-border-light dark:border-[#3d5245] rounded-xl p-8 flex flex-col items-center justify-center text-center hover:bg-gray-50 dark:hover:bg-[#202b25] hover:border-primary/50 transition-all cursor-pointer relative bg-gray-50/50 dark:bg-[#29382f]/30">
                   <input
                     accept="image/*"
                     className="absolute inset-0 w-full h-full opacity-0 cursor-pointer"
@@ -1345,11 +1345,11 @@ const EditClubModal = ({ isOpen, onClose, clubId, onSubmit, isLoading }) => {
                     <img src={bannerPreview} alt="Banner preview" className="w-full h-48 object-cover rounded-lg mb-3" />
                   ) : (
                     <>
-                      <div className="bg-[#29382f] p-3 rounded-full mb-3 text-[#9eb7a8] group-hover:text-white transition-colors shadow-sm">
+                      <div className="bg-gray-100 dark:bg-[#29382f] p-3 rounded-full mb-3 text-text-muted dark:text-[#9eb7a8] group-hover:text-text-main dark:group-hover:text-white transition-colors shadow-sm">
                         <span className="material-symbols-outlined text-[24px]">cloud_upload</span>
                       </div>
-                      <p className="text-white font-medium text-sm">Click to upload or drag and drop</p>
-                      <p className="text-[#9eb7a8] text-xs mt-1">SVG, PNG, JPG or GIF (max. 1920x400px)</p>
+                      <p className="text-text-main dark:text-white font-medium text-sm">Click to upload or drag and drop</p>
+                      <p className="text-text-muted dark:text-[#9eb7a8] text-xs mt-1">SVG, PNG, JPG or GIF (max. 1920x400px)</p>
                     </>
                   )}
                 </div>
@@ -1357,11 +1357,11 @@ const EditClubModal = ({ isOpen, onClose, clubId, onSubmit, isLoading }) => {
 
               {/* Club Name */}
               <div className="flex flex-col gap-2">
-                <label className="text-[#9eb7a8] text-sm font-medium flex gap-1" htmlFor="editClubName">
+                <label className="text-text-muted dark:text-[#9eb7a8] text-sm font-medium flex gap-1" htmlFor="editClubName">
                   Club Name <span className="text-red-400">*</span>
                 </label>
                 <input
-                  className="bg-[#29382f] border border-transparent focus:border-primary/50 focus:ring-0 rounded-lg text-white placeholder:text-[#5c7266] h-12 px-4 w-full transition-colors"
+                  className="bg-gray-50 dark:bg-[#29382f] border border-border-light dark:border-transparent focus:border-primary/50 focus:ring-0 rounded-lg text-text-main dark:text-white placeholder:text-text-muted dark:placeholder:text-[#5c7266] h-12 px-4 w-full transition-colors"
                   id="editClubName"
                   name="name"
                   placeholder="e.g. Downtown Runners"
@@ -1374,11 +1374,11 @@ const EditClubModal = ({ isOpen, onClose, clubId, onSubmit, isLoading }) => {
 
               {/* Description */}
               <div className="flex flex-col gap-2">
-                <label className="text-[#9eb7a8] text-sm font-medium flex gap-1" htmlFor="editDescription">
+                <label className="text-text-muted dark:text-[#9eb7a8] text-sm font-medium flex gap-1" htmlFor="editDescription">
                   Description <span className="text-red-400">*</span>
                 </label>
                 <textarea
-                  className="bg-[#29382f] border border-transparent focus:border-primary/50 focus:ring-0 rounded-lg text-white placeholder:text-[#5c7266] p-4 w-full transition-colors resize-none"
+                  className="bg-gray-50 dark:bg-[#29382f] border border-border-light dark:border-transparent focus:border-primary/50 focus:ring-0 rounded-lg text-text-main dark:text-white placeholder:text-text-muted dark:placeholder:text-[#5c7266] p-4 w-full transition-colors resize-none"
                   id="editDescription"
                   name="description"
                   placeholder="Describe the club's mission, activities, and who should join..."
@@ -1392,12 +1392,12 @@ const EditClubModal = ({ isOpen, onClose, clubId, onSubmit, isLoading }) => {
               {/* Category and Location */}
               <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                 <div className="flex flex-col gap-2">
-                  <label className="text-[#9eb7a8] text-sm font-medium flex gap-1" htmlFor="editCategory">
+                  <label className="text-text-muted dark:text-[#9eb7a8] text-sm font-medium flex gap-1" htmlFor="editCategory">
                     Category <span className="text-red-400">*</span>
                   </label>
                   <div className="relative">
                     <select
-                      className="bg-[#29382f] border border-transparent focus:border-primary/50 focus:ring-0 rounded-lg text-white h-12 px-4 w-full transition-colors appearance-none cursor-pointer"
+                      className="bg-gray-50 dark:bg-[#29382f] border border-border-light dark:border-transparent focus:border-primary/50 focus:ring-0 rounded-lg text-text-main dark:text-white h-12 px-4 w-full transition-colors appearance-none cursor-pointer"
                       id="editCategory"
                       name="category"
                       value={formData.category}
@@ -1411,17 +1411,17 @@ const EditClubModal = ({ isOpen, onClose, clubId, onSubmit, isLoading }) => {
                           </option>
                         ))}
                       </select>
-                    <span className="material-symbols-outlined absolute right-4 top-1/2 -translate-y-1/2 text-[#9eb7a8] pointer-events-none">expand_more</span>
+                    <span className="material-symbols-outlined absolute right-4 top-1/2 -translate-y-1/2 text-text-muted dark:text-[#9eb7a8] pointer-events-none">expand_more</span>
                   </div>
                 </div>
                 <div className="flex flex-col gap-2">
-                  <label className="text-[#9eb7a8] text-sm font-medium flex gap-1" htmlFor="editLocation">
+                  <label className="text-text-muted dark:text-[#9eb7a8] text-sm font-medium flex gap-1" htmlFor="editLocation">
                     Location <span className="text-red-400">*</span>
                   </label>
                   <div className="relative">
-                    <span className="material-symbols-outlined absolute left-4 top-1/2 -translate-y-1/2 text-[#5c7266]">location_on</span>
+                    <span className="material-symbols-outlined absolute left-4 top-1/2 -translate-y-1/2 text-text-muted dark:text-[#5c7266]">location_on</span>
                     <input
-                      className="bg-[#29382f] border border-transparent focus:border-primary/50 focus:ring-0 rounded-lg text-white placeholder:text-[#5c7266] h-12 pl-12 pr-4 w-full transition-colors"
+                      className="bg-gray-50 dark:bg-[#29382f] border border-border-light dark:border-transparent focus:border-primary/50 focus:ring-0 rounded-lg text-text-main dark:text-white placeholder:text-text-muted dark:placeholder:text-[#5c7266] h-12 pl-12 pr-4 w-full transition-colors"
                       id="editLocation"
                       name="location"
                       placeholder="e.g. New York, NY"
@@ -1437,13 +1437,13 @@ const EditClubModal = ({ isOpen, onClose, clubId, onSubmit, isLoading }) => {
               {/* Fee and Manager Email */}
               <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                 <div className="flex flex-col gap-2">
-                  <label className="text-[#9eb7a8] text-sm font-medium flex gap-1" htmlFor="editFee">
+                  <label className="text-text-muted dark:text-[#9eb7a8] text-sm font-medium flex gap-1" htmlFor="editFee">
                     Membership Fee (Monthly)
                   </label>
                   <div className="relative">
-                    <span className="absolute left-4 top-1/2 -translate-y-1/2 text-[#5c7266] font-bold">৳</span>
+                    <span className="absolute left-4 top-1/2 -translate-y-1/2 text-text-muted dark:text-[#5c7266] font-bold">৳</span>
                     <input
-                      className="bg-[#29382f] border border-transparent focus:border-primary/50 focus:ring-0 rounded-lg text-white placeholder:text-[#5c7266] h-12 pl-10 pr-4 w-full transition-colors"
+                      className="bg-gray-50 dark:bg-[#29382f] border border-border-light dark:border-transparent focus:border-primary/50 focus:ring-0 rounded-lg text-text-main dark:text-white placeholder:text-text-muted dark:placeholder:text-[#5c7266] h-12 pl-10 pr-4 w-full transition-colors"
                       id="editFee"
                       name="fee"
                       min="0"
@@ -1454,16 +1454,16 @@ const EditClubModal = ({ isOpen, onClose, clubId, onSubmit, isLoading }) => {
                       onChange={handleInputChange}
                     />
                   </div>
-                  <p className="text-xs text-[#5c7266] mt-1">Enter 0 for free clubs.</p>
+                  <p className="text-xs text-text-muted dark:text-[#5c7266] mt-1">Enter 0 for free clubs.</p>
                 </div>
                 <div className="flex flex-col gap-2">
-                  <label className="text-[#9eb7a8] text-sm font-medium flex gap-1" htmlFor="editManagerEmail">
+                  <label className="text-text-muted dark:text-[#9eb7a8] text-sm font-medium flex gap-1" htmlFor="editManagerEmail">
                     Manager Email <span className="text-red-400">*</span>
                   </label>
                   <div className="relative">
-                    <span className="material-symbols-outlined absolute left-4 top-1/2 -translate-y-1/2 text-[#5c7266]">person</span>
+                    <span className="material-symbols-outlined absolute left-4 top-1/2 -translate-y-1/2 text-text-muted dark:text-[#5c7266]">person</span>
                     <input
-                      className="bg-[#29382f] border border-transparent focus:border-primary/50 focus:ring-0 rounded-lg text-white placeholder:text-[#5c7266] h-12 pl-12 pr-4 w-full transition-colors"
+                      className="bg-gray-50 dark:bg-[#29382f] border border-border-light dark:border-transparent focus:border-primary/50 focus:ring-0 rounded-lg text-text-main dark:text-white placeholder:text-text-muted dark:placeholder:text-[#5c7266] h-12 pl-12 pr-4 w-full transition-colors"
                       id="editManagerEmail"
                       name="managerEmail"
                       placeholder="user@example.com"
@@ -1473,16 +1473,16 @@ const EditClubModal = ({ isOpen, onClose, clubId, onSubmit, isLoading }) => {
                       required
                     />
                   </div>
-                  <p className="text-xs text-[#5c7266] mt-1">Must be an existing registered user.</p>
+                  <p className="text-xs text-text-muted dark:text-[#5c7266] mt-1">Must be an existing registered user.</p>
                 </div>
               </div>
 
               {/* Form Actions */}
-              <div className="flex items-center justify-end gap-4 mt-6 pt-6 border-t border-[#3d5245]">
+              <div className="flex items-center justify-end gap-4 mt-6 pt-6 border-t border-border-light dark:border-[#3d5245]">
                 <button
                   type="button"
                   onClick={onClose}
-                  className="text-[#9eb7a8] font-semibold hover:text-white px-6 py-2.5 transition-colors rounded-lg hover:bg-[#29382f]"
+                  className="text-text-muted dark:text-[#9eb7a8] font-semibold hover:text-text-main dark:hover:text-white px-6 py-2.5 transition-colors rounded-lg hover:bg-gray-100 dark:hover:bg-[#29382f]"
                   disabled={isLoading || isUploadingImage}
                 >
                   Cancel

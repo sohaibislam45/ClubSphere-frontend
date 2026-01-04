@@ -1007,16 +1007,16 @@ const ManagerEventsManagement = () => {
         {showDeleteModal && (
           <div className="fixed inset-0 z-[60] flex items-center justify-center p-4">
             <div className="absolute inset-0 bg-black/80 backdrop-blur-sm" onClick={() => setShowDeleteModal(false)}></div>
-            <div className="relative bg-surface-dark border border-[#29382f] w-full max-w-sm rounded-2xl p-6 shadow-2xl flex flex-col items-center text-center">
+            <div className="relative bg-white dark:bg-surface-dark border border-border-light dark:border-[#29382f] w-full max-w-sm rounded-2xl p-6 shadow-2xl flex flex-col items-center text-center">
               <div className="size-12 rounded-full bg-red-500/20 flex items-center justify-center mb-4 text-red-500">
                 <span className="material-symbols-outlined text-2xl">warning</span>
               </div>
-              <h3 className="text-xl font-bold text-white mb-2">Delete Event?</h3>
-              <p className="text-[#9eb7a8] text-sm mb-6">Are you sure you want to delete this event? This action cannot be undone and all data will be lost.</p>
+              <h3 className="text-xl font-bold text-text-main dark:text-white mb-2">Delete Event?</h3>
+              <p className="text-text-muted dark:text-[#9eb7a8] text-sm mb-6">Are you sure you want to delete this event? This action cannot be undone and all data will be lost.</p>
               <div className="flex gap-3 w-full">
                 <button
                   onClick={() => setShowDeleteModal(false)}
-                  className="flex-1 py-3 rounded-xl bg-[#29382f] text-white font-medium hover:bg-[#35483d] transition-colors"
+                  className="flex-1 py-3 rounded-xl bg-gray-100 dark:bg-[#29382f] text-text-main dark:text-white font-medium hover:bg-gray-200 dark:hover:bg-[#35483d] transition-colors"
                 >
                   Cancel
                 </button>
