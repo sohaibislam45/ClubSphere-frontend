@@ -18,6 +18,7 @@ const AdminManageUsers = () => {
   const [page, setPage] = useState(1);
   const [search, setSearch] = useState('');
   const [roleFilter, setRoleFilter] = useState('all');
+  const [isAddUserModalOpen, setIsAddUserModalOpen] = useState(false);
   const limit = 5;
 
   // Fetch users
@@ -51,6 +52,32 @@ const AdminManageUsers = () => {
         icon: 'error',
         title: 'Error',
         text: error.response?.data?.error || 'Failed to delete user'
+      });
+    }
+  });
+
+  // Create user mutation
+  const createUserMutation = useMutation({
+    mutationFn: async (userData) => {
+      const response = await api.post('/api/admin/users', userData);
+      return response.data;
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries(['admin-users']);
+      setIsAddUserModalOpen(false);
+      Swal.fire({
+        icon: 'success',
+        title: 'User Created',
+        text: 'User has been created successfully',
+        timer: 2000,
+        showConfirmButton: false
+      });
+    },
+    onError: (error) => {
+      Swal.fire({
+        icon: 'error',
+        title: 'Error',
+        text: error.response?.data?.error || 'Failed to create user'
       });
     }
   });
@@ -115,6 +142,11 @@ const AdminManageUsers = () => {
       }
     };
     return badges[role] || badges.member;
+  };
+
+  // Handle add new user
+  const handleAddUser = () => {
+    setIsAddUserModalOpen(true);
   };
 
   // Handle edit user
@@ -200,7 +232,10 @@ const AdminManageUsers = () => {
                 <h2 className="text-dashboard-text-main dark:text-white text-3xl md:text-4xl font-black leading-tight tracking-[-0.033em]">User Management</h2>
                 <p className="text-dashboard-text-muted dark:text-[#9eb7a8] mt-2 text-base">Manage access, roles, and user details across the platform.</p>
               </div>
-              <button className="flex shrink-0 cursor-pointer items-center justify-center gap-2 rounded-full h-12 px-6 bg-primary text-[#122017] text-sm font-bold hover:brightness-110 transition-all shadow-[0_0_20px_rgba(56,224,123,0.2)]">
+              <button 
+                onClick={handleAddUser}
+                className="flex items-center gap-2 bg-primary text-black px-4 py-2.5 rounded-lg font-bold text-sm hover:bg-opacity-90 transition-opacity shadow-[0_0_15px_rgba(54,226,123,0.3)]"
+              >
                 <span className="material-symbols-outlined text-[20px]">add</span>
                 <span>Add New User</span>
               </button>
@@ -446,6 +481,366 @@ const AdminManageUsers = () => {
           )}
         </div>
       </main>
+
+      {/* Add User Modal */}
+      {isAddUserModalOpen && (
+        <AddUserModal
+          isOpen={isAddUserModalOpen}
+          onClose={() => setIsAddUserModalOpen(false)}
+          onSubmit={createUserMutation.mutate}
+          isLoading={createUserMutation.isPending}
+        />
+      )}
+    </div>
+  );
+};
+
+// Add User Modal Component
+const AddUserModal = ({ isOpen, onClose, onSubmit, isLoading }) => {
+  const [formData, setFormData] = useState({
+    name: '',
+    email: '',
+    password: '',
+    role: 'member'
+  });
+  const [photoImage, setPhotoImage] = useState(null);
+  const [photoPreview, setPhotoPreview] = useState(null);
+  const [isUploadingImage, setIsUploadingImage] = useState(false);
+
+  // Upload image to ImgBB
+  const uploadImageToImgBB = async (file) => {
+    const apiKey = import.meta.env.VITE_IMGBB_API_KEY;
+    if (!apiKey) {
+      console.warn('ImgBB API key is not configured. Skipping image upload.');
+      return null;
+    }
+
+    const formData = new FormData();
+    formData.append('image', file);
+
+    try {
+      const response = await fetch(`https://api.imgbb.com/1/upload?key=${apiKey}`, {
+        method: 'POST',
+        body: formData,
+      });
+
+      if (!response.ok) {
+        const errorData = await response.json().catch(() => ({}));
+        throw new Error(errorData.error?.message || 'Failed to upload image');
+      }
+
+      const data = await response.json();
+      if (data.success && data.data && data.data.url) {
+        return data.data.url;
+      } else {
+        throw new Error('Failed to get image URL from ImgBB');
+      }
+    } catch (error) {
+      console.error('Image upload failed:', error);
+      throw error;
+    }
+  };
+
+  const handleImageChange = (e) => {
+    const file = e.target.files[0];
+    if (file) {
+      // Validate file type
+      if (!file.type.startsWith('image/')) {
+        Swal.fire({
+          icon: 'error',
+          title: 'Invalid File',
+          text: 'Please select an image file.',
+        });
+        return;
+      }
+      
+      // Validate file size (max 5MB)
+      if (file.size > 5 * 1024 * 1024) {
+        Swal.fire({
+          icon: 'error',
+          title: 'File Too Large',
+          text: 'Please select an image smaller than 5MB.',
+        });
+        return;
+      }
+
+      setPhotoImage(file);
+      
+      // Create preview
+      const reader = new FileReader();
+      reader.onloadend = () => {
+        setPhotoPreview(reader.result);
+      };
+      reader.readAsDataURL(file);
+    }
+  };
+
+  const handleInputChange = (e) => {
+    const { name, value } = e.target;
+    setFormData(prev => ({
+      ...prev,
+      [name]: value
+    }));
+  };
+
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+    
+    // Validate required fields
+    if (!formData.name || !formData.email || !formData.password) {
+      Swal.fire({
+        icon: 'error',
+        title: 'Missing Fields',
+        text: 'Please fill in all required fields.',
+      });
+      return;
+    }
+
+    // Validate email format
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    if (!emailRegex.test(formData.email)) {
+      Swal.fire({
+        icon: 'error',
+        title: 'Invalid Email',
+        text: 'Please enter a valid email address.',
+      });
+      return;
+    }
+
+    // Validate password length
+    if (formData.password.length < 6) {
+      Swal.fire({
+        icon: 'error',
+        title: 'Invalid Password',
+        text: 'Password must be at least 6 characters long.',
+      });
+      return;
+    }
+
+    let photoURL = null;
+    
+    // Upload image if provided
+    if (photoImage) {
+      setIsUploadingImage(true);
+      try {
+        photoURL = await uploadImageToImgBB(photoImage);
+      } catch (error) {
+        Swal.fire({
+          icon: 'error',
+          title: 'Upload Failed',
+          text: 'Failed to upload profile photo. Please try again.',
+        });
+        setIsUploadingImage(false);
+        return;
+      }
+      setIsUploadingImage(false);
+    }
+
+    // Submit form data with photoURL
+    onSubmit({
+      ...formData,
+      photoURL
+    });
+
+    // Reset form
+    setFormData({
+      name: '',
+      email: '',
+      password: '',
+      role: 'member'
+    });
+    setPhotoImage(null);
+    setPhotoPreview(null);
+  };
+
+  // Reset form when modal closes
+  useEffect(() => {
+    if (!isOpen) {
+      setFormData({
+        name: '',
+        email: '',
+        password: '',
+        role: 'member'
+      });
+      setPhotoImage(null);
+      setPhotoPreview(null);
+    }
+  }, [isOpen]);
+
+  if (!isOpen) return null;
+
+  return (
+    <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/50 backdrop-blur-sm">
+      <div className="bg-white dark:bg-[#1a231f] border border-border-light dark:border-[#3d5245] rounded-xl w-full max-w-[600px] max-h-[90vh] overflow-y-auto">
+        <div className="p-6 md:p-8">
+          <div className="flex items-center justify-between mb-6">
+            <div className="flex flex-col gap-2">
+              <h1 className="text-text-main dark:text-white text-3xl md:text-4xl font-black leading-tight tracking-tight">Add New User</h1>
+              <p className="text-text-muted dark:text-[#9eb7a8] text-base font-normal">Create a new user account and assign a role.</p>
+            </div>
+            <button
+              onClick={onClose}
+              className="text-text-muted dark:text-[#9eb7a8] hover:text-text-main dark:hover:text-white transition-colors p-2 rounded-lg hover:bg-gray-100 dark:hover:bg-[#29382f]"
+            >
+              <span className="material-symbols-outlined text-[24px]">close</span>
+            </button>
+          </div>
+
+          <form onSubmit={handleSubmit} className="flex flex-col gap-6">
+            {/* Profile Photo */}
+            <div className="flex flex-col gap-2">
+              <label className="text-text-muted dark:text-[#9eb7a8] text-sm font-medium flex gap-1">
+                Profile Photo
+              </label>
+              <div className="group border-2 border-dashed border-border-light dark:border-[#3d5245] rounded-xl p-8 flex flex-col items-center justify-center text-center hover:bg-gray-50 dark:hover:bg-[#202b25] hover:border-primary/50 transition-all cursor-pointer relative bg-gray-50/50 dark:bg-[#29382f]/30">
+                <input
+                  accept="image/*"
+                  className="absolute inset-0 w-full h-full opacity-0 cursor-pointer"
+                  type="file"
+                  onChange={handleImageChange}
+                />
+                {photoPreview ? (
+                  <div className="flex flex-col items-center gap-3">
+                    <img src={photoPreview} alt="Profile preview" className="w-32 h-32 object-cover rounded-full" />
+                    <button
+                      type="button"
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        setPhotoImage(null);
+                        setPhotoPreview(null);
+                      }}
+                      className="text-xs text-red-400 hover:text-red-500 transition-colors"
+                    >
+                      Remove photo
+                    </button>
+                  </div>
+                ) : (
+                  <>
+                    <div className="bg-gray-100 dark:bg-[#29382f] p-3 rounded-full mb-3 text-text-muted dark:text-[#9eb7a8] group-hover:text-text-main dark:group-hover:text-white transition-colors shadow-sm">
+                      <span className="material-symbols-outlined text-[24px]">cloud_upload</span>
+                    </div>
+                    <p className="text-text-main dark:text-white font-medium text-sm">Click to upload or drag and drop</p>
+                    <p className="text-text-muted dark:text-[#9eb7a8] text-xs mt-1">SVG, PNG, JPG or GIF (max. 5MB)</p>
+                  </>
+                )}
+              </div>
+            </div>
+
+            {/* Name */}
+            <div className="flex flex-col gap-2">
+              <label className="text-text-muted dark:text-[#9eb7a8] text-sm font-medium flex gap-1" htmlFor="userName">
+                Name <span className="text-red-400">*</span>
+              </label>
+              <div className="relative">
+                <span className="material-symbols-outlined absolute left-4 top-1/2 -translate-y-1/2 text-text-muted dark:text-[#5c7266]">person</span>
+                <input
+                  className="bg-gray-50 dark:bg-[#29382f] border border-border-light dark:border-transparent focus:border-primary/50 focus:ring-0 rounded-lg text-text-main dark:text-white placeholder:text-text-muted dark:placeholder:text-[#5c7266] h-12 pl-12 pr-4 w-full transition-colors"
+                  id="userName"
+                  name="name"
+                  placeholder="e.g. John Doe"
+                  type="text"
+                  value={formData.name}
+                  onChange={handleInputChange}
+                  required
+                />
+              </div>
+            </div>
+
+            {/* Email */}
+            <div className="flex flex-col gap-2">
+              <label className="text-text-muted dark:text-[#9eb7a8] text-sm font-medium flex gap-1" htmlFor="userEmail">
+                Email <span className="text-red-400">*</span>
+              </label>
+              <div className="relative">
+                <span className="material-symbols-outlined absolute left-4 top-1/2 -translate-y-1/2 text-text-muted dark:text-[#5c7266]">mail</span>
+                <input
+                  className="bg-gray-50 dark:bg-[#29382f] border border-border-light dark:border-transparent focus:border-primary/50 focus:ring-0 rounded-lg text-text-main dark:text-white placeholder:text-text-muted dark:placeholder:text-[#5c7266] h-12 pl-12 pr-4 w-full transition-colors"
+                  id="userEmail"
+                  name="email"
+                  placeholder="user@example.com"
+                  type="email"
+                  value={formData.email}
+                  onChange={handleInputChange}
+                  required
+                />
+              </div>
+            </div>
+
+            {/* Password */}
+            <div className="flex flex-col gap-2">
+              <label className="text-text-muted dark:text-[#9eb7a8] text-sm font-medium flex gap-1" htmlFor="userPassword">
+                Password <span className="text-red-400">*</span>
+              </label>
+              <div className="relative">
+                <span className="material-symbols-outlined absolute left-4 top-1/2 -translate-y-1/2 text-text-muted dark:text-[#5c7266]">lock</span>
+                <input
+                  className="bg-gray-50 dark:bg-[#29382f] border border-border-light dark:border-transparent focus:border-primary/50 focus:ring-0 rounded-lg text-text-main dark:text-white placeholder:text-text-muted dark:placeholder:text-[#5c7266] h-12 pl-12 pr-4 w-full transition-colors"
+                  id="userPassword"
+                  name="password"
+                  placeholder="Minimum 6 characters"
+                  type="password"
+                  value={formData.password}
+                  onChange={handleInputChange}
+                  required
+                  minLength={6}
+                />
+              </div>
+              <p className="text-xs text-text-muted dark:text-[#5c7266] mt-1">Password must be at least 6 characters long.</p>
+            </div>
+
+            {/* Role */}
+            <div className="flex flex-col gap-2">
+              <label className="text-text-muted dark:text-[#9eb7a8] text-sm font-medium flex gap-1" htmlFor="userRole">
+                Role <span className="text-red-400">*</span>
+              </label>
+              <div className="relative">
+                <select
+                  className="bg-gray-50 dark:bg-[#29382f] border border-border-light dark:border-transparent focus:border-primary/50 focus:ring-0 rounded-lg text-text-main dark:text-white h-12 px-4 w-full transition-colors appearance-none cursor-pointer pl-4 pr-10"
+                  id="userRole"
+                  name="role"
+                  value={formData.role}
+                  onChange={handleInputChange}
+                  required
+                >
+                  <option value="member">Member</option>
+                  <option value="clubManager">Club Manager</option>
+                  <option value="admin">Admin</option>
+                </select>
+                <span className="material-symbols-outlined absolute right-4 top-1/2 -translate-y-1/2 text-text-muted dark:text-[#9eb7a8] pointer-events-none">expand_more</span>
+              </div>
+            </div>
+
+            {/* Form Actions */}
+            <div className="flex items-center justify-end gap-4 mt-6 pt-6 border-t border-border-light dark:border-[#3d5245]">
+              <button
+                type="button"
+                onClick={onClose}
+                className="text-text-muted dark:text-[#9eb7a8] font-semibold hover:text-text-main dark:hover:text-white px-6 py-2.5 transition-colors rounded-lg hover:bg-gray-100 dark:hover:bg-[#29382f]"
+                disabled={isLoading || isUploadingImage}
+              >
+                Cancel
+              </button>
+              <button
+                type="submit"
+                className="bg-primary text-black px-8 py-2.5 rounded-lg font-bold hover:bg-opacity-90 transition-opacity shadow-[0_0_15px_rgba(54,226,123,0.3)] flex items-center justify-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed"
+                disabled={isLoading || isUploadingImage}
+              >
+                {isLoading || isUploadingImage ? (
+                  <>
+                    <div className="w-5 h-5 border-2 border-black border-t-transparent rounded-full animate-spin"></div>
+                    <span>{isUploadingImage ? 'Uploading...' : 'Creating...'}</span>
+                  </>
+                ) : (
+                  <>
+                    <span className="material-symbols-outlined text-[20px]">add_circle</span>
+                    <span>Create User</span>
+                  </>
+                )}
+              </button>
+            </div>
+          </form>
+        </div>
+      </div>
     </div>
   );
 };
