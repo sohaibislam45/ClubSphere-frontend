@@ -741,53 +741,74 @@ const Home = () => {
                 <h2 className="text-gray-900 dark:text-white text-3xl md:text-4xl font-bold leading-tight">What Our Members Say</h2>
                 <p className="text-text-muted dark:text-text-secondary text-lg">Real stories from real people in our community.</p>
               </div>
-              <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-                {[
-                  {
-                    quote: "ClubSphere completely transformed how I find local events. The community is vibrant and welcoming.",
-                    author: "Alex Chen",
-                    role: "Community Organizer",
-                    avatar: "https://lh3.googleusercontent.com/aida-public/AB6AXuDBZ6CDB3iArjU_tvxrCupBUfSulecrz0Y9qLtIP8e3AcjWj4CPqyZd_o9WvE_-caFh2Kl8jlU4JL3YcpV7C1S8qDZm7jzPy-Umx63LT8vZJyrigp5I_aZLIUqO8HeDb66gFGZy4NqMMGkLQDd3QniZ8Z3M6H704nriZyvne7BNUopiiyqGNIsttPAvyWb6gvNd9K-L0_7pqdQ5Q4rsnY07Yui944jqM2dQq4-wbrku73IXnLPhq-yrJ-7VBoDiFVDb3p7M7HKnAPJc"
-                  },
-                  {
-                    quote: "I've met some of my closest friends through clubs on this platform. It's amazing how technology can bring people together.",
-                    author: "Sarah Johnson",
-                    role: "Fitness Enthusiast",
-                    avatar: "https://lh3.googleusercontent.com/aida-public/AB6AXuA905HuwzoL3J6Hn0Sl4XIIJzbR6IPNZbPOMGRUaFXfkY2aBHeN-VxHwYW4dhAJhgtUHW4DdNBaeFGOCxDkNYmguRofHkXkgTONLxG8Twyt9srdWrXmqamsThx_w9SGvHV4fxnZ6VA6zW6EQJBFnVcEQ9PDbnGGTuoAIZ0-T0gnO6dLwbu1ql6BxoEbyHZP1a71z_eEVtaksinsi6LWEmv4KqhZi6gLJ-7q9XaofobfY-pHbyUlLd_VNzJwzhmyxvA7Iz_DLv8tkUro"
-                  },
-                  {
-                    quote: "As a club manager, the tools provided make organizing events so much easier. Highly recommend!",
-                    author: "Michael Torres",
-                    role: "Tech Club Manager",
-                    avatar: "https://lh3.googleusercontent.com/aida-public/AB6AXuA9zqG3-2JnoqjGIKWNWeHge3KqIh7kIXdIcZ5_5CcSX2AV_z7LGRAtUOw6arXnuz2bHq60vM6pWztNijvI2P-6d8HRRlcim8z1_7xXb_YzIvvUXhsz-JFsJ0UOXPZs9UNth8T2TXtPDizQwtDM5gNBckPHiGMFEZkIoF4fOJXqZ_C10bSEZn_EtM-u7KKQQLAX_JfZOJPmQzr5m4I-fpoaLHMuGk8wChObqo7ZbaQpypqV7msw1WScyHoHCYi0-7EU5DAOSiVariW2"
-                  }
-                ].map((testimonial, index) => (
-                  <motion.div
-                    key={testimonial.author}
-                    initial={{ opacity: 0, y: 20 }}
-                    whileInView={{ opacity: 1, y: 0 }}
-                    viewport={{ once: true }}
-                    transition={{ duration: 0.5, delay: index * 0.1 }}
-                    className="flex flex-col gap-4 p-6 rounded-2xl bg-white dark:bg-card-dark border border-gray-200 dark:border-border-dark"
-                  >
-                    <div className="flex items-center gap-1 text-primary">
-                      {[...Array(5)].map((_, i) => (
-                        <span key={i} className="material-symbols-outlined text-lg">star</span>
-                      ))}
-                    </div>
-                    <p className="text-text-muted dark:text-text-secondary leading-relaxed flex-1">"{testimonial.quote}"</p>
-                    <div className="flex items-center gap-3 pt-4 border-t border-gray-100 dark:border-border-dark">
-                      <div
-                        className="size-12 rounded-full bg-cover bg-center"
-                        style={{ backgroundImage: `url("${testimonial.avatar}")` }}
-                      ></div>
-                      <div>
-                        <p className="font-bold text-gray-900 dark:text-white">{testimonial.author}</p>
-                        <p className="text-sm text-text-muted dark:text-text-secondary">{testimonial.role}</p>
+              {reviewsLoading ? (
+                <div className="flex items-center justify-center py-20">
+                  <Loader />
+                </div>
+              ) : reviewsData?.reviews && reviewsData.reviews.length > 0 ? (
+                <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+                  {reviewsData.reviews.map((review, index) => (
+                    <motion.div
+                      key={review.id}
+                      initial={{ opacity: 0, y: 20 }}
+                      whileInView={{ opacity: 1, y: 0 }}
+                      viewport={{ once: true }}
+                      transition={{ duration: 0.5, delay: index * 0.1 }}
+                    >
+                      <ReviewCard review={review} />
+                    </motion.div>
+                  ))}
+                </div>
+              ) : (
+                <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+                  {[
+                    {
+                      quote: "ClubSphere completely transformed how I find local events. The community is vibrant and welcoming.",
+                      author: "Alex Chen",
+                      role: "Community Organizer",
+                      avatar: "https://lh3.googleusercontent.com/aida-public/AB6AXuDBZ6CDB3iArjU_tvxrCupBUfSulecrz0Y9qLtIP8e3AcjWj4CPqyZd_o9WvE_-caFh2Kl8jlU4JL3YcpV7C1S8qDZm7jzPy-Umx63LT8vZJyrigp5I_aZLIUqO8HeDb66gFGZy4NqMMGkLQDd3QniZ8Z3M6H704nriZyvne7BNUopiiyqGNIsttPAvyWb6gvNd9K-L0_7pqdQ5Q4rsnY07Yui944jqM2dQq4-wbrku73IXnLPhq-yrJ-7VBoDiFVDb3p7M7HKnAPJc"
+                    },
+                    {
+                      quote: "I've met some of my closest friends through clubs on this platform. It's amazing how technology can bring people together.",
+                      author: "Sarah Johnson",
+                      role: "Fitness Enthusiast",
+                      avatar: "https://lh3.googleusercontent.com/aida-public/AB6AXuA905HuwzoL3J6Hn0Sl4XIIJzbR6IPNZbPOMGRUaFXfkY2aBHeN-VxHwYW4dhAJhgtUHW4DdNBaeFGOCxDkNYmguRofHkXkgTONLxG8Twyt9srdWrXmqamsThx_w9SGvHV4fxnZ6VA6zW6EQJBFnVcEQ9PDbnGGTuoAIZ0-T0gnO6dLwbu1ql6BxoEbyHZP1a71z_eEVtaksinsi6LWEmv4KqhZi6gLJ-7q9XaofobfY-pHbyUlLd_VNzJwzhmyxvA7Iz_DLv8tkUro"
+                    },
+                    {
+                      quote: "As a club manager, the tools provided make organizing events so much easier. Highly recommend!",
+                      author: "Michael Torres",
+                      role: "Tech Club Manager",
+                      avatar: "https://lh3.googleusercontent.com/aida-public/AB6AXuA9zqG3-2JnoqjGIKWNWeHge3KqIh7kIXdIcZ5_5CcSX2AV_z7LGRAtUOw6arXnuz2bHq60vM6pWztNijvI2P-6d8HRRlcim8z1_7xXb_YzIvvUXhsz-JFsJ0UOXPZs9UNth8T2TXtPDizQwtDM5gNBckPHiGMFEZkIoF4fOJXqZ_C10bSEZn_EtM-u7KKQQLAX_JfZOJPmQzr5m4I-fpoaLHMuGk8wChObqo7ZbaQpypqV7msw1WScyHoHCYi0-7EU5DAOSiVariW2"
+                    }
+                  ].map((testimonial, index) => (
+                    <motion.div
+                      key={testimonial.author}
+                      initial={{ opacity: 0, y: 20 }}
+                      whileInView={{ opacity: 1, y: 0 }}
+                      viewport={{ once: true }}
+                      transition={{ duration: 0.5, delay: index * 0.1 }}
+                      className="flex flex-col gap-4 p-6 rounded-2xl bg-white dark:bg-card-dark border border-gray-200 dark:border-border-dark"
+                    >
+                      <div className="flex items-center gap-1 text-primary">
+                        {[...Array(5)].map((_, i) => (
+                          <span key={i} className="material-symbols-outlined text-lg">star</span>
+                        ))}
                       </div>
-                    </div>
-                  </motion.div>
-                ))}
+                      <p className="text-text-muted dark:text-text-secondary leading-relaxed flex-1">"{testimonial.quote}"</p>
+                      <div className="flex items-center gap-3 pt-4 border-t border-gray-100 dark:border-border-dark">
+                        <div
+                          className="size-12 rounded-full bg-cover bg-center"
+                          style={{ backgroundImage: `url("${testimonial.avatar}")` }}
+                        ></div>
+                        <div>
+                          <p className="font-bold text-gray-900 dark:text-white">{testimonial.author}</p>
+                          <p className="text-sm text-text-muted dark:text-text-secondary">{testimonial.role}</p>
+                        </div>
+                      </div>
+                    </motion.div>
+                  ))}
+                </div>
+              )}
               </div>
             </div>
           </div>
