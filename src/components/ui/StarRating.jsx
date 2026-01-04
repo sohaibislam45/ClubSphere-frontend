@@ -1,36 +1,33 @@
-const StarRating = ({ rating, onRatingChange, readonly = false, size = 'md' }) => {
+const StarRating = ({ rating, onRate, interactive = false, size = 'md' }) => {
   const sizeClasses = {
-    sm: 'text-lg',
-    md: 'text-2xl',
-    lg: 'text-3xl'
+    sm: 'text-sm',
+    md: 'text-lg',
+    lg: 'text-2xl'
   };
 
-  const sizeClass = sizeClasses[size] || sizeClasses.md;
+  const handleClick = (value) => {
+    if (interactive && onRate) {
+      onRate(value);
+    }
+  };
 
   return (
     <div className="flex items-center gap-1">
       {[1, 2, 3, 4, 5].map((star) => (
-        <button
+        <span
           key={star}
-          type="button"
-          onClick={() => !readonly && onRatingChange && onRatingChange(star)}
-          disabled={readonly}
-          className={`${sizeClass} transition-colors ${
-            readonly ? 'cursor-default' : 'cursor-pointer hover:scale-110'
-          } ${
+          onClick={() => handleClick(star)}
+          className={`material-symbols-outlined ${sizeClasses[size]} ${
             star <= rating
-              ? 'text-yellow-400 fill-yellow-400'
+              ? 'text-yellow-400'
               : 'text-gray-300 dark:text-gray-600'
-          }`}
+          } ${interactive ? 'cursor-pointer hover:scale-110 transition-transform' : ''}`}
         >
-          <span className="material-symbols-outlined">
-            {star <= rating ? 'star' : 'star'}
-          </span>
-        </button>
+          {star <= rating ? 'star' : 'star'}
+        </span>
       ))}
     </div>
   );
 };
 
 export default StarRating;
-

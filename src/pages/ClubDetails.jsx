@@ -1,9 +1,11 @@
 import { useEffect, useState } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
-import { useQuery } from '@tanstack/react-query';
+import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import Navbar from '../components/layout/Navbar';
 import Footer from '../components/layout/Footer';
 import Loader from '../components/ui/Loader';
+import ReviewCard from '../components/ui/ReviewCard';
+import StarRating from '../components/ui/StarRating';
 import NotFound from './NotFound';
 import api from '../lib/api';
 import { useAuth } from '../context/AuthContext';
@@ -14,6 +16,10 @@ const ClubDetails = () => {
   const navigate = useNavigate();
   const { isAuthenticated, user } = useAuth();
   const [isJoining, setIsJoining] = useState(false);
+  const [showReviewForm, setShowReviewForm] = useState(false);
+  const [reviewRating, setReviewRating] = useState(0);
+  const [reviewComment, setReviewComment] = useState('');
+  const queryClient = useQueryClient();
 
   // Fetch club details from API
   const { data: club, isLoading } = useQuery({
@@ -58,6 +64,68 @@ const ClubDetails = () => {
   });
 
   const upcomingEvents = eventsData?.events || [];
+
+  // Fetch reviews for this club
+  const { data: reviewsData, isLoading: reviewsLoading, refetch: refetchReviews } = useQuery({
+    queryKey: ['club-reviews', id],
+    queryFn: async () => {
+      const response = await api.get(`/api/clubs/${id}/reviews`);
+      return response.data;
+    },
+    enabled: !!id,
+  });
+
+  const reviews = reviewsData?.reviews || [];
+  const averageRating = reviewsData?.averageRating || 0;
+  const totalReviews = reviewsData?.totalReviews || 0;
+
+  // Submit review mutation
+  const submitReviewMutation = useMutation({
+    mutationFn: async ({ rating, comment }) => {
+      const response = await api.post(`/api/clubs/${id}/reviews`, { rating, comment });
+      return response.data;
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries(['club-reviews', id]);
+      setShowReviewForm(false);
+      setReviewRating(0);
+      setReviewComment('');
+      Swal.fire({
+        icon: 'success',
+        title: 'Review Submitted!',
+        text: 'Thank you for your review.',
+        timer: 2000,
+        showConfirmButton: false
+      });
+    },
+    onError: (error) => {
+      Swal.fire({
+        icon: 'error',
+        title: 'Error',
+        text: error.response?.data?.error || 'Failed to submit review. Please try again.',
+      });
+    }
+  });
+
+  const handleSubmitReview = () => {
+    if (!reviewRating || reviewRating < 1) {
+      Swal.fire({
+        icon: 'error',
+        title: 'Rating Required',
+        text: 'Please select a rating.',
+      });
+      return;
+    }
+    if (!reviewComment.trim() || reviewComment.trim().length < 10) {
+      Swal.fire({
+        icon: 'error',
+        title: 'Comment Required',
+        text: 'Please enter a comment of at least 10 characters.',
+      });
+      return;
+    }
+    submitReviewMutation.mutate({ rating: reviewRating, comment: reviewComment });
+  };
 
   const handleJoinClick = async () => {
     // Check if user is authenticated
@@ -280,6 +348,103 @@ const ClubDetails = () => {
                         </div>
                       </div>
                     </div>
+                  ))}
+                </div>
+              )}
+            </div>
+
+            {/* Reviews Section */}
+            <div className="bg-surface-light dark:bg-surface-dark-alt rounded-lg-alt p-6 md:p-8">
+              <div className="flex items-center justify-between mb-6">
+                <div>
+                  <h3 className="text-2xl font-bold mb-2 flex items-center gap-2">
+                    <span className="material-symbols-outlined text-primary">rate_review</span>
+                    Reviews
+                  </h3>
+                  {totalReviews > 0 && (
+                    <div className="flex items-center gap-3">
+                      <div className="flex items-center gap-1">
+                        <StarRating rating={Math.round(averageRating)} interactive={false} size="md" />
+                        <span className="text-lg font-bold text-gray-900 dark:text-white ml-2">
+                          {averageRating.toFixed(1)}
+                        </span>
+                      </div>
+                      <span className="text-text-muted dark:text-text-secondary">
+                        ({totalReviews} {totalReviews === 1 ? 'review' : 'reviews'})
+                      </span>
+                    </div>
+                  )}
+                </div>
+                {isMember && !showReviewForm && (
+                  <button
+                    onClick={() => setShowReviewForm(true)}
+                    className="px-4 py-2 bg-primary hover:bg-primary-hover text-[#111714] font-bold rounded-xl transition-colors"
+                  >
+                    Write a Review
+                  </button>
+                )}
+              </div>
+
+              {/* Review Form */}
+              {showReviewForm && (
+                <div className="mb-6 p-6 bg-white dark:bg-card-dark border border-gray-200 dark:border-border-dark rounded-xl">
+                  <h4 className="text-lg font-bold mb-4">Write a Review</h4>
+                  <div className="flex flex-col gap-4">
+                    <div>
+                      <label className="block text-sm font-bold mb-2">Rating</label>
+                      <StarRating
+                        rating={reviewRating}
+                        onRate={setReviewRating}
+                        interactive={true}
+                        size="lg"
+                      />
+                    </div>
+                    <div>
+                      <label className="block text-sm font-bold mb-2">Your Review</label>
+                      <textarea
+                        value={reviewComment}
+                        onChange={(e) => setReviewComment(e.target.value)}
+                        placeholder="Share your experience with this club..."
+                        rows="4"
+                        className="w-full px-4 py-3 bg-gray-50 dark:bg-[#29382f] border border-gray-200 dark:border-border-dark rounded-xl text-gray-900 dark:text-white placeholder:text-text-muted dark:placeholder:text-text-secondary focus:ring-2 focus:ring-primary focus:border-primary outline-none transition-all resize-none"
+                      />
+                    </div>
+                    <div className="flex gap-3">
+                      <button
+                        onClick={handleSubmitReview}
+                        disabled={submitReviewMutation.isPending}
+                        className="px-6 py-2 bg-primary hover:bg-primary-hover text-[#111714] font-bold rounded-xl transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+                      >
+                        {submitReviewMutation.isPending ? 'Submitting...' : 'Submit Review'}
+                      </button>
+                      <button
+                        onClick={() => {
+                          setShowReviewForm(false);
+                          setReviewRating(0);
+                          setReviewComment('');
+                        }}
+                        className="px-6 py-2 bg-gray-100 dark:bg-[#29382f] text-gray-900 dark:text-white font-bold rounded-xl hover:bg-gray-200 dark:hover:bg-border-dark transition-colors"
+                      >
+                        Cancel
+                      </button>
+                    </div>
+                  </div>
+                </div>
+              )}
+
+              {/* Reviews List */}
+              {reviewsLoading ? (
+                <div className="flex items-center justify-center py-8">
+                  <Loader />
+                </div>
+              ) : reviews.length === 0 ? (
+                <div className="text-center py-8">
+                  <p className="text-text-muted dark:text-text-secondary">No reviews yet. Be the first to review this club!</p>
+                </div>
+              ) : (
+                <div className="space-y-4">
+                  {reviews.map((review) => (
+                    <ReviewCard key={review.id} review={review} />
                   ))}
                 </div>
               )}
