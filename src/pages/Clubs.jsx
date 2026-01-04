@@ -64,7 +64,7 @@ const Clubs = () => {
             <h1 className="text-4xl md:text-5xl font-bold tracking-tight text-slate-900 dark:text-white">
               {t('clubs.title')}
             </h1>
-            <p className="text-lg text-slate-500 dark:text-slate-400 max-w-2xl">
+            <p className="text-lg text-text-muted dark:text-slate-400 max-w-2xl">
               {t('clubs.subtitle')}
             </p>
           </div>
@@ -140,7 +140,7 @@ const Clubs = () => {
             </div>
             {clubs.length === 0 && (
               <div className="text-center py-12">
-                <p className="text-text-secondary text-lg">{t('clubs.noClubsFound')}</p>
+                <p className="text-text-muted dark:text-text-secondary text-lg">{t('clubs.noClubsFound')}</p>
               </div>
             )}
           </>

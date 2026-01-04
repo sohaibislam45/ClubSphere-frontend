@@ -10,10 +10,13 @@
   --color-background-dark: #111714;
   --color-background-dark-alt: #122017;
   --color-card-dark: #1c2620;
+  --color-card-light: #ffffff;
   --color-border-dark: #29382f;
+  --color-border-light: #e2e8f0;
   --color-border-dark-alt: #3d5245;
+  --color-text-main: #111714;
   --color-text-secondary: #9eb7a8;
-  --color-text-muted: #9eb7a8;
+  --color-text-muted: #64748b;
   --color-surface-dark: #1c2620;
   --color-surface-dark-alt: #1c2e24;
   --color-surface-dark-alt2: #1a2b22;
@@ -52,43 +55,66 @@ body {
   scrollbar-width: none;
 }
 
-/* Custom scrollbar for better aesthetic in dark mode */
+/* Custom scrollbar for better aesthetic - supports both themes */
 ::-webkit-scrollbar {
   width: 8px;
 }
 ::-webkit-scrollbar-track {
+  background: #f6f8f7;
+}
+.dark ::-webkit-scrollbar-track {
   background: #122017;
 }
 ::-webkit-scrollbar-thumb {
-  background: #29382f;
+  background: #e2e8f0;
   border-radius: 4px;
 }
+.dark ::-webkit-scrollbar-thumb {
+  background: #29382f;
+}
 ::-webkit-scrollbar-thumb:hover {
+  background: #cbd5e1;
+}
+.dark ::-webkit-scrollbar-thumb:hover {
   background: #38e07b;
 }
 
 /* Form input placeholder styles */
 .form-input::placeholder {
+  color: #64748b;
+}
+.dark .form-input::placeholder {
   color: #9eb7a8;
 }
 
-/* Select dropdown styling for dark theme */
+/* Select dropdown styling for both themes */
 select {
+  background-color: #ffffff !important;
+  color: #111714 !important;
+}
+.dark select {
   background-color: #1c2620 !important;
   color: #ffffff !important;
 }
 
 select option {
+  background-color: #ffffff !important;
+  color: #111714 !important;
+}
+.dark select option {
   background-color: #1c2620 !important;
   color: #ffffff !important;
 }
 
-/* Ensure select dropdown options are visible in dark modals */
+/* Ensure select dropdown options are visible */
 select:focus option:checked {
   background-color: #38e07b !important;
   color: #111714 !important;
 }
 
 select option:hover {
+  background-color: #f1f5f9 !important;
+}
+.dark select option:hover {
   background-color: #29382f !important;
 }

@@ -44,7 +44,7 @@ const Events = () => {
             <h1 className="text-4xl md:text-5xl font-bold tracking-tight text-slate-900 dark:text-white">
               {t('events.title')}
             </h1>
-            <p className="text-lg text-slate-500 dark:text-slate-400 max-w-2xl">
+            <p className="text-lg text-text-muted dark:text-slate-400 max-w-2xl">
               {t('events.subtitle')}
             </p>
           </div>
@@ -139,7 +139,7 @@ const Events = () => {
             </div>
             {events.length === 0 && (
               <div className="text-center py-12">
-                <p className="text-text-secondary text-lg">{t('events.noEventsFound')}</p>
+                <p className="text-text-muted dark:text-text-secondary text-lg">{t('events.noEventsFound')}</p>
               </div>
             )}
             {events.length > 0 && events.length >= 9 && (

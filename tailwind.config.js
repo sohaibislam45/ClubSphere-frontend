@@ -15,10 +15,13 @@ export default {
         "background-dark": "#111714", // Home/Login pages
         "background-dark-alt": "#122017", // Club Details/Events/Register pages
         "card-dark": "#1c2620",
+        "card-light": "#ffffff",
         "border-dark": "#29382f",
+        "border-light": "#e2e8f0",
         "border-dark-alt": "#3d5245", // Login page
-        "text-secondary": "#9eb7a8",
-        "text-muted": "#9eb7a8",
+        "text-main": "#111714", // Light mode primary text
+        "text-secondary": "#9eb7a8", // Dark mode secondary text
+        "text-muted": "#64748b", // Light mode muted text (dark mode uses text-secondary)
         "surface-dark": "#1c2620", // Login page
         "surface-dark-alt": "#1c2e24", // Club Details page
         "surface-dark-alt2": "#1a2b22", // Events page

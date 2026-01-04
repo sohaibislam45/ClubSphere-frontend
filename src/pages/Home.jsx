@@ -131,19 +131,19 @@ const Home = () => {
                   className="w-full max-w-[600px] mt-4 z-10"
                 >
                   <form onSubmit={handleSearch} className="flex flex-col w-full h-14 sm:h-16">
-                    <div className="flex w-full flex-1 items-stretch rounded-full h-full shadow-lg overflow-hidden group focus-within:ring-2 focus-within:ring-primary/50 transition-all">
-                      <div className="text-text-secondary flex border-y border-l border-border-dark bg-card-dark items-center justify-center pl-6 pr-2">
+                    <div className="flex w-full flex-1 items-stretch rounded-full h-full shadow-xl overflow-hidden group focus-within:ring-2 focus-within:ring-primary/50 transition-all bg-white">
+                      <div className="text-gray-400 flex border-y border-l border-white bg-white items-center justify-center pl-6 pr-2">
                         <span className="material-symbols-outlined text-[24px]">search</span>
                       </div>
                       <input
-                        className="flex w-full min-w-0 flex-1 resize-none bg-card-dark text-white border-y border-border-dark focus:outline-none focus:border-border-dark h-full placeholder:text-text-secondary px-2 text-base font-normal leading-normal"
+                        className="flex w-full min-w-0 flex-1 resize-none bg-white text-gray-900 border-y border-white focus:outline-none focus:border-white h-full placeholder:text-gray-400 px-2 text-base font-normal leading-normal"
                         placeholder={t('home.searchPlaceholder')}
                         type="text"
                         value={searchTerm}
                         onChange={(e) => setSearchTerm(e.target.value)}
                         onKeyPress={handleKeyPress}
                       />
-                      <div className="flex items-center justify-center border-y border-r border-border-dark bg-card-dark pr-2 sm:pr-3">
+                      <div className="flex items-center justify-center border-y border-r border-white bg-white pr-2 sm:pr-3">
                         <button 
                           type="submit"
                           className="flex cursor-pointer items-center justify-center rounded-full h-10 sm:h-12 px-6 bg-primary hover:bg-primary-hover transition-colors text-[#111714] text-sm sm:text-base font-bold leading-normal tracking-[0.015em]"
@@ -163,8 +163,8 @@ const Home = () => {
         {/* Featured Clubs Header */}
         <section className="w-full px-4 sm:px-6 lg:px-8 pt-8 flex justify-center">
           <div className="w-full max-w-[1280px] flex items-end justify-between">
-            <h2 className="text-[32px] md:text-4xl font-bold leading-tight tracking-tight">{t('home.featuredClubs')}</h2>
-            <Link to="/clubs" className="hidden sm:flex items-center gap-1 text-primary font-medium hover:underline">
+            <h2 className="text-gray-900 dark:text-white text-[32px] md:text-4xl font-bold leading-tight tracking-tight">{t('home.featuredClubs')}</h2>
+            <Link to="/clubs" className="hidden sm:flex items-center gap-1 text-primary-hover dark:text-primary font-bold hover:underline">
               {t('home.viewAllClubs')} <span className="material-symbols-outlined text-sm">arrow_forward</span>
             </Link>
           </div>
@@ -179,7 +179,7 @@ const Home = () => {
               </div>
             ) : featuredClubs.length === 0 ? (
               <div className="text-center py-12">
-                <p className="text-text-secondary text-lg">{t('home.noFeaturedClubs')}</p>
+                <p className="text-text-muted dark:text-text-secondary text-lg">{t('home.noFeaturedClubs')}</p>
               </div>
             ) : (
               <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
@@ -190,27 +190,27 @@ const Home = () => {
                     animate={{ opacity: 1, y: 0 }}
                     transition={{ duration: 0.5, delay: 0.6 + index * 0.1 }}
                     onClick={() => navigate(`/clubs/${club.id}`)}
-                    className="group flex flex-col bg-card-dark border border-border-dark rounded-2xl overflow-hidden hover:border-primary/50 transition-all duration-300 cursor-pointer"
+                    className="group flex flex-col bg-white dark:bg-card-dark border border-gray-200 dark:border-border-dark rounded-2xl overflow-hidden hover:border-primary/50 hover:shadow-lg transition-all duration-300 cursor-pointer"
                   >
                     <div className="relative w-full h-48 overflow-hidden">
                       <div 
-                        className="absolute inset-0 bg-cover bg-center transition-transform duration-500 group-hover:scale-110 bg-card-dark" 
+                        className="absolute inset-0 bg-cover bg-center transition-transform duration-500 group-hover:scale-110 bg-white dark:bg-card-dark" 
                         style={{ backgroundImage: club.image ? `url("${club.image}")` : 'none' }}
                       ></div>
-                      <div className="absolute inset-0 bg-gradient-to-t from-card-dark/90 to-transparent"></div>
+                      <div className="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent"></div>
                       <div className="absolute top-4 left-4">
-                        <span className={`${getCategoryColor(club.category)} text-background-dark text-xs font-bold px-3 py-1 rounded-full uppercase tracking-wider`}>
+                        <span className={`${getCategoryColor(club.category)} text-[#111714] text-xs font-bold px-3 py-1 rounded-full uppercase tracking-wider`}>
                           {club.category}
                         </span>
                       </div>
                     </div>
                     <div className="p-5 flex flex-col gap-3 flex-1">
                       <div className="flex justify-between items-start">
-                        <h3 className="text-xl font-bold leading-tight text-white group-hover:text-primary transition-colors">{club.name}</h3>
+                        <h3 className="text-xl font-bold leading-tight text-gray-900 dark:text-white group-hover:text-primary-hover dark:group-hover:text-primary transition-colors">{club.name}</h3>
                       </div>
-                      <p className="text-text-secondary text-sm line-clamp-2">{club.description || 'Join this amazing community and connect with like-minded people.'}</p>
-                      <div className="mt-auto pt-4 border-t border-border-dark flex items-center justify-between">
-                        <div className="flex items-center gap-1.5 text-xs font-medium text-text-secondary">
+                      <p className="text-text-muted dark:text-text-secondary text-sm line-clamp-2">{club.description || 'Join this amazing community and connect with like-minded people.'}</p>
+                      <div className="mt-auto pt-4 border-t border-gray-100 dark:border-border-dark flex items-center justify-between">
+                        <div className="flex items-center gap-1.5 text-xs font-medium text-text-muted dark:text-text-secondary">
                           <span className="material-symbols-outlined text-base">group</span> {club.members}
                         </div>
                         <button 
@@ -221,7 +221,7 @@ const Home = () => {
                           className={`text-sm font-bold transition-colors flex items-center gap-1 ${
                             joinedClubIds.has(club.id)
                               ? 'text-slate-400 dark:text-slate-500 cursor-default'
-                              : 'text-white hover:text-primary'
+                              : 'text-gray-900 dark:text-white hover:text-primary dark:hover:text-primary'
                           }`}
                           disabled={joinedClubIds.has(club.id)}
                         >
@@ -238,14 +238,14 @@ const Home = () => {
         </section>
 
         {/* Running & Upcoming Events Section */}
-        <section className="w-full px-4 sm:px-6 lg:px-8 py-10 flex justify-center bg-card-dark/20 border-y border-border-dark/50">
+        <section className="w-full px-4 sm:px-6 lg:px-8 py-12 flex justify-center bg-white dark:bg-card-dark/20 border-y border-gray-200 dark:border-border-dark/50">
           <div className="w-full max-w-[1280px] flex flex-col gap-8">
             <div className="flex items-end justify-between">
               <div>
-                <h2 className="text-[32px] md:text-4xl font-bold leading-tight tracking-tight">{t('home.upcomingEvents')}</h2>
-                <p className="text-text-secondary mt-2">{t('home.dontMiss')}</p>
+                <h2 className="text-gray-900 dark:text-white text-[32px] md:text-4xl font-bold leading-tight tracking-tight">{t('home.upcomingEvents')}</h2>
+                <p className="text-text-muted dark:text-text-secondary mt-2">{t('home.dontMiss')}</p>
               </div>
-              <Link to="/events" className="hidden sm:flex items-center gap-1 text-primary font-medium hover:underline">
+              <Link to="/events" className="hidden sm:flex items-center gap-1 text-primary-hover dark:text-primary font-bold hover:underline">
                 {t('home.viewCalendar')} <span className="material-symbols-outlined text-sm">calendar_month</span>
               </Link>
             </div>
@@ -255,7 +255,7 @@ const Home = () => {
               </div>
             ) : upcomingEvents.length === 0 ? (
               <div className="text-center py-12">
-                <p className="text-text-secondary text-lg">{t('home.noUpcomingEvents')}</p>
+                <p className="text-text-muted dark:text-text-secondary text-lg">{t('home.noUpcomingEvents')}</p>
               </div>
             ) : (
               <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
@@ -266,14 +266,14 @@ const Home = () => {
                     animate={{ opacity: 1, y: 0 }}
                     transition={{ duration: 0.5, delay: 0.8 + index * 0.1 }}
                     onClick={() => navigate(`/events/${event.id}`)}
-                    className="flex flex-col bg-card-dark border border-border-dark rounded-2xl overflow-hidden group hover:border-primary/50 transition-all duration-300 cursor-pointer"
+                    className="flex flex-col bg-white dark:bg-card-dark border border-gray-200 dark:border-border-dark rounded-2xl overflow-hidden group hover:border-primary/50 hover:shadow-lg transition-all duration-300 cursor-pointer"
                   >
                     <div className="relative h-48 w-full overflow-hidden">
                       <div 
-                        className="absolute inset-0 bg-cover bg-center transition-transform duration-500 group-hover:scale-105 bg-card-dark" 
+                        className="absolute inset-0 bg-cover bg-center transition-transform duration-500 group-hover:scale-105 bg-white dark:bg-card-dark" 
                         style={{ backgroundImage: event.image ? `url("${event.image}")` : 'none' }}
                       ></div>
-                      <div className="absolute inset-0 bg-black/40 group-hover:bg-black/20 transition-colors"></div>
+                      <div className="absolute inset-0 bg-black/30 dark:bg-black/40 group-hover:bg-black/10 dark:group-hover:bg-black/20 transition-colors"></div>
                       <div className="absolute top-4 left-4 bg-white text-black rounded-xl p-2 min-w-[60px] flex flex-col items-center justify-center text-center shadow-lg">
                         <span className="text-xs font-bold uppercase tracking-wider text-gray-500">{event.month}</span>
                         <span className="text-xl font-black leading-none">{event.day}</span>
@@ -281,10 +281,10 @@ const Home = () => {
                     </div>
                     <div className="p-6 flex flex-col gap-3 flex-1">
                       <div className="flex flex-col gap-1">
-                        <span className="text-xs font-bold text-primary uppercase tracking-wide">{event.clubName}</span>
-                        <h3 className="text-xl font-bold text-white group-hover:text-primary transition-colors">{event.name}</h3>
+                        <span className="text-xs font-bold text-primary-hover dark:text-primary uppercase tracking-wide">{event.clubName}</span>
+                        <h3 className="text-xl font-bold text-gray-900 dark:text-white group-hover:text-primary-hover dark:group-hover:text-primary transition-colors">{event.name}</h3>
                       </div>
-                      <div className="flex flex-col gap-2 mt-2 text-sm text-text-secondary">
+                      <div className="flex flex-col gap-2 mt-2 text-sm text-text-muted dark:text-text-secondary">
                         <div className="flex items-center gap-2">
                           <span className="material-symbols-outlined text-lg">schedule</span>
                           <span>{event.formattedDate}</span>
@@ -372,7 +372,7 @@ const Home = () => {
                             }
                           });
                         }}
-                        className="mt-4 w-full py-2.5 rounded-lg bg-[#29382f] text-white font-bold text-sm hover:bg-primary hover:text-background-dark transition-colors"
+                        className="mt-4 w-full py-2.5 rounded-lg bg-gray-100 dark:bg-[#29382f] text-gray-900 dark:text-white font-bold text-sm hover:bg-primary dark:hover:bg-primary hover:text-gray-900 dark:hover:text-background-dark transition-colors"
                       >
                         {t('events.rsvpNow')}
                       </button>
@@ -385,14 +385,14 @@ const Home = () => {
         </section>
 
         {/* How It Works Section */}
-        <section className="w-full px-4 sm:px-6 lg:px-8 py-16 flex justify-center bg-card-dark/30 mt-8">
+        <section className="w-full px-4 sm:px-6 lg:px-8 py-16 flex justify-center mt-8">
           <div className="w-full max-w-[1280px]">
             <div className="flex flex-col gap-10">
               <div className="flex flex-col gap-4 items-start">
-                <h2 className="text-3xl md:text-5xl font-black leading-tight tracking-tight max-w-[720px]">
+                <h2 className="text-gray-900 dark:text-white text-3xl md:text-5xl font-black leading-tight tracking-tight max-w-[720px]">
                   {t('home.howItWorks')}
                 </h2>
-                <p className="text-text-secondary text-lg font-normal leading-normal max-w-[720px]">{t('home.howItWorksSubtitle')}</p>
+                <p className="text-text-muted dark:text-text-secondary text-lg font-normal leading-normal max-w-[720px]">{t('home.howItWorksSubtitle')}</p>
               </div>
               <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
                 {[
@@ -405,14 +405,14 @@ const Home = () => {
                     initial={{ opacity: 0, y: 20 }}
                     animate={{ opacity: 1, y: 0 }}
                     transition={{ duration: 0.5, delay: 0.8 + index * 0.1 }}
-                    className="flex flex-1 gap-6 rounded-2xl border border-border-dark bg-card-dark p-8 flex-col items-start hover:border-primary/50 transition-colors duration-300"
+                    className="flex flex-1 gap-6 rounded-2xl border border-gray-200 dark:border-border-dark bg-white dark:bg-card-dark shadow-sm dark:shadow-none p-8 flex-col items-start hover:border-primary/50 hover:shadow-md dark:hover:shadow-none transition-all duration-300"
                   >
-                    <div className="size-14 rounded-full bg-[#29382f] flex items-center justify-center text-primary mb-2">
+                    <div className="size-14 rounded-full bg-green-50 dark:bg-[#29382f] flex items-center justify-center text-green-600 dark:text-primary mb-2">
                       <span className="material-symbols-outlined text-3xl">{step.icon}</span>
                     </div>
                     <div className="flex flex-col gap-2">
-                      <h3 className="text-xl font-bold leading-tight">{step.title}</h3>
-                      <p className="text-text-secondary text-base font-normal leading-relaxed">{step.description}</p>
+                      <h3 className="text-gray-900 dark:text-white text-xl font-bold leading-tight">{step.title}</h3>
+                      <p className="text-text-muted dark:text-text-secondary text-base font-normal leading-relaxed">{step.description}</p>
                     </div>
                   </motion.div>
                 ))}
@@ -427,14 +427,14 @@ const Home = () => {
             <div className="flex flex-col lg:flex-row gap-12 items-start">
               {/* Text Content */}
               <div className="lg:w-1/3 flex flex-col gap-6 sticky top-24">
-                <span className="text-primary font-bold uppercase tracking-wider text-sm">{t('home.whyJoin')}</span>
-                <h2 className="text-4xl md:text-5xl font-black leading-tight tracking-tight">
+                <span className="text-primary-hover dark:text-primary font-bold uppercase tracking-wider text-sm">{t('home.whyJoin')}</span>
+                <h2 className="text-gray-900 dark:text-white text-4xl md:text-5xl font-black leading-tight tracking-tight">
                   {t('home.whyJoinTitle')}
                 </h2>
-                <p className="text-text-secondary text-lg leading-relaxed">
+                <p className="text-text-muted dark:text-text-secondary text-lg leading-relaxed">
                   {t('home.whyJoinDesc')}
                 </p>
-                <Link to="/register" className="w-fit flex cursor-pointer items-center justify-center rounded-full h-12 px-8 bg-white dark:bg-white text-background-dark text-base font-bold leading-normal tracking-[0.015em] hover:bg-gray-200 transition-colors">
+                <Link to="/register" className="w-fit flex cursor-pointer items-center justify-center rounded-full h-12 px-8 bg-gray-900 dark:bg-white text-white dark:text-background-dark text-base font-bold leading-normal tracking-[0.015em] hover:bg-gray-800 dark:hover:bg-gray-200 transition-colors shadow-lg shadow-gray-200 dark:shadow-none">
                   {t('home.getStarted')}
                 </Link>
               </div>
@@ -446,19 +446,19 @@ const Home = () => {
                   initial={{ opacity: 0, scale: 0.95 }}
                   animate={{ opacity: 1, scale: 1 }}
                   transition={{ duration: 0.5, delay: 1.2 }}
-                  className="md:col-span-2 rounded-[2rem] bg-card-dark border border-border-dark p-8 md:p-10 flex flex-col md:flex-row items-center gap-8 relative overflow-hidden group"
+                  className="md:col-span-2 rounded-[2rem] bg-white dark:bg-card-dark border border-gray-200 dark:border-border-dark p-8 md:p-10 flex flex-col md:flex-row items-center gap-8 relative overflow-hidden group shadow-sm dark:shadow-none"
                 >
-                  <div className="absolute top-0 right-0 w-64 h-64 bg-primary/10 rounded-full blur-3xl -mr-16 -mt-16 pointer-events-none"></div>
+                  <div className="absolute top-0 right-0 w-64 h-64 bg-green-100 dark:bg-primary/10 rounded-full blur-3xl -mr-16 -mt-16 pointer-events-none opacity-50"></div>
                   <div className="flex-1 z-10">
-                    <div className="size-12 rounded-full bg-primary/20 text-primary flex items-center justify-center mb-6">
+                    <div className="size-12 rounded-full bg-green-100 dark:bg-primary/20 text-green-600 dark:text-primary flex items-center justify-center mb-6">
                       <span className="material-symbols-outlined text-2xl">trending_up</span>
                     </div>
-                    <h3 className="text-2xl font-bold mb-3">{t('home.expandNetwork')}</h3>
-                    <p className="text-text-secondary">{t('home.expandNetworkDesc')}</p>
+                    <h3 className="text-gray-900 dark:text-white text-2xl font-bold mb-3">{t('home.expandNetwork')}</h3>
+                    <p className="text-text-muted dark:text-text-secondary">{t('home.expandNetworkDesc')}</p>
                   </div>
-                  <div className="w-full md:w-48 h-32 md:h-auto rounded-2xl bg-border-dark/50 flex items-center justify-center relative overflow-hidden">
-                    <div className="absolute inset-0 opacity-30 bg-[url('https://www.transparenttextures.com/patterns/carbon-fibre.png')]"></div>
-                    <span className="material-symbols-outlined text-5xl text-gray-500">hub</span>
+                  <div className="w-full md:w-48 h-32 md:h-auto rounded-2xl bg-gray-50 dark:bg-border-dark/50 border border-gray-100 dark:border-none flex items-center justify-center relative overflow-hidden">
+                    <div className="absolute inset-0 opacity-10 dark:opacity-30 bg-[url('https://www.transparenttextures.com/patterns/carbon-fibre.png')]"></div>
+                    <span className="material-symbols-outlined text-5xl text-gray-300 dark:text-gray-500">hub</span>
                   </div>
                 </motion.div>
                 
@@ -472,15 +472,15 @@ const Home = () => {
                     initial={{ opacity: 0, y: 20 }}
                     animate={{ opacity: 1, y: 0 }}
                     transition={{ duration: 0.5, delay: 1.3 + index * 0.1 }}
-                    className="rounded-[2rem] bg-card-dark border border-border-dark p-8 flex flex-col gap-4 hover:bg-[#222e26] transition-colors duration-300"
+                    className="rounded-[2rem] bg-white dark:bg-card-dark border border-gray-200 dark:border-border-dark p-8 flex flex-col gap-4 hover:border-blue-200 dark:hover:border-blue-200 hover:shadow-md dark:hover:shadow-none transition-all duration-300 shadow-sm dark:shadow-none"
                   >
                     <div className={`size-12 rounded-full flex items-center justify-center mb-2 ${
-                      card.color === 'blue' ? 'bg-blue-500/20 text-blue-400' : 'bg-pink-500/20 text-pink-400'
+                      card.color === 'blue' ? 'bg-blue-100 dark:bg-blue-500/20 text-blue-600 dark:text-blue-400' : 'bg-pink-100 dark:bg-pink-500/20 text-pink-600 dark:text-pink-400'
                     }`}>
                       <span className="material-symbols-outlined text-2xl">{card.icon}</span>
                     </div>
-                    <h3 className="text-xl font-bold">{card.title}</h3>
-                    <p className="text-text-secondary text-sm">{card.description}</p>
+                    <h3 className="text-gray-900 dark:text-white text-xl font-bold">{card.title}</h3>
+                    <p className="text-text-muted dark:text-text-secondary text-sm">{card.description}</p>
                   </motion.div>
                 ))}
               </div>
