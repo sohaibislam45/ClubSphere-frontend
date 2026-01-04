@@ -296,11 +296,24 @@ const Login = () => {
               <div className="flex-grow border-t border-border-dark-alt"></div>
             </div>
 
+            {/* Demo Credentials Tips */}
+            <div className="bg-primary/10 dark:bg-primary/20 border border-primary/30 rounded-xl p-4">
+              <div className="flex items-start gap-3">
+                <span className="material-symbols-outlined text-primary text-xl flex-shrink-0 mt-0.5">lightbulb</span>
+                <div className="flex flex-col gap-1">
+                  <p className="text-sm font-bold text-white">Quick Demo Login</p>
+                  <p className="text-xs text-text-muted leading-relaxed">
+                    Use the demo buttons below to instantly log in as User, Manager, or Admin without registration. This saves time and lets you explore the platform immediately. The standard login and registration options above remain fully functional if you prefer to create your own account or explore those features.
+                  </p>
+                </div>
+              </div>
+            </div>
+
             {/* Demo Credentials Buttons */}
             <div className="flex flex-col gap-3">
               <button
                 type="button"
-                onClick={() => handleDemoLogin('demo@clubsphere.com', 'demo123')}
+                onClick={() => handleDemoLogin('demouser@gmail.com', 'User123')}
                 disabled={isLoading || isGoogleLoading}
                 className="flex w-full cursor-pointer items-center justify-center gap-2 rounded-full h-12 px-5 bg-green-600 hover:bg-green-700 transition-colors text-white text-base font-bold leading-normal tracking-[0.015em] disabled:opacity-50 disabled:cursor-not-allowed"
               >
@@ -309,7 +322,16 @@ const Login = () => {
               </button>
               <button
                 type="button"
-                onClick={() => handleDemoLogin('admin@clubsphere.com', 'admin123')}
+                onClick={() => handleDemoLogin('demomanager@gmail.com', 'Manager123')}
+                disabled={isLoading || isGoogleLoading}
+                className="flex w-full cursor-pointer items-center justify-center gap-2 rounded-full h-12 px-5 bg-blue-600 hover:bg-blue-700 transition-colors text-white text-base font-bold leading-normal tracking-[0.015em] disabled:opacity-50 disabled:cursor-not-allowed"
+              >
+                <span className="material-symbols-outlined text-lg">groups</span>
+                Login as Demo Manager
+              </button>
+              <button
+                type="button"
+                onClick={() => handleDemoLogin('demoadmin@gmail.com', 'Admin123')}
                 disabled={isLoading || isGoogleLoading}
                 className="flex w-full cursor-pointer items-center justify-center gap-2 rounded-full h-12 px-5 bg-purple-600 hover:bg-purple-700 transition-colors text-white text-base font-bold leading-normal tracking-[0.015em] disabled:opacity-50 disabled:cursor-not-allowed"
               >
