@@ -24,6 +24,13 @@ const MemberSidebar = () => {
         </div>
         <nav className="flex flex-col gap-2">
           <Link 
+            to="/" 
+            className={`flex items-center gap-4 px-4 py-3 rounded-full hover:bg-dashboard-surface-hover dark:hover:bg-surface-dark-hover group transition-all text-dashboard-text-muted dark:text-gray-400 hover:text-dashboard-text-main dark:hover:text-white`}
+          >
+            <span className="material-symbols-outlined">home</span>
+            <span className="font-medium">Home</span>
+          </Link>
+          <Link 
             to="/dashboard/member" 
             className={`flex items-center gap-4 px-4 py-3 rounded-full transition-all group ${
               isActive('/dashboard/member') && location.pathname === '/dashboard/member'

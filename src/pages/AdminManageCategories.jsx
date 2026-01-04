@@ -78,7 +78,7 @@ const AdminManageCategories = () => {
   return (
     <div className="flex h-screen w-full overflow-hidden bg-background-light dark:bg-background-dark font-display text-slate-900 dark:text-white">
       {/* Sidebar */}
-      <aside className="w-20 lg:w-64 flex flex-col justify-between border-r border-surface-highlight bg-background-dark transition-all duration-300">
+      <aside className="w-20 lg:w-64 flex flex-col justify-between border-r border-dashboard-border dark:border-surface-highlight bg-dashboard-sidebar dark:bg-background-dark transition-all duration-300 shadow-sm">
         <div className="flex flex-col gap-4 p-4">
           {/* Brand */}
           <div className="flex items-center gap-3 px-2">
@@ -262,16 +262,16 @@ const AddCategoryModal = ({ isOpen, onClose, onSubmit, isLoading }) => {
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/50 backdrop-blur-sm overflow-y-auto">
-      <div className="bg-[#1a231f] border border-[#3d5245] rounded-xl w-full max-w-[500px] my-8 max-h-[90vh] overflow-y-auto">
+      <div className="bg-white dark:bg-[#1a231f] border border-border-light dark:border-[#3d5245] rounded-xl w-full max-w-[500px] my-8 max-h-[90vh] overflow-y-auto">
         <div className="p-6 md:p-8">
           <div className="flex items-center justify-between mb-6">
             <div className="flex flex-col gap-2">
-              <h1 className="text-white text-2xl font-bold">Add New Category</h1>
-              <p className="text-[#9eb7a8] text-sm">Create a new category for clubs</p>
+              <h1 className="text-text-main dark:text-white text-2xl font-bold">Add New Category</h1>
+              <p className="text-text-muted dark:text-[#9eb7a8] text-sm">Create a new category for clubs</p>
             </div>
             <button
               onClick={onClose}
-              className="text-[#9eb7a8] hover:text-white transition-colors p-2 rounded-lg hover:bg-[#29382f]"
+              className="text-text-muted dark:text-[#9eb7a8] hover:text-text-main dark:hover:text-white transition-colors p-2 rounded-lg hover:bg-gray-100 dark:hover:bg-[#29382f]"
             >
               <span className="material-symbols-outlined text-[24px]">close</span>
             </button>
@@ -280,11 +280,11 @@ const AddCategoryModal = ({ isOpen, onClose, onSubmit, isLoading }) => {
           <form onSubmit={handleSubmit} className="flex flex-col gap-6">
             {/* Display Name */}
             <div className="flex flex-col gap-2">
-              <label className="text-[#9eb7a8] text-sm font-medium flex gap-1">
+              <label className="text-text-muted dark:text-[#9eb7a8] text-sm font-medium flex gap-1">
                 Display Name <span className="text-red-400">*</span>
               </label>
               <input
-                className="bg-[#29382f] border border-transparent focus:border-primary/50 focus:ring-0 rounded-lg text-white placeholder:text-[#5c7266] h-12 px-4 w-full transition-colors"
+                className="bg-gray-50 dark:bg-[#29382f] border border-border-light dark:border-transparent focus:border-primary/50 focus:ring-0 rounded-lg text-text-main dark:text-white placeholder:text-text-muted dark:placeholder:text-[#5c7266] h-12 px-4 w-full transition-colors"
                 placeholder="e.g. Sports & Fitness"
                 type="text"
                 name="displayName"
@@ -292,16 +292,16 @@ const AddCategoryModal = ({ isOpen, onClose, onSubmit, isLoading }) => {
                 onChange={handleInputChange}
                 required
               />
-              <p className="text-xs text-[#5c7266]">This is the name shown to users</p>
+              <p className="text-xs text-text-muted dark:text-[#5c7266]">This is the name shown to users</p>
             </div>
 
             {/* Category ID */}
             <div className="flex flex-col gap-2">
-              <label className="text-[#9eb7a8] text-sm font-medium flex gap-1">
+              <label className="text-text-muted dark:text-[#9eb7a8] text-sm font-medium flex gap-1">
                 Category ID <span className="text-red-400">*</span>
               </label>
               <input
-                className="bg-[#29382f] border border-transparent focus:border-primary/50 focus:ring-0 rounded-lg text-white placeholder:text-[#5c7266] h-12 px-4 w-full transition-colors"
+                className="bg-gray-50 dark:bg-[#29382f] border border-border-light dark:border-transparent focus:border-primary/50 focus:ring-0 rounded-lg text-text-main dark:text-white placeholder:text-text-muted dark:placeholder:text-[#5c7266] h-12 px-4 w-full transition-colors"
                 placeholder="e.g. sports"
                 type="text"
                 name="name"
@@ -309,15 +309,15 @@ const AddCategoryModal = ({ isOpen, onClose, onSubmit, isLoading }) => {
                 onChange={handleInputChange}
                 required
               />
-              <p className="text-xs text-[#5c7266]">Lowercase, no spaces (e.g., sports, tech, arts)</p>
+              <p className="text-xs text-text-muted dark:text-[#5c7266]">Lowercase, no spaces (e.g., sports, tech, arts)</p>
             </div>
 
             {/* Form Actions */}
-            <div className="flex items-center justify-end gap-4 mt-6 pt-6 border-t border-[#3d5245]">
+            <div className="flex items-center justify-end gap-4 mt-6 pt-6 border-t border-border-light dark:border-[#3d5245]">
               <button
                 type="button"
                 onClick={onClose}
-                className="text-[#9eb7a8] font-semibold hover:text-white px-6 py-2.5 transition-colors rounded-lg hover:bg-[#29382f]"
+                className="text-text-muted dark:text-[#9eb7a8] font-semibold hover:text-text-main dark:hover:text-white px-6 py-2.5 transition-colors rounded-lg hover:bg-gray-100 dark:hover:bg-[#29382f]"
                 disabled={isLoading}
               >
                 Cancel

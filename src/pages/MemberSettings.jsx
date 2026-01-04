@@ -210,10 +210,10 @@ const MemberSettings = () => {
   const hasError = error && !data;
 
   return (
-    <div className="bg-background-light dark:bg-background-dark text-black dark:text-white font-display overflow-hidden h-screen flex">
+    <div className="bg-dashboard-background dark:bg-background-dark text-dashboard-text-main dark:text-white font-display overflow-hidden h-screen flex">
       <MemberSidebar />
       
-      <main className="flex-1 flex flex-col h-full overflow-y-auto bg-background-light dark:bg-background-dark scroll-smooth">
+      <main className="flex-1 flex flex-col h-full overflow-y-auto bg-dashboard-background dark:bg-background-dark scroll-smooth">
         {isLoading && !data ? (
           <div className="flex items-center justify-center min-h-[60vh]">
             <Loader />
@@ -233,28 +233,28 @@ const MemberSettings = () => {
 
           {/* Page Header */}
           <div className="flex flex-col gap-2">
-            <h1 className="text-white dark:text-white text-4xl font-black leading-tight tracking-[-0.033em]">Account Settings</h1>
-            <p className="text-text-secondary dark:text-text-secondary text-base">Manage your profile details, security preferences, and notifications.</p>
+            <h1 className="text-dashboard-text-main dark:text-white text-4xl font-black leading-tight tracking-[-0.033em]">Account Settings</h1>
+            <p className="text-dashboard-text-muted dark:text-text-secondary text-base">Manage your profile details, security preferences, and notifications.</p>
           </div>
 
           {/* Tabs */}
-          <div className="border-b border-border-dark">
+          <div className="border-b border-dashboard-border dark:border-border-dark">
             <div className="flex gap-8">
               <a
                 href="#profile"
-                className="flex items-center justify-center border-b-[3px] border-primary text-white pb-3 px-2"
+                className="flex items-center justify-center border-b-[3px] border-dashboard-primary dark:border-primary text-dashboard-primary dark:text-white pb-3 px-2"
               >
                 <p className="text-sm font-bold tracking-[0.015em]">Profile</p>
               </a>
               <a
                 href="#security"
-                className="flex items-center justify-center border-b-[3px] border-transparent text-text-secondary hover:text-white pb-3 px-2 transition-colors"
+                className="flex items-center justify-center border-b-[3px] border-transparent text-dashboard-text-muted dark:text-text-secondary hover:text-dashboard-text-main dark:hover:text-white pb-3 px-2 transition-colors"
               >
                 <p className="text-sm font-bold tracking-[0.015em]">Security</p>
               </a>
               <a
                 href="#notifications"
-                className="flex items-center justify-center border-b-[3px] border-transparent text-text-secondary hover:text-white pb-3 px-2 transition-colors"
+                className="flex items-center justify-center border-b-[3px] border-transparent text-dashboard-text-muted dark:text-text-secondary hover:text-dashboard-text-main dark:hover:text-white pb-3 px-2 transition-colors"
               >
                 <p className="text-sm font-bold tracking-[0.015em]">Notifications</p>
               </a>
@@ -263,7 +263,7 @@ const MemberSettings = () => {
 
           {/* Profile Section */}
           <section className="flex flex-col gap-6 animate-fade-in" id="profile">
-              <div className="flex flex-col md:flex-row md:items-center justify-between gap-6 p-6 rounded-2xl bg-surface-dark border border-border-dark">
+              <div className="flex flex-col md:flex-row md:items-center justify-between gap-6 p-6 rounded-2xl bg-white dark:bg-surface-dark border border-dashboard-border dark:border-border-dark shadow-sm">
                 <div className="flex items-center gap-5">
                   <div className="relative group cursor-pointer">
                     {profileData.photoURL ? (
@@ -286,13 +286,13 @@ const MemberSettings = () => {
                     </div>
                   </div>
                   <div className="flex flex-col">
-                    <h3 className="text-white text-xl font-bold">{profileData.name || user?.name || 'Member'}</h3>
-                    <p className="text-text-secondary">{profileData.email || user?.email || ''}</p>
+                    <h3 className="text-dashboard-text-main dark:text-white text-xl font-bold">{profileData.name || user?.name || 'Member'}</h3>
+                    <p className="text-dashboard-text-muted dark:text-text-secondary">{profileData.email || user?.email || ''}</p>
                     <p className="text-xs text-primary mt-1 font-medium">Member since {data?.memberSince || user?.createdAt || '2023'}</p>
                   </div>
                 </div>
                 <div className="flex gap-3">
-                  <button className="h-10 px-5 rounded-full border border-border-dark text-white text-sm font-bold hover:bg-border-dark transition-colors">
+                  <button className="h-10 px-5 rounded-full border border-dashboard-border dark:border-border-dark text-dashboard-text-main dark:text-white text-sm font-bold hover:bg-dashboard-surface-hover dark:hover:bg-border-dark transition-colors">
                     Remove
                   </button>
                   <button className="h-10 px-5 rounded-full bg-primary text-background-dark text-sm font-bold hover:bg-opacity-90 transition-colors">
@@ -302,20 +302,20 @@ const MemberSettings = () => {
               </div>
               <form onSubmit={handleProfileSubmit} className="grid grid-cols-1 md:grid-cols-2 gap-6">
                 <div className="flex flex-col gap-2">
-                  <label className="text-text-secondary text-sm font-medium ml-2">Display Name</label>
+                  <label className="text-dashboard-text-muted dark:text-text-secondary text-sm font-medium ml-2">Display Name</label>
                   <input
-                    className="bg-surface-dark text-white border border-border-dark rounded-full px-5 h-12 focus:border-primary focus:ring-1 focus:ring-primary focus:outline-none placeholder-[#50665b] transition-all"
+                    className="bg-white dark:bg-surface-dark text-dashboard-text-main dark:text-white border border-dashboard-border dark:border-border-dark rounded-full px-5 h-12 focus:border-dashboard-primary dark:focus:border-primary focus:ring-1 focus:ring-dashboard-primary dark:focus:ring-primary focus:outline-none placeholder-dashboard-text-muted dark:placeholder-[#50665b] transition-all"
                     type="text"
                     value={profileData.name}
                     onChange={(e) => setProfileData({ ...profileData, name: e.target.value })}
                   />
                 </div>
                 <div className="flex flex-col gap-2">
-                  <label className="text-text-secondary text-sm font-medium ml-2">Username</label>
+                  <label className="text-dashboard-text-muted dark:text-text-secondary text-sm font-medium ml-2">Username</label>
                   <div className="relative">
-                    <span className="absolute left-5 top-1/2 -translate-y-1/2 text-text-secondary">@</span>
+                    <span className="absolute left-5 top-1/2 -translate-y-1/2 text-dashboard-text-muted dark:text-text-secondary">@</span>
                     <input
-                      className="w-full bg-surface-dark text-white border border-border-dark rounded-full pl-9 pr-5 h-12 focus:border-primary focus:ring-1 focus:ring-primary focus:outline-none placeholder-[#50665b] transition-all"
+                      className="w-full bg-white dark:bg-surface-dark text-dashboard-text-main dark:text-white border border-dashboard-border dark:border-border-dark rounded-full pl-9 pr-5 h-12 focus:border-dashboard-primary dark:focus:border-primary focus:ring-1 focus:ring-dashboard-primary dark:focus:ring-primary focus:outline-none placeholder-dashboard-text-muted dark:placeholder-[#50665b] transition-all"
                       type="text"
                       value={profileData.username}
                       onChange={(e) => setProfileData({ ...profileData, username: e.target.value })}
@@ -323,19 +323,19 @@ const MemberSettings = () => {
                   </div>
                 </div>
                 <div className="flex flex-col gap-2 md:col-span-2">
-                  <label className="text-text-secondary text-sm font-medium ml-2">Bio</label>
+                  <label className="text-dashboard-text-muted dark:text-text-secondary text-sm font-medium ml-2">Bio</label>
                   <textarea
-                    className="bg-surface-dark text-white border border-border-dark rounded-2xl p-5 h-32 focus:border-primary focus:ring-1 focus:ring-primary focus:outline-none placeholder-[#50665b] resize-none transition-all"
+                    className="bg-white dark:bg-surface-dark text-dashboard-text-main dark:text-white border border-dashboard-border dark:border-border-dark rounded-2xl p-5 h-32 focus:border-dashboard-primary dark:focus:border-primary focus:ring-1 focus:ring-dashboard-primary dark:focus:ring-primary focus:outline-none placeholder-dashboard-text-muted dark:placeholder-[#50665b] resize-none transition-all"
                     value={profileData.bio}
                     onChange={(e) => setProfileData({ ...profileData, bio: e.target.value })}
                     placeholder="Tell us about yourself..."
                   />
                 </div>
                 <div className="flex flex-col gap-2">
-                  <label className="text-text-secondary text-sm font-medium ml-2">Email Address</label>
+                  <label className="text-dashboard-text-muted dark:text-text-secondary text-sm font-medium ml-2">Email Address</label>
                   <div className="relative">
                     <input
-                      className="w-full bg-surface-dark text-white border border-border-dark rounded-full px-5 h-12 focus:border-primary focus:ring-1 focus:ring-primary focus:outline-none placeholder-[#50665b] transition-all"
+                      className="w-full bg-white dark:bg-surface-dark text-dashboard-text-main dark:text-white border border-dashboard-border dark:border-border-dark rounded-full px-5 h-12 focus:border-dashboard-primary dark:focus:border-primary focus:ring-1 focus:ring-dashboard-primary dark:focus:ring-primary focus:outline-none placeholder-dashboard-text-muted dark:placeholder-[#50665b] transition-all"
                       type="email"
                       value={profileData.email}
                       onChange={(e) => setProfileData({ ...profileData, email: e.target.value })}
@@ -346,15 +346,15 @@ const MemberSettings = () => {
                   </div>
                 </div>
                 <div className="flex flex-col gap-2">
-                  <label className="text-text-secondary text-sm font-medium ml-2">Location</label>
+                  <label className="text-dashboard-text-muted dark:text-text-secondary text-sm font-medium ml-2">Location</label>
                   <div className="relative">
                     <input
-                      className="w-full bg-surface-dark text-white border border-border-dark rounded-full px-5 h-12 focus:border-primary focus:ring-1 focus:ring-primary focus:outline-none placeholder-[#50665b] transition-all"
+                      className="w-full bg-white dark:bg-surface-dark text-dashboard-text-main dark:text-white border border-dashboard-border dark:border-border-dark rounded-full px-5 h-12 focus:border-dashboard-primary dark:focus:border-primary focus:ring-1 focus:ring-dashboard-primary dark:focus:ring-primary focus:outline-none placeholder-dashboard-text-muted dark:placeholder-[#50665b] transition-all"
                       type="text"
                       value={profileData.location}
                       onChange={(e) => setProfileData({ ...profileData, location: e.target.value })}
                     />
-                    <span className="absolute right-4 top-1/2 -translate-y-1/2 material-symbols-outlined text-text-secondary">location_on</span>
+                    <span className="absolute right-4 top-1/2 -translate-y-1/2 material-symbols-outlined text-dashboard-text-muted dark:text-text-secondary">location_on</span>
                   </div>
                 </div>
               </form>
@@ -367,30 +367,30 @@ const MemberSettings = () => {
                 </button>
               </div>
           </section>
-          <hr className="border-border-dark my-2" />
+          <hr className="border-dashboard-border dark:border-border-dark my-2" />
 
           {/* Security Section */}
           <section className="flex flex-col gap-6" id="security">
               <div className="flex flex-col gap-2 mb-2">
-                <h2 className="text-white text-2xl font-bold">Security</h2>
+                <h2 className="text-dashboard-text-main dark:text-white text-2xl font-bold">Security</h2>
                 <p className="text-text-secondary text-sm">Update your password and secure your account.</p>
               </div>
-              <div className="p-6 rounded-2xl bg-surface-dark border border-border-dark">
-                <h3 className="text-white text-lg font-bold mb-6">Change Password</h3>
+              <div className="p-6 rounded-2xl bg-white dark:bg-surface-dark border border-dashboard-border dark:border-border-dark shadow-sm">
+                <h3 className="text-dashboard-text-main dark:text-white text-lg font-bold mb-6">Change Password</h3>
                 <form onSubmit={handlePasswordSubmit} className="grid grid-cols-1 md:grid-cols-3 gap-6">
                   <div className="flex flex-col gap-2">
-                    <label className="text-text-secondary text-sm font-medium ml-2">Current Password</label>
+                    <label className="text-dashboard-text-muted dark:text-text-secondary text-sm font-medium ml-2">Current Password</label>
                     <input
-                      className="bg-[#111714] text-white border border-border-dark rounded-full px-5 h-12 focus:border-primary focus:outline-none transition-all"
+                      className="bg-white dark:bg-[#111714] text-dashboard-text-main dark:text-white border border-dashboard-border dark:border-border-dark rounded-full px-5 h-12 focus:border-dashboard-primary dark:focus:border-primary focus:outline-none transition-all"
                       type="password"
                       value={passwordData.currentPassword}
                       onChange={(e) => setPasswordData({ ...passwordData, currentPassword: e.target.value })}
                     />
                   </div>
                   <div className="flex flex-col gap-2">
-                    <label className="text-text-secondary text-sm font-medium ml-2">New Password</label>
+                    <label className="text-dashboard-text-muted dark:text-text-secondary text-sm font-medium ml-2">New Password</label>
                     <input
-                      className="bg-[#111714] text-white border border-border-dark rounded-full px-5 h-12 focus:border-primary focus:outline-none transition-all"
+                      className="bg-white dark:bg-[#111714] text-dashboard-text-main dark:text-white border border-dashboard-border dark:border-border-dark rounded-full px-5 h-12 focus:border-dashboard-primary dark:focus:border-primary focus:outline-none transition-all"
                       placeholder="Min 8 chars"
                       type="password"
                       value={passwordData.newPassword}
@@ -398,9 +398,9 @@ const MemberSettings = () => {
                     />
                   </div>
                   <div className="flex flex-col gap-2">
-                    <label className="text-text-secondary text-sm font-medium ml-2">Confirm Password</label>
+                    <label className="text-dashboard-text-muted dark:text-text-secondary text-sm font-medium ml-2">Confirm Password</label>
                     <input
-                      className="bg-[#111714] text-white border border-border-dark rounded-full px-5 h-12 focus:border-primary focus:outline-none transition-all"
+                      className="bg-white dark:bg-[#111714] text-dashboard-text-main dark:text-white border border-dashboard-border dark:border-border-dark rounded-full px-5 h-12 focus:border-dashboard-primary dark:focus:border-primary focus:outline-none transition-all"
                       placeholder="Repeat password"
                       type="password"
                       value={passwordData.confirmPassword}
@@ -411,87 +411,87 @@ const MemberSettings = () => {
                 <div className="mt-6 flex justify-end">
                   <button
                     onClick={handlePasswordSubmit}
-                    className="text-sm font-bold text-white hover:text-primary transition-colors"
+                    className="text-sm font-bold text-dashboard-text-main dark:text-white hover:text-dashboard-primary dark:hover:text-primary transition-colors"
                   >
                     Update Password
                   </button>
                 </div>
               </div>
-              <div className="flex items-center justify-between p-6 rounded-2xl bg-surface-dark border border-border-dark">
+              <div className="flex items-center justify-between p-6 rounded-2xl bg-white dark:bg-surface-dark border border-dashboard-border dark:border-border-dark shadow-sm">
                 <div className="flex flex-col gap-1">
-                  <h3 className="text-white text-lg font-bold">Two-Factor Authentication</h3>
-                  <p className="text-text-secondary text-sm">Add an extra layer of security to your account.</p>
+                  <h3 className="text-dashboard-text-main dark:text-white text-lg font-bold">Two-Factor Authentication</h3>
+                  <p className="text-dashboard-text-muted dark:text-text-secondary text-sm">Add an extra layer of security to your account.</p>
                 </div>
                 <button
                   onClick={handle2FAToggle}
-                  className={`w-14 h-8 rounded-full border border-border-dark relative transition-colors focus:outline-none group ${
-                    twoFactorEnabled ? 'bg-primary' : 'bg-[#111714]'
+                  className={`w-14 h-8 rounded-full border border-dashboard-border dark:border-border-dark relative transition-colors focus:outline-none group ${
+                    twoFactorEnabled ? 'bg-dashboard-primary dark:bg-primary' : 'bg-dashboard-surface-hover dark:bg-[#111714]'
                   }`}
                 >
                   <span
-                    className={`absolute top-1 bg-text-secondary group-hover:bg-white w-6 h-6 rounded-full transition-transform duration-300 shadow-md ${
+                    className={`absolute top-1 bg-white dark:bg-background-dark w-6 h-6 rounded-full transition-transform duration-300 shadow-sm ${
                       twoFactorEnabled ? 'right-1' : 'left-1'
                     }`}
                   ></span>
                 </button>
               </div>
           </section>
-          <hr className="border-border-dark my-2" />
+          <hr className="border-dashboard-border dark:border-border-dark my-2" />
 
           {/* Notifications Section */}
           <section className="flex flex-col gap-6" id="notifications">
               <div className="flex flex-col gap-2 mb-2">
-                <h2 className="text-white text-2xl font-bold">Notifications</h2>
-                <p className="text-text-secondary text-sm">Choose what we get in touch about.</p>
+                <h2 className="text-dashboard-text-main dark:text-white text-2xl font-bold">Notifications</h2>
+                <p className="text-dashboard-text-muted dark:text-text-secondary text-sm">Choose what we get in touch about.</p>
               </div>
-              <div className="flex flex-col rounded-2xl bg-surface-dark border border-border-dark overflow-hidden">
+              <div className="flex flex-col rounded-2xl bg-white dark:bg-surface-dark border border-dashboard-border dark:border-border-dark overflow-hidden shadow-sm">
                 {/* Item 1 */}
-                <div className="flex items-center justify-between p-6 border-b border-border-dark">
+                <div className="flex items-center justify-between p-6 border-b border-dashboard-border dark:border-border-dark">
                   <div className="flex gap-4 items-center">
-                    <div className="bg-[#111714] p-2 rounded-full text-white">
+                    <div className="bg-slate-100 dark:bg-[#111714] p-2 rounded-full text-dashboard-text-main dark:text-white">
                       <span className="material-symbols-outlined">mail</span>
                     </div>
                     <div className="flex flex-col">
-                      <h3 className="text-white font-bold">Email Digests</h3>
-                      <p className="text-text-secondary text-sm">Weekly summary of top clubs and events.</p>
+                      <h3 className="text-dashboard-text-main dark:text-white font-bold">Email Digests</h3>
+                      <p className="text-dashboard-text-muted dark:text-text-secondary text-sm">Weekly summary of top clubs and events.</p>
                     </div>
                   </div>
                   <button
                     onClick={() => handleNotificationToggle('emailDigests')}
                     className={`w-14 h-8 rounded-full relative transition-colors focus:outline-none ${
                       notifications.emailDigests
-                        ? 'bg-primary shadow-[0_0_10px_rgba(56,224,123,0.2)]'
-                        : 'bg-[#111714] border border-border-dark'
+                        ? 'bg-dashboard-primary dark:bg-primary shadow-[0_0_10px_rgba(16,185,129,0.2)] dark:shadow-[0_0_10px_rgba(56,224,123,0.2)]'
+                        : 'bg-dashboard-surface-hover dark:bg-[#111714] border border-dashboard-border dark:border-border-dark'
                     }`}
                   >
                     <span
-                      className={`absolute top-1 bg-background-dark w-6 h-6 rounded-full transition-transform duration-300 shadow-sm ${
+                      className={`absolute top-1 bg-white dark:bg-background-dark w-6 h-6 rounded-full transition-transform duration-300 shadow-sm ${
                         notifications.emailDigests ? 'right-1' : 'left-1'
                       }`}
                     ></span>
                   </button>
                 </div>
                 {/* Item 2 */}
-                <div className="flex items-center justify-between p-6 border-b border-border-dark">
+                <div className="flex items-center justify-between p-6 border-b border-dashboard-border dark:border-border-dark">
                   <div className="flex gap-4 items-center">
-                    <div className="bg-[#111714] p-2 rounded-full text-white">
+                    <div className="bg-slate-100 dark:bg-[#111714] p-2 rounded-full text-dashboard-text-main dark:text-white">
                       <span className="material-symbols-outlined">event</span>
                     </div>
                     <div className="flex flex-col">
-                      <h3 className="text-white font-bold">Event Reminders</h3>
-                      <p className="text-text-secondary text-sm">Get notified 24h before an event starts.</p>
+                      <h3 className="text-dashboard-text-main dark:text-white font-bold">Event Reminders</h3>
+                      <p className="text-dashboard-text-muted dark:text-text-secondary text-sm">Get notified 24h before an event starts.</p>
                     </div>
                   </div>
                   <button
                     onClick={() => handleNotificationToggle('eventReminders')}
                     className={`w-14 h-8 rounded-full relative transition-colors focus:outline-none ${
                       notifications.eventReminders
-                        ? 'bg-primary shadow-[0_0_10px_rgba(56,224,123,0.2)]'
-                        : 'bg-[#111714] border border-border-dark'
+                        ? 'bg-dashboard-primary dark:bg-primary shadow-[0_0_10px_rgba(16,185,129,0.2)] dark:shadow-[0_0_10px_rgba(56,224,123,0.2)]'
+                        : 'bg-dashboard-surface-hover dark:bg-[#111714] border border-dashboard-border dark:border-border-dark'
                     }`}
                   >
                     <span
-                      className={`absolute top-1 bg-background-dark w-6 h-6 rounded-full transition-transform duration-300 shadow-sm ${
+                      className={`absolute top-1 bg-white dark:bg-background-dark w-6 h-6 rounded-full transition-transform duration-300 shadow-sm ${
                         notifications.eventReminders ? 'right-1' : 'left-1'
                       }`}
                     ></span>
@@ -500,24 +500,24 @@ const MemberSettings = () => {
                 {/* Item 3 */}
                 <div className="flex items-center justify-between p-6">
                   <div className="flex gap-4 items-center">
-                    <div className="bg-[#111714] p-2 rounded-full text-white">
+                    <div className="bg-slate-100 dark:bg-[#111714] p-2 rounded-full text-dashboard-text-main dark:text-white">
                       <span className="material-symbols-outlined">campaign</span>
                     </div>
                     <div className="flex flex-col">
-                      <h3 className="text-white font-bold">New Club Alerts</h3>
-                      <p className="text-text-secondary text-sm">Notifications when new clubs open near you.</p>
+                      <h3 className="text-dashboard-text-main dark:text-white font-bold">New Club Alerts</h3>
+                      <p className="text-dashboard-text-muted dark:text-text-secondary text-sm">Notifications when new clubs open near you.</p>
                     </div>
                   </div>
                   <button
                     onClick={() => handleNotificationToggle('newClubAlerts')}
                     className={`w-14 h-8 rounded-full relative transition-colors focus:outline-none ${
                       notifications.newClubAlerts
-                        ? 'bg-primary shadow-[0_0_10px_rgba(56,224,123,0.2)]'
-                        : 'bg-[#111714] border border-border-dark'
+                        ? 'bg-dashboard-primary dark:bg-primary shadow-[0_0_10px_rgba(16,185,129,0.2)] dark:shadow-[0_0_10px_rgba(56,224,123,0.2)]'
+                        : 'bg-dashboard-surface-hover dark:bg-[#111714] border border-dashboard-border dark:border-border-dark'
                     }`}
                   >
                     <span
-                      className={`absolute top-1 bg-text-secondary group-hover:bg-white w-6 h-6 rounded-full transition-transform duration-300 shadow-md ${
+                      className={`absolute top-1 bg-white dark:bg-background-dark w-6 h-6 rounded-full transition-transform duration-300 shadow-sm ${
                         notifications.newClubAlerts ? 'right-1' : 'left-1'
                       }`}
                     ></span>
@@ -525,7 +525,7 @@ const MemberSettings = () => {
                 </div>
               </div>
           </section>
-          <hr className="border-border-dark my-2" />
+          <hr className="border-dashboard-border dark:border-border-dark my-2" />
 
           {/* Danger Zone */}
           <section className="mb-12">

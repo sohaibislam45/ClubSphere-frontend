@@ -97,7 +97,7 @@ const AdminViewFinances = () => {
   return (
     <div className="flex h-screen w-full overflow-hidden bg-background-light dark:bg-background-dark font-display text-slate-900 dark:text-white">
       {/* Sidebar */}
-      <aside className="w-20 lg:w-64 flex flex-col justify-between border-r border-surface-highlight bg-background-dark transition-all duration-300">
+      <aside className="w-20 lg:w-64 flex flex-col justify-between border-r border-dashboard-border dark:border-surface-highlight bg-dashboard-sidebar dark:bg-background-dark transition-all duration-300 shadow-sm">
         <div className="flex flex-col gap-4 p-4">
           {/* Brand */}
           <div className="flex items-center gap-3 px-2">

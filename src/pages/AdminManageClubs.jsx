@@ -237,7 +237,7 @@ const AdminManageClubs = () => {
   return (
     <div className="flex h-screen w-full overflow-hidden bg-background-light dark:bg-background-dark font-display text-slate-900 dark:text-white">
       {/* Sidebar */}
-      <aside className="w-20 lg:w-64 flex flex-col justify-between border-r border-surface-highlight bg-background-dark transition-all duration-300">
+      <aside className="w-20 lg:w-64 flex flex-col justify-between border-r border-dashboard-border dark:border-surface-highlight bg-dashboard-sidebar dark:bg-background-dark transition-all duration-300 shadow-sm">
         <div className="flex flex-col gap-4 p-4">
           {/* Brand */}
           <div className="flex items-center gap-3 px-2">
@@ -794,16 +794,16 @@ const AddClubModal = ({ isOpen, onClose, onSubmit, isLoading }) => {
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/50 backdrop-blur-sm">
-      <div className="bg-[#1a231f] border border-[#3d5245] rounded-xl w-full max-w-[800px] max-h-[90vh] overflow-y-auto">
+      <div className="bg-white dark:bg-[#1a231f] border border-border-light dark:border-[#3d5245] rounded-xl w-full max-w-[800px] max-h-[90vh] overflow-y-auto">
         <div className="p-6 md:p-8">
           <div className="flex items-center justify-between mb-6">
             <div className="flex flex-col gap-2">
-              <h1 className="text-white text-3xl md:text-4xl font-black leading-tight tracking-tight">Add New Club</h1>
-              <p className="text-[#9eb7a8] text-base font-normal">Create a new club profile and assign a manager to get started.</p>
+              <h1 className="text-text-main dark:text-white text-3xl md:text-4xl font-black leading-tight tracking-tight">Add New Club</h1>
+              <p className="text-text-muted dark:text-[#9eb7a8] text-base font-normal">Create a new club profile and assign a manager to get started.</p>
             </div>
             <button
               onClick={onClose}
-              className="text-[#9eb7a8] hover:text-white transition-colors p-2 rounded-lg hover:bg-[#29382f]"
+              className="text-text-muted dark:text-[#9eb7a8] hover:text-text-main dark:hover:text-white transition-colors p-2 rounded-lg hover:bg-gray-100 dark:hover:bg-[#29382f]"
             >
               <span className="material-symbols-outlined text-[24px]">close</span>
             </button>

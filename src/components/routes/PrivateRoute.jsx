@@ -9,7 +9,7 @@ const PrivateRoute = ({ children, requiredRole }) => {
   // Show loading state while checking authentication
   if (loading) {
     return (
-      <div className="flex items-center justify-center min-h-screen bg-background-dark">
+      <div className="flex items-center justify-center min-h-screen bg-background-light dark:bg-background-dark">
         <Loader />
       </div>
     );

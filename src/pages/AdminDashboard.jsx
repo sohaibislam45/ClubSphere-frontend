@@ -375,7 +375,7 @@ const AdminDashboard = () => {
             <div className="relative" ref={dropdownRef}>
               <button 
                 onClick={() => setDropdownOpen(!dropdownOpen)}
-                className="flex items-center gap-2 rounded-full pl-1 pr-3 py-1 bg-surface-dark hover:bg-surface-highlight transition-colors border border-surface-highlight"
+                className="flex items-center gap-2 rounded-full pl-1 pr-3 py-1 bg-white dark:bg-surface-dark hover:bg-dashboard-surface-hover dark:hover:bg-surface-highlight transition-colors border border-dashboard-border dark:border-surface-highlight"
               >
                 {user?.photoURL ? (
                   <img
@@ -397,24 +397,24 @@ const AdminDashboard = () => {
                     backgroundColor: '#1c2620'
                   }}
                 ></div>
-                <span className="text-sm font-medium text-white hidden sm:block">{user?.name || 'Admin'}</span>
+                <span className="text-sm font-medium text-dashboard-text-main dark:text-white hidden sm:block">{user?.name || 'Admin'}</span>
                 <span className={`material-symbols-outlined text-gray-400 text-[18px] hidden sm:block transition-transform ${dropdownOpen ? 'rotate-180' : ''}`}>expand_more</span>
               </button>
               
               {/* Dropdown Menu */}
               {dropdownOpen && (
-                <div className="absolute right-0 mt-2 w-48 bg-surface-dark rounded-xl border border-white/10 shadow-lg z-50 overflow-hidden">
+                <div className="absolute right-0 mt-2 w-48 bg-white dark:bg-surface-dark rounded-xl border border-dashboard-border dark:border-white/10 shadow-lg z-50 overflow-hidden">
                   <div className="py-1">
-                    <div className="px-4 py-3 border-b border-white/5">
-                      <p className="text-sm font-bold text-white">{user?.name || 'Admin'}</p>
-                      <p className="text-xs text-gray-400 mt-0.5">{user?.email || ''}</p>
+                    <div className="px-4 py-3 border-b border-dashboard-border dark:border-white/5">
+                      <p className="text-sm font-bold text-dashboard-text-main dark:text-white">{user?.name || 'Admin'}</p>
+                      <p className="text-xs text-dashboard-text-muted dark:text-gray-400 mt-0.5">{user?.email || ''}</p>
                     </div>
                     <button
                       onClick={() => {
                         logout();
                         setDropdownOpen(false);
                       }}
-                      className="w-full px-4 py-3 text-left text-sm text-white hover:bg-white/5 transition-colors flex items-center gap-3"
+                      className="w-full px-4 py-3 text-left text-sm text-dashboard-text-main dark:text-white hover:bg-dashboard-surface-hover dark:hover:bg-white/5 transition-colors flex items-center gap-3"
                     >
                       <span className="material-symbols-outlined text-lg">logout</span>
                       <span>Log out</span>
@@ -468,18 +468,18 @@ const AdminDashboard = () => {
                 </div>
 
                 {/* Pending Clubs */}
-                <div className="flex flex-col gap-4 rounded-[2rem] p-6 bg-surface-dark border border-surface-highlight hover:border-primary/30 transition-colors group relative overflow-hidden">
+                <div className="flex flex-col gap-4 rounded-[2rem] p-6 bg-white dark:bg-surface-dark border border-dashboard-border dark:border-surface-highlight hover:border-dashboard-primary/30 dark:hover:border-primary/30 transition-colors group relative overflow-hidden shadow-sm">
                   <div className="absolute -right-4 -top-4 w-20 h-20 bg-primary/10 rounded-full blur-xl group-hover:bg-primary/20 transition-all"></div>
                   <div className="flex items-center justify-between relative z-10">
-                    <p className="text-gray-400 text-sm font-medium">Pending Clubs</p>
-                    <span className="material-symbols-outlined text-white bg-primary/20 p-1 rounded-full text-[18px]">priority_high</span>
+                    <p className="text-dashboard-text-muted dark:text-gray-400 text-sm font-medium">Pending Clubs</p>
+                    <span className="material-symbols-outlined text-dashboard-text-main dark:text-white bg-primary/20 p-1 rounded-full text-[18px]">priority_high</span>
                   </div>
                   <div className="relative z-10">
                     <p className="text-dashboard-text-main dark:text-white text-3xl font-bold">{dashboardStats?.pendingClubs || 0}</p>
                     <div className="flex items-center gap-1 mt-1">
                       {dashboardStats?.pendingClubsNew > 0 && (
                         <p className="text-primary text-xs font-bold">
-                          +{dashboardStats.pendingClubsNew} <span className="text-gray-500 font-normal ml-1">since yesterday</span>
+                          +{dashboardStats.pendingClubsNew} <span className="text-dashboard-text-muted dark:text-gray-500 font-normal ml-1">since yesterday</span>
                         </p>
                       )}
                     </div>
@@ -529,19 +529,19 @@ const AdminDashboard = () => {
             {/* Main Grid Layout for Chart & Tables */}
             <div className="grid grid-cols-1 xl:grid-cols-3 gap-6">
               {/* Chart Section */}
-              <div className="xl:col-span-2 flex flex-col gap-4 p-6 rounded-[2rem] bg-surface-dark border border-surface-highlight">
+              <div className="xl:col-span-2 flex flex-col gap-4 p-6 rounded-[2rem] bg-white dark:bg-surface-dark border border-dashboard-border dark:border-surface-highlight shadow-sm">
                 <div className="flex flex-wrap items-center justify-between gap-4">
                   <div>
-                    <p className="text-white text-lg font-bold">Monthly Revenue</p>
-                    <p className="text-gray-400 text-sm">Income from memberships and event fees</p>
+                    <p className="text-dashboard-text-main dark:text-white text-lg font-bold">Monthly Revenue</p>
+                    <p className="text-dashboard-text-muted dark:text-gray-400 text-sm">Income from memberships and event fees</p>
                   </div>
-                  <div className="flex items-center gap-2 bg-background-dark rounded-full p-1 border border-surface-highlight">
+                  <div className="flex items-center gap-2 bg-dashboard-surface-hover dark:bg-background-dark rounded-full p-1 border border-dashboard-border dark:border-surface-highlight">
                     <button 
                       onClick={() => setChartPeriod(6)}
                       className={`px-3 py-1 rounded-full text-xs font-bold shadow-sm transition-colors ${
                         chartPeriod === 6 
-                          ? 'bg-surface-highlight text-white' 
-                          : 'text-gray-400 hover:text-white'
+                          ? 'bg-dashboard-primary dark:bg-surface-highlight text-white' 
+                          : 'text-dashboard-text-muted dark:text-gray-400 hover:text-dashboard-text-main dark:hover:text-white'
                       }`}
                     >
                       6 Months
@@ -550,8 +550,8 @@ const AdminDashboard = () => {
                       onClick={() => setChartPeriod(12)}
                       className={`px-3 py-1 rounded-full text-xs font-medium transition-colors ${
                         chartPeriod === 12 
-                          ? 'bg-surface-highlight text-white font-bold shadow-sm' 
-                          : 'text-gray-400 hover:text-white'
+                          ? 'bg-dashboard-primary dark:bg-surface-highlight text-white font-bold shadow-sm' 
+                          : 'text-dashboard-text-muted dark:text-gray-400 hover:text-dashboard-text-main dark:hover:text-white'
                       }`}
                     >
                       1 Year
@@ -618,9 +618,9 @@ const AdminDashboard = () => {
               </div>
 
               {/* Pending Approvals Section */}
-              <div className="flex flex-col gap-4 p-6 rounded-[2rem] bg-surface-dark border border-surface-highlight">
+              <div className="flex flex-col gap-4 p-6 rounded-[2rem] bg-white dark:bg-surface-dark border border-dashboard-border dark:border-surface-highlight shadow-sm">
                 <div className="flex items-center justify-between">
-                  <h3 className="text-white text-lg font-bold">Pending Approval and Delete</h3>
+                  <h3 className="text-dashboard-text-main dark:text-white text-lg font-bold">Pending Approval and Delete</h3>
                   <Link to="/dashboard/admin/clubs?status=pending" className="text-primary text-xs font-bold hover:underline">
                     View All
                   </Link>
@@ -633,7 +633,7 @@ const AdminDashboard = () => {
                   <div className="flex flex-col gap-3">
                     {/* New Club Requests */}
                     {pendingClubs.map((club) => (
-                      <div key={club.id} className="flex items-center justify-between gap-3 p-3 rounded-2xl bg-background-dark border border-surface-highlight/50">
+                      <div key={club.id} className="flex items-center justify-between gap-3 p-3 rounded-2xl bg-dashboard-surface-hover dark:bg-background-dark border border-dashboard-border dark:border-surface-highlight/50">
                         <div className="flex items-center gap-3">
                           <div 
                             className="size-10 rounded-full bg-cover bg-center bg-card-dark"
@@ -641,10 +641,10 @@ const AdminDashboard = () => {
                           ></div>
                           <div className="flex flex-col">
                             <div className="flex items-center gap-2">
-                              <p className="text-white text-sm font-bold">{club.name}</p>
+                              <p className="text-dashboard-text-main dark:text-white text-sm font-bold">{club.name}</p>
                               <span className="px-2 py-0.5 rounded-full bg-blue-500/20 text-blue-400 text-xs font-bold">New</span>
                             </div>
-                            <p className="text-gray-500 text-xs">
+                            <p className="text-dashboard-text-muted dark:text-gray-500 text-xs">
                               {club.category || 'General'} • {club.memberCount || 0} Members
                             </p>
                           </div>
@@ -672,7 +672,7 @@ const AdminDashboard = () => {
                     {/* Deletion Requests */}
                     {deletionRequests.map((club) => (
                       <div key={club.id} className="flex items-center gap-3">
-                        <div className="flex flex-1 items-center justify-between gap-3 p-3 rounded-2xl bg-background-dark border border-red-500/30">
+                        <div className="flex flex-1 items-center justify-between gap-3 p-3 rounded-2xl bg-dashboard-surface-hover dark:bg-background-dark border border-dashboard-border dark:border-red-500/30">
                           <div className="flex items-center gap-3">
                             <div 
                               className="size-10 rounded-full bg-cover bg-center bg-card-dark"
@@ -680,10 +680,10 @@ const AdminDashboard = () => {
                             ></div>
                             <div className="flex flex-col">
                               <div className="flex items-center gap-2">
-                                <p className="text-white text-sm font-bold">{club.name}</p>
+                                <p className="text-dashboard-text-main dark:text-white text-sm font-bold">{club.name}</p>
                                 <span className="px-2 py-0.5 rounded-full bg-red-500/20 text-red-400 text-xs font-bold">Delete</span>
                               </div>
-                              <p className="text-gray-500 text-xs">
+                              <p className="text-dashboard-text-muted dark:text-gray-500 text-xs">
                                 Requested by {club.deletionRequest?.requestedBy || 'Manager'} • {club.deletionRequest?.requestedAt || 'Recently'}
                               </p>
                             </div>
@@ -714,16 +714,16 @@ const AdminDashboard = () => {
 
             {/* Transactions Table */}
             <div className="flex flex-col xl:flex-row gap-6 mb-8">
-              <div className="flex-1 flex flex-col rounded-[2rem] bg-surface-dark border border-surface-highlight overflow-hidden">
+              <div className="flex-1 flex flex-col rounded-[2rem] bg-white dark:bg-surface-dark border border-dashboard-border dark:border-surface-highlight overflow-hidden shadow-sm">
                 <div className="flex items-center justify-between p-6 pb-4">
-                  <h3 className="text-white text-lg font-bold">Recent Transactions</h3>
+                  <h3 className="text-dashboard-text-main dark:text-white text-lg font-bold">Recent Transactions</h3>
                   <Link to="/dashboard/admin/finances" className="flex items-center gap-1 text-gray-400 hover:text-white text-xs font-medium transition-colors">
                     View All <span className="material-symbols-outlined text-[16px]">arrow_forward</span>
                   </Link>
                 </div>
                 <div className="overflow-x-auto w-full">
                     <table className="w-full text-left">
-                      <thead className="bg-surface-highlight/30 text-gray-400 text-xs uppercase tracking-wider">
+                      <thead className="bg-dashboard-surface-hover dark:bg-surface-highlight/30 text-dashboard-text-muted dark:text-gray-400 text-xs uppercase tracking-wider">
                         <tr>
                           <th className="px-6 py-3 font-medium">User</th>
                           <th className="px-6 py-3 font-medium">Type</th>
@@ -732,16 +732,16 @@ const AdminDashboard = () => {
                           <th className="px-6 py-3 font-medium text-center">Status</th>
                         </tr>
                       </thead>
-                      <tbody className="divide-y divide-surface-highlight/50">
+                      <tbody className="divide-y divide-dashboard-border dark:divide-surface-highlight/50">
                         {transactions.length === 0 ? (
                           <tr>
-                            <td colSpan="5" className="px-6 py-8 text-center text-gray-500 text-sm">
+                            <td colSpan="5" className="px-6 py-8 text-center text-dashboard-text-muted dark:text-gray-500 text-sm">
                               No transactions found
                             </td>
                           </tr>
                         ) : (
                           transactions.map((transaction) => (
-                            <tr key={transaction.id} className="hover:bg-surface-highlight/10 transition-colors">
+                            <tr key={transaction.id} className="hover:bg-dashboard-surface-hover dark:hover:bg-surface-highlight/10 transition-colors">
                               <td className="px-6 py-4 whitespace-nowrap">
                                 <div className="flex items-center gap-3">
                                   {transaction.userPhotoURL ? (
@@ -754,14 +754,14 @@ const AdminDashboard = () => {
                                       {transaction.userInitials || 'U'}
                                     </div>
                                   )}
-                                  <span className="text-white text-sm font-medium">
+                                  <span className="text-dashboard-text-main dark:text-white text-sm font-medium">
                                     {transaction.userName || transaction.userEmail || 'Unknown User'}
                                   </span>
                                 </div>
                               </td>
-                              <td className="px-6 py-4 whitespace-nowrap text-gray-400 text-sm">{transaction.type || 'N/A'}</td>
-                              <td className="px-6 py-4 whitespace-nowrap text-gray-400 text-sm">{transaction.date || 'N/A'}</td>
-                              <td className="px-6 py-4 whitespace-nowrap text-white text-sm font-bold text-right">{transaction.amount || '৳0.00'}</td>
+                              <td className="px-6 py-4 whitespace-nowrap text-dashboard-text-muted dark:text-gray-400 text-sm">{transaction.type || 'N/A'}</td>
+                              <td className="px-6 py-4 whitespace-nowrap text-dashboard-text-muted dark:text-gray-400 text-sm">{transaction.date || 'N/A'}</td>
+                              <td className="px-6 py-4 whitespace-nowrap text-dashboard-text-main dark:text-white text-sm font-bold text-right">{transaction.amount || '৳0.00'}</td>
                               <td className="px-6 py-4 whitespace-nowrap text-center">
                                 <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${
                                   transaction.status === 'paid' || transaction.status === 'Completed'
