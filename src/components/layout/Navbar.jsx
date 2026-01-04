@@ -69,8 +69,8 @@ const Navbar = () => {
             <Link to="/" className="text-sm font-medium leading-normal text-gray-600 dark:text-gray-400 hover:text-primary transition-colors">{t('nav.home')}</Link>
             <Link to="/clubs" className="text-sm font-medium leading-normal text-gray-600 dark:text-gray-400 hover:text-primary transition-colors">{t('nav.clubs')}</Link>
             <Link to="/events" className="text-sm font-medium leading-normal text-gray-600 dark:text-gray-400 hover:text-primary transition-colors">{t('nav.events')}</Link>
-            <Link to="/#how-it-works" className="text-sm font-medium leading-normal text-gray-600 dark:text-gray-400 hover:text-primary transition-colors">How It Works</Link>
-            <Link to="/#about" className="text-sm font-medium leading-normal text-gray-600 dark:text-gray-400 hover:text-primary transition-colors">About Us</Link>
+            <Link to="/how-it-works" className="text-sm font-medium leading-normal text-gray-600 dark:text-gray-400 hover:text-primary transition-colors">How It Works</Link>
+            <Link to="/about-us" className="text-sm font-medium leading-normal text-gray-600 dark:text-gray-400 hover:text-primary transition-colors">About Us</Link>
             {user && (
               <Link to={getDashboardPath()} className="text-sm font-medium leading-normal text-gray-600 dark:text-gray-400 hover:text-primary transition-colors">{t('nav.dashboard')}</Link>
             )}
