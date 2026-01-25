@@ -149,7 +149,7 @@ export const AuthProvider = ({ children }) => {
     }
   };
 
-  const register = async (email, password, name, role = 'member', photoURL = null) => {
+  const register = async (email, password, name, role = 'member', photoURL = null, returnTo = null) => {
     try {
       const response = await api.post('/api/auth/register', {
         email,
@@ -171,7 +171,9 @@ export const AuthProvider = ({ children }) => {
       } else if (userData.role === 'clubManager') {
         window.location.href = '/dashboard/club-manager';
       } else {
-        window.location.href = '/dashboard/member';
+        // For members: redirect to returnTo if provided, otherwise dashboard
+        const redirectPath = returnTo || '/dashboard/member';
+        window.location.href = redirectPath;
       }
 
       return { success: true };

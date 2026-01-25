@@ -1,10 +1,12 @@
 import { useState, useEffect } from 'react';
-import { Link } from 'react-router-dom';
+import { Link, useLocation } from 'react-router-dom';
 import { useForm } from 'react-hook-form';
 import Swal from '../lib/sweetalertConfig';
 import { useAuth } from '../context/AuthContext';
 
 const Register = () => {
+  const location = useLocation();
+  const returnTo = location.state?.returnTo || null;
   const [showPassword, setShowPassword] = useState(false);
   const [photoPreview, setPhotoPreview] = useState(null);
   const [selectedPhoto, setSelectedPhoto] = useState(null);
@@ -117,7 +119,7 @@ const Register = () => {
       }
 
       // Register user with photo URL (can be null if no photo or upload failed)
-      const result = await registerUser(data.email, data.password, data.name, 'member', photoURL);
+      const result = await registerUser(data.email, data.password, data.name, 'member', photoURL, returnTo);
       if (result.success) {
         Swal.fire({
           icon: 'success',
@@ -147,7 +149,7 @@ const Register = () => {
   const handleGoogleSignUp = async () => {
     setIsGoogleLoading(true);
     try {
-      const result = await loginWithGoogle();
+      const result = await loginWithGoogle(returnTo);
       if (result.success) {
         Swal.fire({
           icon: 'success',
@@ -236,6 +238,10 @@ const Register = () => {
 
           {/* Right Column: Registration Form */}
           <div className="flex flex-col w-full max-w-[520px] mx-auto lg:mx-0">
+            <Link to="/" className="flex items-center gap-2 text-primary hover:text-primary-hover transition-colors w-fit mb-4 group mx-auto lg:mx-0">
+              <span className="material-symbols-outlined text-base group-hover:-translate-x-1 transition-transform">arrow_back</span>
+              <span className="text-sm font-bold tracking-tight">Back to Home</span>
+            </Link>
             <div className="mb-8 text-center lg:text-left">
               <h2 className="text-white text-3xl font-bold leading-tight tracking-[-0.015em] mb-2">Create your Account</h2>
               <p className="text-gray-400 text-base">Start your journey with ClubSphere today.</p>

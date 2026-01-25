@@ -162,17 +162,21 @@ const Login = () => {
       <div className="w-full lg:w-1/2 flex items-center justify-center p-6 sm:p-12 lg:p-20 bg-background-light dark:bg-background-dark">
         <div className="w-full max-w-[440px] flex flex-col gap-8">
           {/* Mobile Branding */}
-          <div className="lg:hidden flex items-center gap-2 text-white mb-4">
+          <Link to="/" className="lg:hidden flex items-center gap-2 text-white mb-4 w-fit">
             <div className="size-6 text-primary">
               <svg fill="none" viewBox="0 0 48 48" xmlns="http://www.w3.org/2000/svg">
                 <path d="M42.1739 20.1739L27.8261 5.82609C29.1366 7.13663 28.3989 10.1876 26.2002 13.7654C24.8538 15.9564 22.9595 18.3449 20.6522 20.6522C18.3449 22.9595 15.9564 24.8538 13.7654 26.2002C10.1876 28.3989 7.13663 29.1366 5.82609 27.8261L20.1739 42.1739C21.4845 43.4845 24.5355 42.7467 28.1133 40.548C30.3042 39.2016 32.6927 37.3073 35 35C37.3073 32.6927 39.2016 30.3042 40.548 28.1133C42.7467 24.5355 43.4845 21.4845 42.1739 20.1739Z" fill="currentColor"></path>
               </svg>
             </div>
             <span className="font-bold text-lg">ClubSphere</span>
-          </div>
+          </Link>
 
           {/* Header */}
           <div className="space-y-2">
+            <Link to="/" className="flex items-center gap-2 text-primary hover:text-primary-hover transition-colors w-fit mb-2 group">
+              <span className="material-symbols-outlined text-base group-hover:-translate-x-1 transition-transform">arrow_back</span>
+              <span className="text-sm font-bold tracking-tight">Back to Home</span>
+            </Link>
             <h1 className="text-4xl font-black leading-tight tracking-[-0.033em] text-white">
               Welcome Back
             </h1>

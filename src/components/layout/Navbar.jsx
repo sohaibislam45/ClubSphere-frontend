@@ -231,10 +231,10 @@ const Navbar = () => {
             </div>
             ) : (
               <div className="flex gap-3">
-                <Link to="/login" className="flex min-w-[84px] cursor-pointer items-center justify-center overflow-hidden rounded-full h-10 px-6 bg-transparent border border-gray-300 dark:border-[#29382f] text-gray-700 dark:text-gray-400 hover:bg-gray-50 dark:hover:bg-[#29382f] transition-colors text-sm font-bold tracking-[0.015em]">
+                <Link to="/login" state={{ returnTo: location.pathname }} className="flex min-w-[84px] cursor-pointer items-center justify-center overflow-hidden rounded-full h-10 px-6 bg-transparent border border-gray-300 dark:border-[#29382f] text-gray-700 dark:text-gray-400 hover:bg-gray-50 dark:hover:bg-[#29382f] transition-colors text-sm font-bold tracking-[0.015em]">
                   <span className="truncate">{t('nav.login')}</span>
                 </Link>
-                <Link to="/register" className="flex min-w-[84px] cursor-pointer items-center justify-center overflow-hidden rounded-full h-10 px-6 bg-primary hover:bg-primary-hover transition-colors text-[#111714] text-sm font-bold tracking-[0.015em]">
+                <Link to="/register" state={{ returnTo: location.pathname }} className="flex min-w-[84px] cursor-pointer items-center justify-center overflow-hidden rounded-full h-10 px-6 bg-primary hover:bg-primary-hover transition-colors text-[#111714] text-sm font-bold tracking-[0.015em]">
                   <span className="truncate">{t('nav.register')}</span>
                 </Link>
               </div>
